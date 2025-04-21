@@ -1,0 +1,24 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install testing dependencies
+RUN pip install --no-cache-dir pytest pytest-asyncio pytest-cov
+
+# Copy the application code
+COPY . .
+
+# Set environment variables for testing
+ENV TESTING=1
+ENV FINBERT_USE_ONNX=false
+ENV FINBERT_USE_GPU=false
+ENV REDIS_HOST=localhost
+ENV REDIS_PORT=6379
+ENV KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+
+# Run tests
+CMD ["pytest", "tests/", "-v"]

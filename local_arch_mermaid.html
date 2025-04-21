@@ -1,0 +1,30 @@
+# Local Development Architecture
+
+```mermaid
+graph TD
+    subgraph "Docker Compose Environment"
+        %% Data Sources
+        WS[Web Scrapers\nPython Containers] 
+        SE[Subscription Events\nWeight Calculation]
+        
+        %% Event Processing
+        KH[Kafka Topic\nHigh Priority] 
+        KS[Kafka Topic\nStandard Priority]
+        
+        %% Processing
+        FB[FinBERT\nCore Model]
+        FG[FinGPT\nPremium Tier]
+        LL[Llama 4 Scout\nProfessional Tier]
+        SA[Sentiment Analysis Service]
+        
+        %% Storage
+        RD[Redis Cache]
+        PG[PostgreSQL DB]
+        
+        %% Connections
+        WS --> KH & KS
+        SE --> KH & KS
+        KH & KS --> SA
+        SA --> FB & FG & LL
+        SA --> RD
+    end
