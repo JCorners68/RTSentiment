@@ -1,0 +1,71 @@
+services:
+  api-test:
+    image: ${DOCKER_REGISTRY-}api-test
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    command: pytest tests/ -v
+    environment:
+      - TESTING=1
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=sentimentdb
+      - POSTGRES_USER=test_user
+      - POSTGRES_PASSWORD=test_password
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./api:/app
+      - ./tests:/app/tests
+
+  sentiment-test:
+    image: ${DOCKER_REGISTRY-}sentiment-test
+    build:
+      context: ./sentiment_service
+      dockerfile: Dockerfile
+    command: python3 -m pytest tests/ -v
+    environment:
+      - TESTING=1
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - FINBERT_USE_ONNX=false
+      - FINBERT_USE_GPU=false
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./sentiment_service:/app
+      - ./tests:/app/tests
+
+  postgres:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: sentimentdb
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d sentimentdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s

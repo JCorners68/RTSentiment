@@ -1,0 +1,10 @@
+fastapi==0.104.1
+uvicorn==0.23.2
+torch>=2.2.0
+transformers>=4.34.0
+onnx>=1.15.0
+onnxruntime-gpu==1.21.1
+numpy==1.26.0
+redis==4.6.0
+aiokafka==0.8.1
+python-dotenv==1.0.0

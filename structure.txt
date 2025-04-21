@@ -1,0 +1,121 @@
+RTSentiment/
+├── .env                        # Environment variables
+├── .gitignore                  # Git ignore file
+├── .github/                    # GitHub actions
+│   └── workflows/              # CI/CD workflows
+│       ├── ci.yml              # Continuous integration
+│       └── cd.yml              # Continuous deployment
+├── requirements.txt            # Project dependencies
+├── docker-compose.yml          # Local dev environment
+├── docker-compose.test.yml     # Test environment configuration
+├── README.md                   # Project documentation
+├── Real_Time_Sentiment.md      # System architecture documentation
+├── TESTING.md                  # Testing documentation
+├── CLAUDE.md                   # Claude AI assistant configuration
+│
+├── data_acquisition/           # Data acquisition layer
+│   ├── Dockerfile              # Docker setup for web scrapers
+│   ├── Dockerfile.subscription # Docker setup for subscription receivers
+│   ├── requirements.txt        # Component-specific requirements
+│   ├── scrapers/               # Web scraper modules
+│   │   ├── __init__.py
+│   │   ├── base.py             # Base scraper class
+│   │   ├── news_scraper.py     # News website scraper
+│   │   ├── social_media.py     # Social media scraper
+│   │   └── financial_sites.py  # Financial portals scraper
+│   ├── subscription/           # Subscription event receivers
+│   │   ├── __init__.py
+│   │   ├── base.py             # Base receiver class
+│   │   ├── bloomberg.py        # Bloomberg API client
+│   │   └── reuters.py          # Reuters API client
+│   └── utils/                  # Utility functions
+│       ├── __init__.py
+│       ├── event_producer.py   # Kafka/EventHub producer
+│       └── weight_calculator.py # Event weight calculation
+│
+├── sentiment_service/          # Processing layer
+│   ├── Dockerfile              # Docker setup
+│   ├── requirements.txt        # Component-specific requirements
+│   ├── main.py                 # Service entry point
+│   ├── models/                 # ML models
+│   │   ├── __init__.py
+│   │   ├── finbert.py          # FinBERT implementation
+│   │   ├── weights/            # Model weights (gitignored)
+│   │   └── optimization.py     # Model optimization utilities
+│   ├── event_consumers/        # Event consumers
+│   │   ├── __init__.py
+│   │   ├── base_consumer.py    # Base consumer class
+│   │   ├── hipri_consumer.py   # High priority consumer
+│   │   └── stdpri_consumer.py  # Standard priority consumer
+│   └── utils/                  # Utility functions
+│       ├── __init__.py
+│       ├── preprocessing.py    # Text preprocessing
+│       └── cache.py            # Redis cache interactions
+│
+├── api/                        # API layer
+│   ├── Dockerfile              # Docker setup
+│   ├── requirements.txt        # Component-specific requirements
+│   ├── main.py                 # FastAPI entry point
+│   ├── routes/                 # API routes
+│   │   ├── __init__.py
+│   │   ├── auth.py             # Authentication routes
+│   │   ├── sentiment.py        # Sentiment data routes
+│   │   └── subscriptions.py    # Subscription management
+│   ├── models/                 # Data models
+│   │   ├── __init__.py
+│   │   ├── users.py            # User models
+│   │   └── sentiment.py        # Sentiment data models
+│   ├── db/                     # Database
+│   │   ├── __init__.py
+│   │   ├── database.py         # Database connection
+│   │   └── migrations/         # Alembic migrations
+│   └── services/               # Business logic
+│       ├── __init__.py
+│       ├── auth_service.py     # Authentication logic
+│       └── sentiment_service.py # Sentiment retrieval logic
+│
+├── auth_service/               # Auth service (local dev only)
+│   ├── Dockerfile              # Docker setup
+│   ├── requirements.txt        # Component-specific requirements
+│   ├── main.py                 # Service entry point
+│   └── routes/                 # API routes
+│       ├── __init__.py
+│       └── auth.py             # Auth endpoints
+│
+├── client/                     # Client applications
+│   ├── web/                    # Web application
+│   │   ├── package.json        # NPM dependencies
+│   │   ├── public/             # Static assets
+│   │   └── src/                # React source code
+│   └── mobile/                 # Mobile application
+│       ├── android/            # Android-specific code
+│       ├── ios/                # iOS-specific code
+│       └── src/                # React Native source code
+│
+├── monitoring/                 # Monitoring setup
+│   ├── prometheus.yml          # Prometheus configuration
+│   ├── grafana/                # Grafana configuration
+│   │   ├── provisioning/       # Datasources and dashboards
+│   │   └── dashboards/         # Dashboard definitions
+│   └── scripts/                # Monitoring scripts
+│
+├── tests/                      # Test suite
+│   ├── __init__.py
+│   ├── conftest.py             # Test configuration and fixtures
+│   ├── test_minimal.py         # Basic unit tests with no dependencies
+│   ├── test_mock_sentiment_service.py # Mock-based service tests
+│   ├── test_integration.py     # Integration tests with mocks
+│   ├── test_finbert_model.py   # Tests for FinBERT model
+│   └── test_sentiment_api.py   # Tests for the API endpoints
+│
+├── scripts/                    # Utility scripts
+│   ├── setup_dev.sh            # Dev environment setup
+│   ├── download_models.sh      # Download ML models
+│   └── deploy_azure.sh         # Azure deployment script
+│
+├── api/tests/                  # API-specific tests
+│   ├── test_simple.py          # Simple API tests
+│   └── test_minimal.py         # Minimal tests for API components
+│
+├── run_tests.sh                # Unified testing script
+└── pytest.ini                  # Pytest configuration

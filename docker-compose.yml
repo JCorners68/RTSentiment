@@ -1,0 +1,225 @@
+services:
+  # Data Acquisition Layer
+  web-scraper:
+    build:
+      context: ./data_acquisition
+      dockerfile: Dockerfile
+    env_file: .env
+    volumes:
+      - ./data_acquisition:/app
+    depends_on:
+      - kafka
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  subscription-receiver:
+    build:
+      context: ./data_acquisition
+      dockerfile: Dockerfile.subscription
+    env_file: .env
+    volumes:
+      - ./data_acquisition:/app
+    depends_on:
+      - kafka
+
+  # Event Ingestion Layer (Kafka instead of Event Hub for local dev)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - kafka
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+
+  # Processing Layer - Sentiment Analysis Service
+  sentiment-analysis:
+    build:
+      context: ./sentiment_service
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      # Phase 1: Start with FinBERT only
+      - USE_FINGPT=false
+      - USE_LLAMA4=false
+      - DEFAULT_MODEL=finbert
+      - FINBERT_USE_ONNX=true
+      - FINBERT_USE_GPU=true
+      
+      # Phase 2: Uncomment to enable FinGPT
+      # - USE_FINGPT=true
+      # - FINGPT_MODEL_VARIANT=FinGPT/fingpt-sentiment_llama2-7b_lora
+      # - FINGPT_QUANTIZE=true
+      # - FINGPT_USE_GPU=true
+      
+      # Phase 3: Uncomment to enable Llama 4 Scout
+      # - USE_LLAMA4=true
+      # - LLAMA4_MODEL_VARIANT=meta-llama/Llama-4-Scout-17B-16E-Instruct
+      # - LLAMA4_QUANTIZE=true
+      # - LLAMA4_USE_GPU=true
+      
+      # Connection settings
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    volumes:
+      - ./sentiment_service:/app
+      - model-data:/app/models/weights
+    depends_on:
+      - kafka
+      - redis
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # API Layer - Backend API
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=sentimentdb
+      - POSTGRES_USER=pgadmin
+      - POSTGRES_PASSWORD=localdev
+    volumes:
+      - ./api:/app
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8001:8001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Data Persistence Layer
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: pgadmin
+      POSTGRES_PASSWORD: localdev
+      POSTGRES_DB: sentimentdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pgadmin -d sentimentdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Monitoring Layer
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+  grafana:
+    image: grafana/grafana:latest
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+
+  # Local Auth Service (simulating Google Sign-In for development)
+  auth-service:
+    build:
+      context: ./auth_service
+      dockerfile: Dockerfile
+    env_file: .env
+    volumes:
+      - ./auth_service:/app
+    ports:
+      - "8002:8002"
+    depends_on:
+      - postgres
+
+volumes:
+  zookeeper-data:
+  kafka-data:
+  postgres-data:
+  redis-data:
+  prometheus-data:
+  grafana-data:
+  model-data:  # Shared volume for model weights
