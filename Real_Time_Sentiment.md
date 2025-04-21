@@ -229,6 +229,7 @@ graph TD
   - Mock-based tests for fast development feedback
   - Unit tests for individual component validation
   - Integration tests for service interaction validation
+  - End-to-end tests for complete data flow validation
   - Virtual environment-based testing to prevent dependency issues
 
 ## Architecture Flow
@@ -354,6 +355,9 @@ RTSentiment/
    
    # Run full integration tests
    ./run_tests.sh --integration
+   
+   # Run end-to-end tests for the complete data flow
+   ./run_e2e_tests.sh
    
    # Run targeted tests for specific model
    docker compose exec sentiment-analysis python -m pytest tests/test_fingpt.py

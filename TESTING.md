@@ -9,6 +9,7 @@ The application uses a multi-layered testing approach:
 1. **Unit Tests**: Test individual components in isolation
 2. **Mock-Based Integration Tests**: Test component integration using mocks
 3. **Full Integration Tests**: Test actual integration between services
+4. **End-to-End Tests**: Test the complete data flow from scrapers to sentiment analysis
 
 ## Test Types
 
@@ -26,11 +27,20 @@ The application uses a multi-layered testing approach:
 
 - `test_sentiment_api.py`: Tests the full API with actual FastAPI client
 
+### End-to-End Tests
+
+- `test_e2e_scrapers.py`: Tests the complete flow from data acquisition to sentiment analysis
+  - `test_news_scraper_e2e`: Tests the news scraper end-to-end flow
+  - `test_reddit_scraper_e2e`: Tests the Reddit scraper end-to-end flow
+  - `test_manual_message_e2e`: Tests the system with a manually injected message
+
 ## Running Tests
+
+### Standard Tests
 
 The `run_tests.sh` script provides a unified testing interface with several options:
 
-### Quick Test Run (Mock-Based Tests Only)
+#### Quick Test Run (Mock-Based Tests Only)
 
 ```bash
 ./run_tests.sh --mock
@@ -38,7 +48,7 @@ The `run_tests.sh` script provides a unified testing interface with several opti
 
 This runs the mock-based tests using a Python container with a virtual environment, without requiring the full environment. This is the default if no options are specified.
 
-### API Unit Tests
+#### API Unit Tests
 
 ```bash
 ./run_tests.sh --unit
@@ -50,7 +60,7 @@ This runs unit tests for the API in an isolated environment. It automatically:
 3. Runs the API unit tests
 4. Cleans up the services when done
 
-### Full Integration Tests
+#### Full Integration Tests
 
 ```bash
 ./run_tests.sh --integration
@@ -60,6 +70,25 @@ This runs the full integration tests using Docker Compose:
 1. Builds and starts the test containers defined in `docker-compose.test.yml`
 2. Runs tests that validate interactions between services
 3. Terminates all containers when tests complete
+
+### End-to-End Tests
+
+The `run_e2e_tests.sh` script provides a dedicated interface for end-to-end testing:
+
+```bash
+./run_e2e_tests.sh
+```
+
+This script:
+1. Checks if the Docker Compose environment is running, starts it if needed
+2. Creates a Python container with the required dependencies
+3. Runs the end-to-end tests that validate the complete data flow
+4. Optionally shuts down the environment when finished
+
+Options:
+- `--skip-env-check`: Skip environment check (use when environment is already running)
+- `--file <path>`: Run a specific test file
+- `--help`: Display help message
 
 ### Running Tests Directly
 
@@ -88,6 +117,37 @@ pytest tests/test_minimal.py::test_sentiment_score_calculation -v
 pytest tests/ --cov=api --cov=sentiment_service
 ```
 
+## Testing the Scrapers
+
+### Unit Testing
+
+The scrapers have individual unit tests that verify their core functionality:
+- `test_news_scraper.py`: Tests for the news website scraper
+- `test_reddit_scraper.py`: Tests for the Reddit scraper
+
+### End-to-End Testing
+
+The end-to-end tests validate the complete data flow:
+
+1. **Scraper initialization** - Set up the scraper with test configuration
+2. **Data acquisition** - Simulate or mock data gathering
+3. **Data preprocessing** - Process and enrich the data
+4. **Event production** - Send events to Kafka topics
+5. **Sentiment analysis** - Process events through the sentiment service
+6. **Result verification** - Verify sentiment results in Kafka or via API
+
+To test the scrapers end-to-end:
+
+```bash
+./run_e2e_tests.sh
+```
+
+For troubleshooting individual scraper issues, you can use the manual message test:
+
+```bash
+python -m pytest data_acquisition/tests/test_e2e_scrapers.py::test_manual_message_e2e -v
+```
+
 ## Adding New Tests
 
 1. Create a new test file in the `tests/` directory with the `test_` prefix
@@ -112,3 +172,5 @@ For mock-based tests:
 4. Add docstrings to test functions
 5. Use parametrized tests for similar test cases
 6. Aim for high test coverage, especially for critical paths
+7. For end-to-end tests, use timeout handling to prevent hanging tests
+8. Include fallback verification methods (e.g., API checks if Kafka consumer times out)

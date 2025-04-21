@@ -4,27 +4,145 @@
 graph TD
     subgraph "Docker Compose Environment"
         %% Data Sources
-        WS[Web Scrapers\nPython Containers] 
-        SE[Subscription Events\nWeight Calculation]
+        subgraph "Data Acquisition Layer"
+            WS[Web Scrapers\nNews Sources] 
+            RS[Reddit Scraper\nSocial Media]
+            SE[Subscription Events\nWeight Calculation]
+        end
         
         %% Event Processing
-        KH[Kafka Topic\nHigh Priority] 
-        KS[Kafka Topic\nStandard Priority]
+        subgraph "Event Ingestion Layer"
+            KH[Kafka Topic\nHigh Priority] 
+            KS[Kafka Topic\nStandard Priority]
+            SR[Kafka Topic\nSentiment Results]
+        end
         
         %% Processing
-        FB[FinBERT\nCore Model]
-        FG[FinGPT\nPremium Tier]
-        LL[Llama 4 Scout\nProfessional Tier]
-        SA[Sentiment Analysis Service]
+        subgraph "Processing Layer"
+            FB[FinBERT\nCore Model]
+            FG[FinGPT\nPremium Tier]
+            LL[Llama 4 Scout\nProfessional Tier]
+            SA[Sentiment Analysis Service]
+        end
         
         %% Storage
-        RD[Redis Cache]
-        PG[PostgreSQL DB]
+        subgraph "Data Persistence Layer"
+            RD[Redis Cache]
+            PG[PostgreSQL DB]
+        end
+        
+        %% API Layer
+        subgraph "API Layer"
+            API[Backend API\nTicker Sentiment]
+        end
+        
+        %% Testing Layer
+        subgraph "Testing Layer"
+            UT[Unit Tests]
+            MT[Mock Tests]
+            IT[Integration Tests]
+            ET[End-to-End Tests]
+        end
         
         %% Connections
         WS --> KH & KS
+        RS --> KH & KS
         SE --> KH & KS
+        
         KH & KS --> SA
         SA --> FB & FG & LL
+        SA --> SR
         SA --> RD
+        
+        SR --> API
+        RD --> API
+        API --> PG
+        
+        %% Testing connections
+        UT --> WS & RS & SA & API
+        MT --> SA & API
+        IT --> |"Mock Data"| KH & KS
+        IT --> SA & API
+        ET --> |"Test News Article"| WS
+        ET --> |"Test Reddit Post"| RS
+        ET --> |"Manual Test"| KH
+        ET --> |"Verify Results"| SR & API
     end
+
+    %% Styling
+    classDef acquisition fill:#e1f5fe,stroke:#01579b
+    classDef ingestion fill:#e8f5e9,stroke:#2e7d32
+    classDef processing fill:#fff3e0,stroke:#e65100
+    classDef storage fill:#f3e5f5,stroke:#4a148c
+    classDef api fill:#e8eaf6,stroke:#1a237e
+    classDef testing fill:#ffebee,stroke:#b71c1c
+    
+    class WS,RS,SE acquisition
+    class KH,KS,SR ingestion
+    class SA,FB,FG,LL processing
+    class RD,PG storage
+    class API api
+    class UT,MT,IT,ET testing
+```
+
+# Testing Architecture
+
+```mermaid
+flowchart TD
+    subgraph "End-to-End Testing"
+        direction TB
+        
+        E2ET[End-to-End Tests]
+        TD[Test Data]
+        KP[Kafka Producer]
+        KC[Kafka Consumer]
+        AR[API Requests]
+        
+        TD --> |"1. Prepare Test Data"| E2ET
+        E2ET --> |"2. Send to Kafka"| KP
+        KP --> |"3. Produce Events"| KT[Kafka Topics]
+        KT --> |"4. Consumed by"| SA[Sentiment Analysis]
+        SA --> |"5. Process & Analyze"| SR[Sentiment Results]
+        SR --> |"6. Verify Results"| KC
+        KC --> |"7. Assert Expectations"| E2ET
+        API[API Endpoint] --> |"8. Fallback Verification"| AR
+        AR --> E2ET
+    end
+    
+    subgraph "Integration Testing"
+        direction TB
+        
+        IT[Integration Tests]
+        MD[Mock Data]
+        MS[Mock Services]
+        
+        MD --> |"Simulate Events"| IT
+        IT --> |"Test Integration"| MS
+    end
+    
+    subgraph "Unit Testing"
+        direction TB
+        
+        UT[Unit Tests]
+        SC[Scraper Components]
+        MC[Model Components]
+        AC[API Components]
+        
+        UT --> |"Test"| SC
+        UT --> |"Test"| MC
+        UT --> |"Test"| AC
+    end
+    
+    %% Connections between test types
+    E2ET -.-> |"Builds On"| IT
+    IT -.-> |"Builds On"| UT
+    
+    %% Styling
+    classDef e2e fill:#ffebee,stroke:#b71c1c
+    classDef integration fill:#e8f5e9,stroke:#2e7d32
+    classDef unit fill:#e1f5fe,stroke:#01579b
+    
+    class E2ET,TD,KP,KC,AR,KT,SA,SR,API e2e
+    class IT,MD,MS integration
+    class UT,SC,MC,AC unit
+```
