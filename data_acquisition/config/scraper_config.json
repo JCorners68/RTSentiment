@@ -1,0 +1,17 @@
+{
+  "kafka_bootstrap_servers": "kafka:9092",
+  "high_priority_topic": "sentiment-events-high",
+  "standard_priority_topic": "sentiment-events-standard",
+  "polling_interval": 60,
+  "sources": [
+    {"name": "Financial Times", "url": "https://www.ft.com"},
+    {"name": "Wall Street Journal", "url": "https://www.wsj.com"}
+  ],
+  "platforms": [
+    {"name": "Twitter", "api_endpoint": "https://api.twitter.com/2/tweets/search/recent"}
+  ],
+  "sites": [
+    {"name": "Yahoo Finance", "url": "https://finance.yahoo.com"},
+    {"name": "MarketWatch", "url": "https://www.marketwatch.com"}
+  ]
+}

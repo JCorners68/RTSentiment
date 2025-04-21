@@ -1,0 +1,10 @@
+.env
+data/cache/*
+\!data/cache/.gitkeep
+data/logs/*
+\!data/logs/.gitkeep
+data/output/*
+\!data/output/.gitkeep
+__pycache__/
+*.py[cod]
+*$py.class
