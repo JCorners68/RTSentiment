@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Local Dev Architecture</title>
+<style>
+  body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
+.architecture-diagram { border: 1px solid #ccc; padding: 15px; display: inline-block; background-color: #f9f9f9; }
+.layer { border: 1px dashed #aaa; padding: 10px; margin-bottom: 10px; background-color: #fff; position: relative; }
+.layer-title { font-weight: bold; margin-bottom: 10px; text-align: center; color: #555; }
+.component { border: 1px solid #007acc; background-color: #e7f3fe; padding: 8px; margin: 5px; display: inline-block; border-radius: 4px; font-size: 0.9em; text-align: center; }
+.hardware { border: 1px solid #777; background-color: #eee; padding: 8px; margin: 5px; display: block; border-radius: 4px; font-size: 0.9em; text-align: center; }
+.connection { position: absolute; width: 2px; background-color: #f00; z-index: 1; } /* Basic line example */
+.arrow { border: solid #f00; border-width: 0 2px 2px 0; display: inline-block; padding: 3px; transform: rotate(45deg); -webkit-transform: rotate(45deg); position: absolute; } /* Basic arrow example */
+
+  /* Basic Layout Positioning (Illustrative - requires refinement for complex connections) */
+.windows-host { text-align: center; }
+.wsl-vm { text-align: center; }
+.component.vscode-client { }
+.component.nvidia-driver { }
+.component.wsl-backend { display: block; margin: 10px auto; border-style: dotted; }
+.hardware.nvidia-gpu { margin-top: 15px; }
+
+.component.vscode-server { }
+.component.cuda-stub { border-color: #76b900; background-color: #f0f9e7; }
+.component.cuda-toolkit { border-color: #76b900; background-color: #f0f9e7; }
+.component.user-code { }
+.component.ubuntu-os { display: block; margin: 10px auto; border-style: dotted;}
+
+  /* Example Connection Visuals (Simplified) */
+.conn-gpu-driver { height: 20px; left: 50%; top: 100%; margin-left: -1px; background-color: #777; } /* GPU to Driver */
+.conn-driver-stub { height: 45px; left: 50%; top: 100%; margin-left: -1px; background-color: #76b900; } /* Driver to Stub */
+.conn-vsc-client-server { height: 45px; left: 30%; top: 100%; margin-left: -1px; background-color: #007acc; } /* VSCode Client to Server */
+
+</style>
+</head>
+<body>
+
+<div class="architecture-diagram">
+  <div class="layer windows-host">
+    <div class="layer-title">Windows 11 Pro Host</div>
+    <div class="component vscode-client">VSCode UI (Client)</div>
+    <div class="component nvidia-driver">Nvidia WDDM Driver (576.02)</div>
+        <div class="connection conn-driver-stub"></div>
+    </div>
+    <div class="component wsl-backend">WSL 2 Backend (Hyper-V)</div>
+    <div class="hardware nvidia-gpu">Nvidia 5080 GPU
+        <div class="connection conn-gpu-driver"></div>
+    </div>
+     <div class="connection conn-vsc-client-server"></div>
+  </div>
+
+  <div class="layer wsl-vm">
+    <div class="layer-title">WSL 2 VM</div>
+     <div class="component ubuntu-os">Ubuntu OS</div>
+    <div class="component vscode-server">VSCode Server</div>
+    <div class="component cuda-stub">CUDA Interface (libcuda.so)</div>
+    <div class="component cuda-toolkit">CUDA Toolkit (12.x) & cuDNN (9.x)</div>
+    <div class="component user-code">User Project / Apps (in venv)</div>
+  </div>
+</div>
+
+</body>
+</html>
