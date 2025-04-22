@@ -1,0 +1,5 @@
+  1. Streamlit Dashboard: http://localhost:8501
+  2. Kafka UI: http://localhost:8080
+  3. API Service: http://localhost:8001
+  4. Grafana: http://localhost:3000 admin Gq7NeN$
+  5. Prometheus: http://localhost:9090
