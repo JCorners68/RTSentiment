@@ -8,17 +8,14 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Create a structure that matches the import paths
-RUN mkdir -p /app/api
-
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . /app/api/
-WORKDIR /app/api
+COPY . /app/
+WORKDIR /app
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:8001/health || exit 1
 
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]

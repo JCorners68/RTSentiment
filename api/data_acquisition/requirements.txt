@@ -1,0 +1,28 @@
+# Web Scraping & Data Sources
+beautifulsoup4==4.12.2
+lxml==4.9.3
+aiohttp>=3.8.0         # For async requests if needed
+feedparser==6.0.10
+newspaper3k==0.2.8
+praw>=7.7.0            # Reddit API Wrapper
+# asyncpraw>=8.0.0     # Use if implementing async Reddit scraping
+tweepy>=4.10.0         # Twitter API Wrapper
+
+# Data Handling
+pandas==2.1.1
+pyarrow>=10.0.0        # For Parquet support
+numpy>=1.26.0          # Dependency for pandas/pyarrow
+
+# Event Processing (Choose based on local/prod setup)
+# Option 1: Kafka for local dev
+aiokafka==0.8.1
+
+# Option 2: Azure Event Hubs for Azure deployment
+# azure-eventhub==5.11.3
+# azure-eventhub-checkpointstoreblob-aio==1.1.4
+
+# Utilities
+python-dotenv==1.0.0   # To load API keys from .env
+
+# Add any other specific dependencies for weight calculation or event producers
+# redis==4.6.0 # If utils need redis

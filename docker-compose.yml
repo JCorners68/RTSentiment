@@ -1,4 +1,27 @@
 services:
+  # Dashboard
+  dashboard:
+    build:
+      context: ./streamlit_dashboard
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./streamlit_dashboard:/app
+      - ./local_arch_mermaid.html:/app/local_arch_mermaid.html
+      - ./local_arch.html:/app/local_arch.html
+      - ./data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - kafka
+      - api
+      - prometheus
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - API_BASE_URL=http://api:8001
+      - PROMETHEUS_URL=http://prometheus:9090
+      - DATA_DIR=/app/data
+    
   # Data Acquisition Layer
   web-scraper:
     build:
@@ -180,13 +203,36 @@ services:
   prometheus:
     image: prom/prometheus:latest
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     ports:
       - "9090:9090"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
+      
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    ports:
+      - "9308:9308"
+    command:
+      - "--kafka.server=kafka:9092"
+    depends_on:
+      - kafka
+      
+  node-exporter:
+    image: prom/node-exporter:latest
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
 
   grafana:
     image: grafana/grafana:latest

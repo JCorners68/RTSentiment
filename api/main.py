@@ -3,15 +3,11 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
 from prometheus_client import make_asgi_app
+from sqlalchemy.orm import Session
 
-try:
-    # When running in the Docker container
-    from routes import auth, sentiment, subscriptions
-    from db.database import init_db
-except ImportError:
-    # When running directly or with relative imports
-    from api.routes import auth, sentiment, subscriptions
-    from api.db.database import init_db
+# Import routes
+from routes import auth, sentiment, subscriptions
+from database import init_db, get_db
 
 app = FastAPI(
     title="Trading Sentiment Analysis API",
@@ -41,8 +37,9 @@ app.include_router(
 
 @app.on_event("startup")
 async def startup_event():
-    await init_db()
-    print("Database initialized")
+    print("API service started")
+    # Initialize the database
+    init_db()
 
 @app.get("/")
 async def root():

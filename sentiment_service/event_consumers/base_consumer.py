@@ -6,6 +6,7 @@ from aiokafka import AIOKafkaConsumer
 from typing import List, Dict, Any, Optional
 
 from utils.cache import RedisClient
+from utils.api_client import ApiClient
 from models.model_factory import ModelFactory, ModelType
 
 logger = logging.getLogger(__name__)
@@ -37,6 +38,7 @@ class BaseConsumer(ABC):
         self.redis_client = redis_client
         self.default_model_type = default_model_type
         self.model_factory = ModelFactory()
+        self.api_client = ApiClient()
         self.consumer = None
         self.running = False
         
@@ -115,6 +117,10 @@ class BaseConsumer(ABC):
             await self.consumer.stop()
             self.consumer = None
             logger.info(f"Consumer for topic {self.topic} stopped")
+            
+        # Close API client
+        if self.api_client:
+            await self.api_client.close()
     
     async def reset_circuit_breaker(self):
         """Reset the circuit breaker after a delay."""

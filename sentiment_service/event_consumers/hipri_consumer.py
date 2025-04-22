@@ -164,3 +164,32 @@ class HighPriorityConsumer(BaseConsumer):
             processed_event,
             expire=86400  # 24 hours
         )
+        
+        # Also store in database via API
+        try:
+            # Prepare data for API
+            api_event_data = {
+                "source": event.get("source", "unknown"),
+                "priority": "high",
+                "text": event.get("text", ""),
+                "model": model_type.name,
+                "sentiment_score": sentiment_result.get("sentiment_score", 0.0),
+                "sentiment_label": sentiment_result.get("sentiment_label", "neutral"),
+                "processing_time": sentiment_result.get("processing_time", 0.0),
+                "event_id": event.get("id"),
+                "ticker_sentiments": []
+            }
+            
+            # Add ticker sentiments if available
+            for ticker in event.get("tickers", []):
+                # Use the same sentiment score for all tickers for now
+                api_event_data["ticker_sentiments"].append({ticker: sentiment_result.get("sentiment_score", 0.0)})
+                
+            # Send to API
+            response = await self.api_client.post_sentiment_event(api_event_data)
+            if "error" in response:
+                logger.error(f"Error storing event in database: {response['error']}")
+            else:
+                logger.debug(f"Event stored in database with ID: {response.get('id')}")
+        except Exception as e:
+            logger.error(f"Failed to store event in database: {str(e)}")
