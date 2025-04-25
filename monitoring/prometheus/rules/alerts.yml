@@ -1,0 +1,98 @@
+groups:
+  - name: service_alerts
+    rules:
+    - alert: ServiceDown
+      expr: up == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Service {{ $labels.job }} is down"
+        description: "Service {{ $labels.job }} has been down for more than 1 minute."
+
+    - alert: HighErrorRate
+      expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "High error rate on {{ $labels.job }}"
+        description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes (> 5%)."
+
+  - name: resource_alerts
+    rules:
+    - alert: HighCpuUsage
+      expr: sum(rate(process_cpu_seconds_total[1m])) by (job) > 0.8
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage on {{ $labels.job }}"
+        description: "CPU usage is {{ $value | humanizePercentage }} for the past 5 minutes (> 80%)."
+
+    - alert: HighMemoryUsage
+      expr: process_resident_memory_bytes / 1024 / 1024 > 1024
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High memory usage on {{ $labels.job }}"
+        description: "Memory usage is {{ $value }}MB for the past 5 minutes (> 1GB)."
+
+  - name: scraper_alerts
+    rules:
+    - alert: ScraperErrors
+      expr: rate(scraper_errors_total[5m]) > 0
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Scraper errors detected"
+        description: "{{ $labels.source }} scraper has {{ $value }} errors per second."
+
+    - alert: SlowScraping
+      expr: rate(scraper_processing_duration_seconds_sum[5m]) / rate(scraper_processing_duration_seconds_count[5m]) > 10
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Slow scraping detected"
+        description: "{{ $labels.source }} scraper is taking {{ $value }}s on average (>10s threshold)."
+        
+  - name: parquet_alerts
+    rules:
+    - alert: ParquetDataQualityIssues
+      expr: rate(parquet_data_quality_issues_total[10m]) > 0
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Parquet data quality issues detected"
+        description: "{{ $labels.ticker }} has {{ $value }} data quality issues per second (issue type: {{ $labels.issue_type }})."
+        
+    - alert: ParquetSlowReads
+      expr: rate(parquet_read_duration_seconds_sum[5m]) / rate(parquet_read_duration_seconds_count[5m]) > 2
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Slow Parquet reads detected"
+        description: "Parquet reads for {{ $labels.ticker }} ({{ $labels.operation }}) are taking {{ $value }}s on average (>2s threshold)."
+        
+    - alert: ParquetHighStorageUsage
+      expr: parquet_total_storage_bytes > 10737418240
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High Parquet storage usage"
+        description: "Parquet storage usage is {{ $value | humanizeBytes }} (>10GB threshold)."
+        
+    - alert: ParquetMissingValues
+      expr: sum(parquet_missing_values) by (ticker, column) > 1000
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High number of missing values in Parquet data"
+        description: "{{ $labels.ticker }} has {{ $value }} missing values in column {{ $labels.column }}."

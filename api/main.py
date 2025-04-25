@@ -6,7 +6,7 @@ from prometheus_client import make_asgi_app
 from sqlalchemy.orm import Session
 
 # Import routes
-from routes import auth, sentiment, subscriptions
+from routes import auth, sentiment, subscriptions, stats, websocket
 from database import init_db, get_db
 
 app = FastAPI(
@@ -34,6 +34,60 @@ app.include_router(sentiment.router, prefix="/sentiment", tags=["Sentiment"])
 app.include_router(
     subscriptions.router, prefix="/subscriptions", tags=["Subscriptions"]
 )
+app.include_router(stats.router, prefix="/sentiment", tags=["Statistics"])
+# Import WebSocket related components directly
+from fastapi import WebSocket, WebSocketDisconnect, Query
+from typing import Optional
+from sqlalchemy.orm import Session
+from database import get_db
+
+# Direct WebSocket endpoint in main.py
+@app.websocket("/ws")
+async def websocket_endpoint(
+    websocket: WebSocket, 
+    token: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """Primary WebSocket endpoint"""
+    # Accept the connection immediately
+    await websocket.accept()
+    
+    # Send a welcome message
+    await websocket.send_json({
+        "type": "connection_established",
+        "message": "Connected to API WebSocket endpoint"
+    })
+    
+    try:
+        while True:
+            data = await websocket.receive_text()
+            # Echo back the message
+            await websocket.send_json({
+                "type": "echo",
+                "message": f"Echo: {data}"
+            })
+    except WebSocketDisconnect:
+        print("WebSocket client disconnected")
+        
+# Test endpoint for Flutter client
+@app.websocket("/socket")
+async def websocket_socket_endpoint(
+    websocket: WebSocket, 
+    token: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """Alternative WebSocket endpoint at /socket"""
+    await websocket_endpoint(websocket, token, db)
+    
+# Test endpoint for Flutter client
+@app.websocket("/websocket")
+async def websocket_websocket_endpoint(
+    websocket: WebSocket, 
+    token: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """Alternative WebSocket endpoint at /websocket"""
+    await websocket_endpoint(websocket, token, db)
 
 @app.on_event("startup")
 async def startup_event():

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Debug version of RT Sentiment Dashboard">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="RT Sentiment Debug">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <title>RT Sentiment Dashboard (DEBUG)</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    
+    .debug-header {
+      background-color: #d32f2f;
+      color: white;
+      padding: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      padding: 16px;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .loading-indicator {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #ccc;
+      border-bottom-color: #2196f3;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 24px;
+    }
+    
+    .status-container {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+      width: 100%;
+      max-width: 600px;
+      margin-top: 24px;
+    }
+    
+    #status-log {
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      padding: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+    
+    .log-entry {
+      margin: 4px 0;
+      padding: 4px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .log-info {
+      color: #0d47a1;
+    }
+    
+    .log-warn {
+      color: #ff8f00;
+    }
+    
+    .log-error {
+      color: #b71c1c;
+      font-weight: bold;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .action-buttons {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+    }
+    
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      background-color: #2196f3;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    button:hover {
+      background-color: #1976d2;
+    }
+    
+    #refresh-btn {
+      background-color: #4caf50;
+    }
+    
+    #refresh-btn:hover {
+      background-color: #388e3c;
+    }
+  </style>
+
+  <script>
+    // Debug logging function
+    function log(message, type = 'info') {
+      const logContainer = document.getElementById('status-log');
+      const entry = document.createElement('div');
+      entry.classList.add('log-entry', `log-${type}`);
+      const timestamp = new Date().toISOString().split('T')[1].slice(0, 8);
+      entry.textContent = `[${timestamp}] ${message}`;
+      logContainer.appendChild(entry);
+      logContainer.scrollTop = logContainer.scrollHeight;
+      
+      // Also log to console
+      console.log(`[${type.toUpperCase()}] ${message}`);
+    }
+    
+    // Initialize Flutter application with error handling
+    window.addEventListener('load', function() {
+      log('Page loaded, initializing Flutter application...');
+      
+      // Function to check Flutter.js loading status
+      function checkFlutterLoaded() {
+        if (window.flutter_inappwebview) {
+          log('Flutter InAppWebView detected');
+        }
+        
+        if (window._flutter) {
+          log('Flutter.js is loaded (_flutter exists)');
+        } else {
+          log('Flutter.js is not yet loaded', 'warn');
+        }
+        
+        if (window.flutterConfiguration) {
+          log('Flutter configuration found');
+        }
+      }
+      
+      // Check if Flutter is loaded after 2 seconds
+      setTimeout(checkFlutterLoaded, 2000);
+      
+      document.getElementById('refresh-btn').addEventListener('click', function() {
+        log('Refreshing page...');
+        window.location.reload();
+      });
+      
+      document.getElementById('clear-log-btn').addEventListener('click', function() {
+        document.getElementById('status-log').innerHTML = '';
+        log('Log cleared');
+      });
+      
+      // Load Flutter application
+      try {
+        log('Attempting to load Flutter.js...');
+        
+        // Load Flutter.js
+        const scriptTag = document.createElement('script');
+        scriptTag.src = 'flutter.js';
+        scriptTag.defer = true;
+        scriptTag.onerror = function(error) {
+          log(`Failed to load Flutter.js: ${error}`, 'error');
+        };
+        document.body.appendChild(scriptTag);
+        
+        // Initialize Flutter when script is loaded
+        scriptTag.onload = function() {
+          log('Flutter.js loaded successfully');
+          
+          try {
+            // Initialize Flutter with advanced error handling
+            _flutter.loader.loadEntrypoint({
+              onEntrypointLoaded: async function(engineInitializer) {
+                log('Flutter entrypoint loaded');
+                
+                try {
+                  let appRunner = await engineInitializer.initializeEngine({
+                    hostElement: document.querySelector('#flutter_app'),
+                    renderer: 'html'
+                  });
+                  log('Flutter engine initialized successfully');
+                  
+                  try {
+                    await appRunner.runApp();
+                    log('Flutter app started successfully');
+                  } catch (runError) {
+                    log(`Failed to run Flutter app: ${runError}`, 'error');
+                  }
+                } catch (initError) {
+                  log(`Failed to initialize Flutter engine: ${initError}`, 'error');
+                }
+              },
+              onEntrypointLoadException: function(error) {
+                log(`Failed to load Flutter entrypoint: ${error}`, 'error');
+              }
+            });
+          } catch (flutterError) {
+            log(`Error in Flutter initialization: ${flutterError}`, 'error');
+          }
+        };
+      } catch (e) {
+        log(`Error setting up Flutter: ${e}`, 'error');
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="debug-header">
+    RT SENTIMENT DASHBOARD - DEBUG MODE
+  </div>
+  
+  <div class="container">
+    <div class="loading-indicator"></div>
+    <h2>Loading Flutter Debug App...</h2>
+    
+    <div class="status-container">
+      <h3>Debug Status</h3>
+      <div id="status-log">
+        <!-- Log entries will be inserted here -->
+      </div>
+      
+      <div class="action-buttons">
+        <button id="refresh-btn">Refresh Page</button>
+        <button id="clear-log-btn">Clear Log</button>
+      </div>
+    </div>
+    
+    <!-- Flutter app will be mounted here -->
+    <div id="flutter_app" style="width: 100%; height: 70%; margin-top: 24px;"></div>
+  </div>
+</body>
+</html>

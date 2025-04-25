@@ -1,0 +1,2053 @@
+[
+  {
+    "title": "Financial News Article 1 for 2023-12-01",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-01T12:14:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-01",
+    "url": "https://example.com/news/2023-12-01/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-01",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-01T23:48:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-01",
+    "url": "https://example.com/news/2023-12-01/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-01",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-01T18:48:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-01",
+    "url": "https://example.com/news/2023-12-01/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-01",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-01T10:41:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-01",
+    "url": "https://example.com/news/2023-12-01/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-01",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-01T16:23:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-01",
+    "url": "https://example.com/news/2023-12-01/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-01",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-01T22:47:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-01",
+    "url": "https://example.com/news/2023-12-01/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-01",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-01T18:31:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-01",
+    "url": "https://example.com/news/2023-12-01/7"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-02",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-02T19:22:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-02",
+    "url": "https://example.com/news/2023-12-02/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-02",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-02T12:35:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-02",
+    "url": "https://example.com/news/2023-12-02/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-02",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-02T10:34:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-02",
+    "url": "https://example.com/news/2023-12-02/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-02",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-02T05:50:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-02",
+    "url": "https://example.com/news/2023-12-02/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-02",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-02T13:21:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-02",
+    "url": "https://example.com/news/2023-12-02/5"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-03",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-03T21:45:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-03",
+    "url": "https://example.com/news/2023-12-03/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-03",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-03T02:56:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-03",
+    "url": "https://example.com/news/2023-12-03/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-03",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-03T06:37:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-03",
+    "url": "https://example.com/news/2023-12-03/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-03",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-03T13:42:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-03",
+    "url": "https://example.com/news/2023-12-03/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-03",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-03T09:28:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-03",
+    "url": "https://example.com/news/2023-12-03/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-03",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-03T07:57:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-03",
+    "url": "https://example.com/news/2023-12-03/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-03",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-03T22:49:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-03",
+    "url": "https://example.com/news/2023-12-03/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-03",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-03T02:28:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-03",
+    "url": "https://example.com/news/2023-12-03/8"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-04",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-04T02:48:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-04",
+    "url": "https://example.com/news/2023-12-04/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-04",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-04T13:40:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-04",
+    "url": "https://example.com/news/2023-12-04/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-04",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-04T05:03:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-04",
+    "url": "https://example.com/news/2023-12-04/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-04",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-04T21:01:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-04",
+    "url": "https://example.com/news/2023-12-04/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-04",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-04T01:28:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-04",
+    "url": "https://example.com/news/2023-12-04/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-04",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-04T11:41:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-04",
+    "url": "https://example.com/news/2023-12-04/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-04",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-04T05:30:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-04",
+    "url": "https://example.com/news/2023-12-04/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-04",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-04T08:57:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-04",
+    "url": "https://example.com/news/2023-12-04/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-04",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-04T16:20:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-04",
+    "url": "https://example.com/news/2023-12-04/9"
+  },
+  {
+    "title": "Financial News Article 10 for 2023-12-04",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-04T01:52:00Z",
+    "content": "This is simulated content for article 10 on 2023-12-04",
+    "url": "https://example.com/news/2023-12-04/10"
+  },
+  {
+    "title": "Financial News Article 11 for 2023-12-04",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-04T13:07:00Z",
+    "content": "This is simulated content for article 11 on 2023-12-04",
+    "url": "https://example.com/news/2023-12-04/11"
+  },
+  {
+    "title": "Financial News Article 12 for 2023-12-04",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-04T23:03:00Z",
+    "content": "This is simulated content for article 12 on 2023-12-04",
+    "url": "https://example.com/news/2023-12-04/12"
+  },
+  {
+    "title": "Financial News Article 13 for 2023-12-04",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-04T03:24:00Z",
+    "content": "This is simulated content for article 13 on 2023-12-04",
+    "url": "https://example.com/news/2023-12-04/13"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-05",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-05T03:11:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-05",
+    "url": "https://example.com/news/2023-12-05/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-05",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-05T05:15:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-05",
+    "url": "https://example.com/news/2023-12-05/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-05",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-05T07:27:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-05",
+    "url": "https://example.com/news/2023-12-05/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-05",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-05T07:21:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-05",
+    "url": "https://example.com/news/2023-12-05/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-05",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-05T02:41:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-05",
+    "url": "https://example.com/news/2023-12-05/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-05",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-05T17:49:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-05",
+    "url": "https://example.com/news/2023-12-05/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-05",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-05T20:06:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-05",
+    "url": "https://example.com/news/2023-12-05/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-05",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-05T09:40:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-05",
+    "url": "https://example.com/news/2023-12-05/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-05",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-05T02:49:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-05",
+    "url": "https://example.com/news/2023-12-05/9"
+  },
+  {
+    "title": "Financial News Article 10 for 2023-12-05",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-05T13:07:00Z",
+    "content": "This is simulated content for article 10 on 2023-12-05",
+    "url": "https://example.com/news/2023-12-05/10"
+  },
+  {
+    "title": "Financial News Article 11 for 2023-12-05",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-05T17:38:00Z",
+    "content": "This is simulated content for article 11 on 2023-12-05",
+    "url": "https://example.com/news/2023-12-05/11"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-06",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-06T00:33:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-06",
+    "url": "https://example.com/news/2023-12-06/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-06",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-06T10:22:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-06",
+    "url": "https://example.com/news/2023-12-06/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-06",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-06T05:14:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-06",
+    "url": "https://example.com/news/2023-12-06/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-06",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-06T10:47:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-06",
+    "url": "https://example.com/news/2023-12-06/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-06",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-06T18:10:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-06",
+    "url": "https://example.com/news/2023-12-06/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-06",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-06T15:58:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-06",
+    "url": "https://example.com/news/2023-12-06/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-06",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-06T23:14:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-06",
+    "url": "https://example.com/news/2023-12-06/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-06",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-06T18:36:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-06",
+    "url": "https://example.com/news/2023-12-06/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-06",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-06T06:07:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-06",
+    "url": "https://example.com/news/2023-12-06/9"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T08:38:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T05:13:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T02:44:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T21:33:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T23:13:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T12:58:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T14:27:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T19:54:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T01:11:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/9"
+  },
+  {
+    "title": "Financial News Article 10 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T16:50:00Z",
+    "content": "This is simulated content for article 10 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/10"
+  },
+  {
+    "title": "Financial News Article 11 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T19:15:00Z",
+    "content": "This is simulated content for article 11 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/11"
+  },
+  {
+    "title": "Financial News Article 12 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T05:57:00Z",
+    "content": "This is simulated content for article 12 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/12"
+  },
+  {
+    "title": "Financial News Article 13 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T17:30:00Z",
+    "content": "This is simulated content for article 13 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/13"
+  },
+  {
+    "title": "Financial News Article 14 for 2023-12-07",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-07T19:02:00Z",
+    "content": "This is simulated content for article 14 on 2023-12-07",
+    "url": "https://example.com/news/2023-12-07/14"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T12:16:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T23:24:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T01:10:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T07:56:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T09:46:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T21:40:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T10:58:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T14:51:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T18:36:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/9"
+  },
+  {
+    "title": "Financial News Article 10 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T16:46:00Z",
+    "content": "This is simulated content for article 10 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/10"
+  },
+  {
+    "title": "Financial News Article 11 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T08:09:00Z",
+    "content": "This is simulated content for article 11 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/11"
+  },
+  {
+    "title": "Financial News Article 12 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T04:10:00Z",
+    "content": "This is simulated content for article 12 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/12"
+  },
+  {
+    "title": "Financial News Article 13 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T07:27:00Z",
+    "content": "This is simulated content for article 13 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/13"
+  },
+  {
+    "title": "Financial News Article 14 for 2023-12-08",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-08T10:49:00Z",
+    "content": "This is simulated content for article 14 on 2023-12-08",
+    "url": "https://example.com/news/2023-12-08/14"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-09",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-09T05:46:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-09",
+    "url": "https://example.com/news/2023-12-09/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-09",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-09T10:59:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-09",
+    "url": "https://example.com/news/2023-12-09/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-09",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-09T22:07:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-09",
+    "url": "https://example.com/news/2023-12-09/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-09",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-09T10:17:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-09",
+    "url": "https://example.com/news/2023-12-09/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-09",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-09T05:34:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-09",
+    "url": "https://example.com/news/2023-12-09/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-09",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-09T16:51:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-09",
+    "url": "https://example.com/news/2023-12-09/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-09",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-09T00:19:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-09",
+    "url": "https://example.com/news/2023-12-09/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-09",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-09T00:51:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-09",
+    "url": "https://example.com/news/2023-12-09/8"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-10",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-10T10:47:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-10",
+    "url": "https://example.com/news/2023-12-10/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-10",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-10T04:42:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-10",
+    "url": "https://example.com/news/2023-12-10/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-10",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-10T02:01:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-10",
+    "url": "https://example.com/news/2023-12-10/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-10",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-10T18:46:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-10",
+    "url": "https://example.com/news/2023-12-10/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-10",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-10T19:31:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-10",
+    "url": "https://example.com/news/2023-12-10/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-10",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-10T10:20:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-10",
+    "url": "https://example.com/news/2023-12-10/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-10",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-10T11:46:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-10",
+    "url": "https://example.com/news/2023-12-10/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-10",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-10T03:15:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-10",
+    "url": "https://example.com/news/2023-12-10/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-10",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-10T11:49:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-10",
+    "url": "https://example.com/news/2023-12-10/9"
+  },
+  {
+    "title": "Financial News Article 10 for 2023-12-10",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-10T15:22:00Z",
+    "content": "This is simulated content for article 10 on 2023-12-10",
+    "url": "https://example.com/news/2023-12-10/10"
+  },
+  {
+    "title": "Financial News Article 11 for 2023-12-10",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-10T09:48:00Z",
+    "content": "This is simulated content for article 11 on 2023-12-10",
+    "url": "https://example.com/news/2023-12-10/11"
+  },
+  {
+    "title": "Financial News Article 12 for 2023-12-10",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-10T17:11:00Z",
+    "content": "This is simulated content for article 12 on 2023-12-10",
+    "url": "https://example.com/news/2023-12-10/12"
+  },
+  {
+    "title": "Financial News Article 13 for 2023-12-10",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-10T09:36:00Z",
+    "content": "This is simulated content for article 13 on 2023-12-10",
+    "url": "https://example.com/news/2023-12-10/13"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T23:10:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T19:17:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T18:35:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T14:47:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T11:31:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T14:06:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T22:06:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T06:52:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T05:59:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/9"
+  },
+  {
+    "title": "Financial News Article 10 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T03:19:00Z",
+    "content": "This is simulated content for article 10 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/10"
+  },
+  {
+    "title": "Financial News Article 11 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T17:31:00Z",
+    "content": "This is simulated content for article 11 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/11"
+  },
+  {
+    "title": "Financial News Article 12 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T16:45:00Z",
+    "content": "This is simulated content for article 12 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/12"
+  },
+  {
+    "title": "Financial News Article 13 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T14:40:00Z",
+    "content": "This is simulated content for article 13 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/13"
+  },
+  {
+    "title": "Financial News Article 14 for 2023-12-11",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-11T08:43:00Z",
+    "content": "This is simulated content for article 14 on 2023-12-11",
+    "url": "https://example.com/news/2023-12-11/14"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-12",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-12T09:56:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-12",
+    "url": "https://example.com/news/2023-12-12/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-12",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-12T15:06:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-12",
+    "url": "https://example.com/news/2023-12-12/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-12",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-12T14:50:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-12",
+    "url": "https://example.com/news/2023-12-12/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-12",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-12T00:58:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-12",
+    "url": "https://example.com/news/2023-12-12/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-12",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-12T17:59:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-12",
+    "url": "https://example.com/news/2023-12-12/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-12",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-12T06:37:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-12",
+    "url": "https://example.com/news/2023-12-12/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-12",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-12T09:39:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-12",
+    "url": "https://example.com/news/2023-12-12/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-12",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-12T06:50:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-12",
+    "url": "https://example.com/news/2023-12-12/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-12",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-12T10:53:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-12",
+    "url": "https://example.com/news/2023-12-12/9"
+  },
+  {
+    "title": "Financial News Article 10 for 2023-12-12",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-12T12:18:00Z",
+    "content": "This is simulated content for article 10 on 2023-12-12",
+    "url": "https://example.com/news/2023-12-12/10"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-13",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-13T16:52:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-13",
+    "url": "https://example.com/news/2023-12-13/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-13",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-13T12:59:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-13",
+    "url": "https://example.com/news/2023-12-13/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-13",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-13T12:40:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-13",
+    "url": "https://example.com/news/2023-12-13/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-13",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-13T11:47:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-13",
+    "url": "https://example.com/news/2023-12-13/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-13",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-13T09:02:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-13",
+    "url": "https://example.com/news/2023-12-13/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-13",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-13T02:23:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-13",
+    "url": "https://example.com/news/2023-12-13/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-13",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-13T07:14:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-13",
+    "url": "https://example.com/news/2023-12-13/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-13",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-13T22:18:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-13",
+    "url": "https://example.com/news/2023-12-13/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-13",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-13T06:15:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-13",
+    "url": "https://example.com/news/2023-12-13/9"
+  },
+  {
+    "title": "Financial News Article 10 for 2023-12-13",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-13T07:20:00Z",
+    "content": "This is simulated content for article 10 on 2023-12-13",
+    "url": "https://example.com/news/2023-12-13/10"
+  },
+  {
+    "title": "Financial News Article 11 for 2023-12-13",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-13T06:05:00Z",
+    "content": "This is simulated content for article 11 on 2023-12-13",
+    "url": "https://example.com/news/2023-12-13/11"
+  },
+  {
+    "title": "Financial News Article 12 for 2023-12-13",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-13T00:56:00Z",
+    "content": "This is simulated content for article 12 on 2023-12-13",
+    "url": "https://example.com/news/2023-12-13/12"
+  },
+  {
+    "title": "Financial News Article 13 for 2023-12-13",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-13T11:08:00Z",
+    "content": "This is simulated content for article 13 on 2023-12-13",
+    "url": "https://example.com/news/2023-12-13/13"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-14",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-14T01:36:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-14",
+    "url": "https://example.com/news/2023-12-14/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-14",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-14T13:11:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-14",
+    "url": "https://example.com/news/2023-12-14/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-14",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-14T22:50:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-14",
+    "url": "https://example.com/news/2023-12-14/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-14",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-14T13:46:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-14",
+    "url": "https://example.com/news/2023-12-14/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-14",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-14T08:19:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-14",
+    "url": "https://example.com/news/2023-12-14/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-14",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-14T10:42:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-14",
+    "url": "https://example.com/news/2023-12-14/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-14",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-14T11:45:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-14",
+    "url": "https://example.com/news/2023-12-14/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-14",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-14T20:31:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-14",
+    "url": "https://example.com/news/2023-12-14/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-14",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-14T11:44:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-14",
+    "url": "https://example.com/news/2023-12-14/9"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-15",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-15T11:18:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-15",
+    "url": "https://example.com/news/2023-12-15/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-15",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-15T03:11:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-15",
+    "url": "https://example.com/news/2023-12-15/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-15",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-15T23:07:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-15",
+    "url": "https://example.com/news/2023-12-15/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-15",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-15T21:39:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-15",
+    "url": "https://example.com/news/2023-12-15/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-15",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-15T08:43:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-15",
+    "url": "https://example.com/news/2023-12-15/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-15",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-15T01:53:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-15",
+    "url": "https://example.com/news/2023-12-15/6"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-16",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-16T12:41:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-16",
+    "url": "https://example.com/news/2023-12-16/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-16",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-16T18:41:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-16",
+    "url": "https://example.com/news/2023-12-16/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-16",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-16T12:38:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-16",
+    "url": "https://example.com/news/2023-12-16/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-16",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-16T23:08:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-16",
+    "url": "https://example.com/news/2023-12-16/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-16",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-16T12:59:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-16",
+    "url": "https://example.com/news/2023-12-16/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-16",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-16T04:32:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-16",
+    "url": "https://example.com/news/2023-12-16/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-16",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-16T04:30:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-16",
+    "url": "https://example.com/news/2023-12-16/7"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-17",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-17T12:44:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-17",
+    "url": "https://example.com/news/2023-12-17/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-17",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-17T18:04:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-17",
+    "url": "https://example.com/news/2023-12-17/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-17",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-17T14:29:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-17",
+    "url": "https://example.com/news/2023-12-17/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-17",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-17T19:09:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-17",
+    "url": "https://example.com/news/2023-12-17/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-17",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-17T21:45:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-17",
+    "url": "https://example.com/news/2023-12-17/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-17",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-17T10:16:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-17",
+    "url": "https://example.com/news/2023-12-17/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-17",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-17T16:47:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-17",
+    "url": "https://example.com/news/2023-12-17/7"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-18",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-18T03:33:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-18",
+    "url": "https://example.com/news/2023-12-18/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-18",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-18T12:08:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-18",
+    "url": "https://example.com/news/2023-12-18/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-18",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-18T07:55:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-18",
+    "url": "https://example.com/news/2023-12-18/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-18",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-18T21:15:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-18",
+    "url": "https://example.com/news/2023-12-18/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-18",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-18T03:20:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-18",
+    "url": "https://example.com/news/2023-12-18/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-18",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-18T10:13:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-18",
+    "url": "https://example.com/news/2023-12-18/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-18",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-18T00:25:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-18",
+    "url": "https://example.com/news/2023-12-18/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-18",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-18T21:35:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-18",
+    "url": "https://example.com/news/2023-12-18/8"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-19",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-19T21:41:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-19",
+    "url": "https://example.com/news/2023-12-19/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-19",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-19T16:08:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-19",
+    "url": "https://example.com/news/2023-12-19/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-19",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-19T05:07:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-19",
+    "url": "https://example.com/news/2023-12-19/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-19",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-19T14:24:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-19",
+    "url": "https://example.com/news/2023-12-19/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-19",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-19T13:46:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-19",
+    "url": "https://example.com/news/2023-12-19/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-19",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-19T13:54:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-19",
+    "url": "https://example.com/news/2023-12-19/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-19",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-19T10:18:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-19",
+    "url": "https://example.com/news/2023-12-19/7"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-20",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-20T00:09:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-20",
+    "url": "https://example.com/news/2023-12-20/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-20",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-20T05:20:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-20",
+    "url": "https://example.com/news/2023-12-20/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-20",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-20T20:39:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-20",
+    "url": "https://example.com/news/2023-12-20/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-20",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-20T03:46:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-20",
+    "url": "https://example.com/news/2023-12-20/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-20",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-20T05:49:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-20",
+    "url": "https://example.com/news/2023-12-20/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-20",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-20T07:00:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-20",
+    "url": "https://example.com/news/2023-12-20/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-20",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-20T00:53:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-20",
+    "url": "https://example.com/news/2023-12-20/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-20",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-20T01:44:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-20",
+    "url": "https://example.com/news/2023-12-20/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-20",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-20T18:54:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-20",
+    "url": "https://example.com/news/2023-12-20/9"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T10:28:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T15:57:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T03:41:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T18:44:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T10:54:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T14:36:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T18:23:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T17:17:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T04:18:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/9"
+  },
+  {
+    "title": "Financial News Article 10 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T12:10:00Z",
+    "content": "This is simulated content for article 10 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/10"
+  },
+  {
+    "title": "Financial News Article 11 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T18:07:00Z",
+    "content": "This is simulated content for article 11 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/11"
+  },
+  {
+    "title": "Financial News Article 12 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T21:33:00Z",
+    "content": "This is simulated content for article 12 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/12"
+  },
+  {
+    "title": "Financial News Article 13 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T03:14:00Z",
+    "content": "This is simulated content for article 13 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/13"
+  },
+  {
+    "title": "Financial News Article 14 for 2023-12-21",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-21T05:36:00Z",
+    "content": "This is simulated content for article 14 on 2023-12-21",
+    "url": "https://example.com/news/2023-12-21/14"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-22",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-22T20:33:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-22",
+    "url": "https://example.com/news/2023-12-22/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-22",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-22T04:05:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-22",
+    "url": "https://example.com/news/2023-12-22/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-22",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-22T16:28:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-22",
+    "url": "https://example.com/news/2023-12-22/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-22",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-22T18:50:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-22",
+    "url": "https://example.com/news/2023-12-22/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-22",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-22T15:19:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-22",
+    "url": "https://example.com/news/2023-12-22/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-22",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-22T00:52:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-22",
+    "url": "https://example.com/news/2023-12-22/6"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-23",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-23T14:17:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-23",
+    "url": "https://example.com/news/2023-12-23/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-23",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-23T07:38:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-23",
+    "url": "https://example.com/news/2023-12-23/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-23",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-23T08:45:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-23",
+    "url": "https://example.com/news/2023-12-23/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-23",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-23T17:25:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-23",
+    "url": "https://example.com/news/2023-12-23/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-23",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-23T05:07:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-23",
+    "url": "https://example.com/news/2023-12-23/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-23",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-23T14:25:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-23",
+    "url": "https://example.com/news/2023-12-23/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-23",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-23T05:43:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-23",
+    "url": "https://example.com/news/2023-12-23/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-23",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-23T09:34:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-23",
+    "url": "https://example.com/news/2023-12-23/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-23",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-23T16:14:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-23",
+    "url": "https://example.com/news/2023-12-23/9"
+  },
+  {
+    "title": "Financial News Article 10 for 2023-12-23",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-23T19:16:00Z",
+    "content": "This is simulated content for article 10 on 2023-12-23",
+    "url": "https://example.com/news/2023-12-23/10"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T22:14:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T13:38:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T06:51:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T17:49:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T06:39:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T06:43:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T07:19:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T14:10:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T05:22:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/9"
+  },
+  {
+    "title": "Financial News Article 10 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T23:13:00Z",
+    "content": "This is simulated content for article 10 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/10"
+  },
+  {
+    "title": "Financial News Article 11 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T06:13:00Z",
+    "content": "This is simulated content for article 11 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/11"
+  },
+  {
+    "title": "Financial News Article 12 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T03:53:00Z",
+    "content": "This is simulated content for article 12 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/12"
+  },
+  {
+    "title": "Financial News Article 13 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T16:48:00Z",
+    "content": "This is simulated content for article 13 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/13"
+  },
+  {
+    "title": "Financial News Article 14 for 2023-12-24",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-24T06:59:00Z",
+    "content": "This is simulated content for article 14 on 2023-12-24",
+    "url": "https://example.com/news/2023-12-24/14"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-25",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-25T15:48:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-25",
+    "url": "https://example.com/news/2023-12-25/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-25",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-25T15:40:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-25",
+    "url": "https://example.com/news/2023-12-25/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-25",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-25T08:14:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-25",
+    "url": "https://example.com/news/2023-12-25/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-25",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-25T19:14:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-25",
+    "url": "https://example.com/news/2023-12-25/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-25",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-25T21:08:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-25",
+    "url": "https://example.com/news/2023-12-25/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-25",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-25T21:30:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-25",
+    "url": "https://example.com/news/2023-12-25/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-25",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-25T02:29:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-25",
+    "url": "https://example.com/news/2023-12-25/7"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-26",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-26T23:57:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-26",
+    "url": "https://example.com/news/2023-12-26/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-26",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-26T12:42:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-26",
+    "url": "https://example.com/news/2023-12-26/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-26",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-26T16:08:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-26",
+    "url": "https://example.com/news/2023-12-26/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-26",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-26T17:08:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-26",
+    "url": "https://example.com/news/2023-12-26/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-26",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-26T11:55:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-26",
+    "url": "https://example.com/news/2023-12-26/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-26",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-26T03:48:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-26",
+    "url": "https://example.com/news/2023-12-26/6"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-27",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-27T21:53:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-27",
+    "url": "https://example.com/news/2023-12-27/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-27",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-27T21:00:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-27",
+    "url": "https://example.com/news/2023-12-27/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-27",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-27T02:54:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-27",
+    "url": "https://example.com/news/2023-12-27/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-27",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-27T23:50:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-27",
+    "url": "https://example.com/news/2023-12-27/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-27",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-27T14:35:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-27",
+    "url": "https://example.com/news/2023-12-27/5"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-28",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-28T05:39:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-28",
+    "url": "https://example.com/news/2023-12-28/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-28",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-28T23:26:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-28",
+    "url": "https://example.com/news/2023-12-28/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-28",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-28T10:31:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-28",
+    "url": "https://example.com/news/2023-12-28/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-28",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-28T05:03:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-28",
+    "url": "https://example.com/news/2023-12-28/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-28",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-28T03:08:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-28",
+    "url": "https://example.com/news/2023-12-28/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-28",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-28T08:03:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-28",
+    "url": "https://example.com/news/2023-12-28/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-28",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-28T17:30:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-28",
+    "url": "https://example.com/news/2023-12-28/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-28",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-28T12:57:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-28",
+    "url": "https://example.com/news/2023-12-28/8"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-29",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-29T16:19:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-29",
+    "url": "https://example.com/news/2023-12-29/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-29",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-29T08:51:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-29",
+    "url": "https://example.com/news/2023-12-29/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-29",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-29T05:52:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-29",
+    "url": "https://example.com/news/2023-12-29/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-29",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-29T11:53:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-29",
+    "url": "https://example.com/news/2023-12-29/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-29",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-29T18:46:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-29",
+    "url": "https://example.com/news/2023-12-29/5"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T16:40:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T03:51:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T15:11:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T11:25:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T10:01:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T18:46:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T22:27:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T05:14:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T04:25:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/9"
+  },
+  {
+    "title": "Financial News Article 10 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T20:49:00Z",
+    "content": "This is simulated content for article 10 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/10"
+  },
+  {
+    "title": "Financial News Article 11 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T18:35:00Z",
+    "content": "This is simulated content for article 11 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/11"
+  },
+  {
+    "title": "Financial News Article 12 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T04:05:00Z",
+    "content": "This is simulated content for article 12 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/12"
+  },
+  {
+    "title": "Financial News Article 13 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T03:45:00Z",
+    "content": "This is simulated content for article 13 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/13"
+  },
+  {
+    "title": "Financial News Article 14 for 2023-12-30",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-30T23:43:00Z",
+    "content": "This is simulated content for article 14 on 2023-12-30",
+    "url": "https://example.com/news/2023-12-30/14"
+  },
+  {
+    "title": "Financial News Article 1 for 2023-12-31",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-31T22:30:00Z",
+    "content": "This is simulated content for article 1 on 2023-12-31",
+    "url": "https://example.com/news/2023-12-31/1"
+  },
+  {
+    "title": "Financial News Article 2 for 2023-12-31",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-31T06:43:00Z",
+    "content": "This is simulated content for article 2 on 2023-12-31",
+    "url": "https://example.com/news/2023-12-31/2"
+  },
+  {
+    "title": "Financial News Article 3 for 2023-12-31",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-31T14:56:00Z",
+    "content": "This is simulated content for article 3 on 2023-12-31",
+    "url": "https://example.com/news/2023-12-31/3"
+  },
+  {
+    "title": "Financial News Article 4 for 2023-12-31",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-31T04:21:00Z",
+    "content": "This is simulated content for article 4 on 2023-12-31",
+    "url": "https://example.com/news/2023-12-31/4"
+  },
+  {
+    "title": "Financial News Article 5 for 2023-12-31",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-31T11:52:00Z",
+    "content": "This is simulated content for article 5 on 2023-12-31",
+    "url": "https://example.com/news/2023-12-31/5"
+  },
+  {
+    "title": "Financial News Article 6 for 2023-12-31",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-31T12:50:00Z",
+    "content": "This is simulated content for article 6 on 2023-12-31",
+    "url": "https://example.com/news/2023-12-31/6"
+  },
+  {
+    "title": "Financial News Article 7 for 2023-12-31",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-31T06:17:00Z",
+    "content": "This is simulated content for article 7 on 2023-12-31",
+    "url": "https://example.com/news/2023-12-31/7"
+  },
+  {
+    "title": "Financial News Article 8 for 2023-12-31",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-31T19:48:00Z",
+    "content": "This is simulated content for article 8 on 2023-12-31",
+    "url": "https://example.com/news/2023-12-31/8"
+  },
+  {
+    "title": "Financial News Article 9 for 2023-12-31",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-31T23:05:00Z",
+    "content": "This is simulated content for article 9 on 2023-12-31",
+    "url": "https://example.com/news/2023-12-31/9"
+  },
+  {
+    "title": "Financial News Article 10 for 2023-12-31",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-31T00:50:00Z",
+    "content": "This is simulated content for article 10 on 2023-12-31",
+    "url": "https://example.com/news/2023-12-31/10"
+  },
+  {
+    "title": "Financial News Article 11 for 2023-12-31",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-31T23:11:00Z",
+    "content": "This is simulated content for article 11 on 2023-12-31",
+    "url": "https://example.com/news/2023-12-31/11"
+  },
+  {
+    "title": "Financial News Article 12 for 2023-12-31",
+    "source": "Historical News Scraper",
+    "published_at": "2023-12-31T14:14:00Z",
+    "content": "This is simulated content for article 12 on 2023-12-31",
+    "url": "https://example.com/news/2023-12-31/12"
+  }
+]

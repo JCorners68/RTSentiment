@@ -1,26 +1,41 @@
 services:
-  # Dashboard
-  dashboard:
-    build:
-      context: ./streamlit_dashboard
-      dockerfile: Dockerfile
-    ports:
-      - "8501:8501"
+  # Note: Streamlit dashboard has been deprecated in favor of the Flutter UI
+  # The service is commented out but kept for reference
+  
+  # dashboard:
+  #   build:
+  #     context: ./old_streamlit_dashboard
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8501:8501"
+  #   volumes:
+  #     - ./old_streamlit_dashboard:/app
+  #     - ./data:/app/data
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   depends_on:
+  #     - kafka
+  #     - api
+  #     - prometheus
+  #   environment:
+  #     - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+  #     - API_BASE_URL=http://api:8001
+  #     - PROMETHEUS_URL=http://prometheus:9090
+  #     - DATA_DIR=/app/data
+  
+  # Flutter Web Server (for development and testing)
+  flutter-web:
+    image: nginx:alpine
     volumes:
-      - ./streamlit_dashboard:/app
-      - ./local_arch_mermaid.html:/app/local_arch_mermaid.html
-      - ./local_arch.html:/app/local_arch.html
-      - ./data:/app/data
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ./senti/build/web:/usr/share/nginx/html
+    ports:
+      - "8888:80"  # Changed from 8080 to 8888 to avoid port conflict
     depends_on:
-      - kafka
       - api
-      - prometheus
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - API_BASE_URL=http://api:8001
-      - PROMETHEUS_URL=http://prometheus:9090
-      - DATA_DIR=/app/data
+    # This service requires Flutter web build to be generated first:
+    # cd senti && flutter build web && cd ..
+    # docker-compose up -d flutter-web
     
   # Data Acquisition Layer
   web-scraper:
@@ -171,7 +186,11 @@ services:
 
   # Data Persistence Layer
   postgres:
-    image: postgres:14
+    build:
+      # Use the dbengine subdirectory for build context
+      context: ./dbengine
+      # Specify the Dockerfile within that context
+      dockerfile: postgres.Dockerfile
     environment:
       POSTGRES_USER: pgadmin
       POSTGRES_PASSWORD: localdev
@@ -179,7 +198,10 @@ services:
     ports:
       - "5432:5432"
     volumes:
+      # Named volume for persistent PG data
       - postgres-data:/var/lib/postgresql/data
+      # Read-only bind mount for Parquet files relative to docker-compose.yml
+      - ./data/output:/parquet_data:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U pgadmin -d sentimentdb"]
       interval: 10s
@@ -260,6 +282,19 @@ services:
       - "8002:8002"
     depends_on:
       - postgres
+      
+  # Clean metrics proxy - removes HELP and TYPE comments from metrics output
+  clean-metrics-proxy:
+    build:
+      context: ./data_acquisition
+      dockerfile: Dockerfile
+    command: python clean_metrics_proxy.py --port 8085 --target http://web-scraper:8080/metrics
+    volumes:
+      - ./data_acquisition:/app
+    ports:
+      - "8085:8085"
+    depends_on:
+      - web-scraper
 
 volumes:
   zookeeper-data:

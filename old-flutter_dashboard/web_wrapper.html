@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>RT Sentiment Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .content {
+      flex: 1;
+      display: flex;
+    }
+    
+    .sidebar {
+      width: 200px;
+      background-color: #f1f1f1;
+      padding: 20px;
+    }
+    
+    .main-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .embedded-app {
+      flex: 1;
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .status-bar {
+      background-color: #333;
+      color: white;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+    
+    .nav-link {
+      display: block;
+      padding: 10px;
+      margin-bottom: 5px;
+      background-color: #ddd;
+      border-radius: 4px;
+      text-decoration: none;
+      color: #333;
+    }
+    
+    .button {
+      padding: 8px 12px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .fallback {
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .card {
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 10px;
+      width: 300px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .positive {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+    }
+    
+    .negative {
+      background-color: #f8d7da;
+      border-left: 5px solid #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>RT Sentiment Dashboard</h1>
+    <div>
+      <button class="button" onclick="toggleView()">Toggle View</button>
+      <select id="port-selector" onchange="updateAppSource()">
+        <option value="8090">Port 8090</option>
+        <option value="9090">Port 9090</option>
+        <option value="9100">Port 9100</option>
+        <option value="8080">Port 8080</option>
+      </select>
+    </div>
+  </div>
+  
+  <div class="content">
+    <div class="sidebar">
+      <h3>Navigation</h3>
+      <a href="#dashboard" class="nav-link">Dashboard</a>
+      <a href="#data-flow" class="nav-link">Data Flow</a>
+      <a href="#explorer" class="nav-link">Explorer</a>
+      <a href="#settings" class="nav-link">Settings</a>
+      
+      <h3>Tools</h3>
+      <a href="#" class="nav-link" onclick="refreshApp()">Refresh App</a>
+      <a href="#" class="nav-link" onclick="toggleFallback()">Toggle Fallback</a>
+    </div>
+    
+    <div class="main-panel">
+      <iframe id="flutter-app" class="embedded-app" src="http://localhost:8090" allow="accelerometer; camera; geolocation; microphone; clipboard-read; clipboard-write"></iframe>
+      
+      <div id="fallback-content" class="fallback" style="display: none;">
+        <h2>Fallback Content</h2>
+        <p>This is shown when the Flutter web app is not accessible.</p>
+        
+        <div class="card positive">
+          <h3>AAPL: +0.85</h3>
+          <div style="background-color: #ccc; height: 10px; width: 100%;">
+            <div style="background-color: #28a745; height: 10px; width: 85%;"></div>
+          </div>
+        </div>
+        
+        <div class="card negative">
+          <h3>META: -0.45</h3>
+          <div style="background-color: #ccc; height: 10px; width: 100%;">
+            <div style="background-color: #dc3545; height: 10px; width: 45%;"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="status-bar">
+        <span id="status">Connected to Flutter app on port 8090</span>
+        <span id="connection-status">✅ Connected</span>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let showingFallback = false;
+    let currentPort = 8090;
+    
+    function updateAppSource() {
+      const portSelector = document.getElementById('port-selector');
+      currentPort = portSelector.value;
+      const appFrame = document.getElementById('flutter-app');
+      appFrame.src = `http://localhost:${currentPort}`;
+      document.getElementById('status').textContent = `Connected to Flutter app on port ${currentPort}`;
+      checkConnection();
+    }
+    
+    function refreshApp() {
+      const appFrame = document.getElementById('flutter-app');
+      appFrame.src = appFrame.src;
+      checkConnection();
+    }
+    
+    function toggleFallback() {
+      showingFallback = !showingFallback;
+      document.getElementById('flutter-app').style.display = showingFallback ? 'none' : 'block';
+      document.getElementById('fallback-content').style.display = showingFallback ? 'block' : 'none';
+      document.getElementById('status').textContent = showingFallback ? 'Showing fallback content' : `Connected to Flutter app on port ${currentPort}`;
+    }
+    
+    function toggleView() {
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar.style.display === 'none') {
+        sidebar.style.display = 'block';
+      } else {
+        sidebar.style.display = 'none';
+      }
+    }
+    
+    function checkConnection() {
+      // This is a simple check, not foolproof
+      const img = new Image();
+      img.onload = function() {
+        document.getElementById('connection-status').textContent = '✅ Connected';
+      };
+      img.onerror = function() {
+        document.getElementById('connection-status').textContent = '❌ Connection failed';
+      };
+      img.src = `http://localhost:${currentPort}/favicon.ico?` + new Date().getTime();
+    }
+    
+    // Initial connection check
+    checkConnection();
+    
+    // Check connection periodically
+    setInterval(checkConnection, 5000);
+  </script>
+</body>
+</html>

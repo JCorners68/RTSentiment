@@ -1,0 +1,19 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Copy requirements first to leverage Docker cache
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt pandas pyarrow
+
+# Copy the rest of the application
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p /app/data/output
+
+# Expose the metrics port
+EXPOSE 8082
+
+# Run the parquet metrics server
+CMD ["python", "parquet_metrics_server.py", "--port", "8082", "--parquet-dir", "/app/data/output", "--update-interval", "30"]

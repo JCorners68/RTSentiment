@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Local Development Trading Sentiment Analysis Architecture</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+}
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+svg {
+  max-width: 100%;
+  height: auto;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<svg viewBox="0 0 900 680" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="900" height="680" fill="#f5f5f5" />
+  
+  <!-- Title -->
+  <text x="450" y="30" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle">Local Development Trading Sentiment Analysis Architecture</text>
+  
+  <!-- Data Sources -->
+  <rect x="30" y="80" width="150" height="60" rx="5" fill="#e1f5fe" stroke="#01579b" stroke-width="2" />
+  <text x="105" y="115" font-family="Arial" font-size="14" text-anchor="middle">Web Scrapers</text>
+  <text x="105" y="130" font-family="Arial" font-size="10" text-anchor="middle">(Python Containers)</text>
+  
+  <rect x="30" y="160" width="150" height="60" rx="5" fill="#e1f5fe" stroke="#01579b" stroke-width="2" />
+  <text x="105" y="195" font-family="Arial" font-size="14" text-anchor="middle">Subscription Events</text>
+  <text x="105" y="210" font-family="Arial" font-size="10" text-anchor="middle">(With Weight Calculation)</text>
+  
+  <!-- Event Ingestion -->
+  <rect x="240" y="70" width="150" height="60" rx="5" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2" />
+  <text x="315" y="95" font-family="Arial" font-size="14" text-anchor="middle">Kafka Topic (HiPri)</text>
+  <text x="315" y="110" font-family="Arial" font-size="10" text-anchor="middle">(With Partitioning)</text>
+  <text x="315" y="125" font-family="Arial" font-size="10" text-anchor="middle">+ Dead Letter Queue</text>
+  
+  <rect x="240" y="170" width="150" height="60" rx="5" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2" />
+  <text x="315" y="195" font-family="Arial" font-size="14" text-anchor="middle">Kafka Topic (StdPri)</text>
+  <text x="315" y="210" font-family="Arial" font-size="10" text-anchor="middle">(With Partitioning)</text>
+  <text x="315" y="225" font-family="Arial" font-size="10" text-anchor="middle">+ Dead Letter Queue</text>
+  
+  <!-- Processing Tier -->
+  <rect x="450" y="70" width="170" height="130" rx="5" fill="#fff3e0" stroke="#e65100" stroke-width="2" />
+  <text x="535" y="95" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Sentiment Analysis</text>
+  <text x="535" y="115" font-family="Arial" font-size="12" text-anchor="middle">Multi-Model Strategy</text>
+  <text x="535" y="135" font-family="Arial" font-size="11" text-anchor="middle">FinBERT (Core)</text>
+  <text x="535" y="155" font-family="Arial" font-size="11" text-anchor="middle">FinGPT (Premium)</text>
+  <text x="535" y="175" font-family="Arial" font-size="11" text-anchor="middle">Llama4 Scout (Professional)</text>
+  <text x="535" y="195" font-family="Arial" font-size="10" text-anchor="middle">GPU-Accelerated Container</text>
+  
+  <!-- Backend API -->
+  <rect x="450" y="240" width="170" height="110" rx="5" fill="#e1bee7" stroke="#6a1b9a" stroke-width="2" />
+  <text x="535" y="265" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Backend API</text>
+  <text x="535" y="285" font-family="Arial" font-size="12" text-anchor="middle">FastAPI with Async</text>
+  <text x="535" y="305" font-family="Arial" font-size="12" text-anchor="middle">Auth + User Management</text>
+  <text x="535" y="325" font-family="Arial" font-size="12" text-anchor="middle">Rate Limiting</text>
+  <text x="535" y="345" font-family="Arial" font-size="12" text-anchor="middle">Model Selection Logic</text>
+  
+  <!-- Redis Cache -->
+  <rect x="450" y="390" width="170" height="80" rx="5" fill="#ffecb3" stroke="#ff6f00" stroke-width="2" />
+  <text x="535" y="420" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Redis Cache</text>
+  <text x="535" y="440" font-family="Arial" font-size="12" text-anchor="middle">Docker Container</text>
+  <text x="535" y="460" font-family="Arial" font-size="12" text-anchor="middle">Persistent Volume</text>
+  
+  <!-- PostgreSQL -->
+  <rect x="450" y="510" width="170" height="80" rx="5" fill="#bbdefb" stroke="#0d47a1" stroke-width="2" />
+  <text x="535" y="540" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">PostgreSQL</text>
+  <text x="535" y="560" font-family="Arial" font-size="12" text-anchor="middle">Docker Container</text>
+  <text x="535" y="580" font-family="Arial" font-size="12" text-anchor="middle">Persistent Volume</text>
+  
+  <!-- Client Side -->
+  <rect x="680" y="240" width="170" height="110" rx="5" fill="#dcedc8" stroke="#33691e" stroke-width="2" />
+  <text x="765" y="265" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Client Applications</text>
+  <text x="765" y="285" font-family="Arial" font-size="12" text-anchor="middle">Mobile App (Dev Mode)</text>
+  <text x="765" y="305" font-family="Arial" font-size="12" text-anchor="middle">Web Application (SPA)</text>
+  <text x="765" y="325" font-family="Arial" font-size="12" text-anchor="middle">Local Development Server</text>
+  <text x="765" y="345" font-family="Arial" font-size="12" text-anchor="middle">Hot Reload</text>
+  
+  <!-- External Auth -->
+  <rect x="680" y="80" width="170" height="80" rx="5" fill="#d1c4e9" stroke="#4527a0" stroke-width="2" />
+  <text x="765" y="110" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Auth Service</text>
+  <text x="765" y="130" font-family="Arial" font-size="12" text-anchor="middle">Local Auth Provider</text>
+  <text x="765" y="150" font-family="Arial" font-size="12" text-anchor="middle">JWT Token Issuer</text>
+  
+  <!-- Monitoring -->
+  <rect x="680" y="390" width="170" height="110" rx="5" fill="#ffcdd2" stroke="#b71c1c" stroke-width="2" />
+  <text x="765" y="415" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Monitoring Stack</text>
+  <text x="765" y="435" font-family="Arial" font-size="12" text-anchor="middle">Prometheus</text>
+  <text x="765" y="455" font-family="Arial" font-size="12" text-anchor="middle">Grafana Dashboards</text>
+  <text x="765" y="475" font-family="Arial" font-size="12" text-anchor="middle">Container Stats</text>
+  <text x="765" y="495" font-family="Arial" font-size="12" text-anchor="middle">Model Performance</text>
+  
+  <!-- Development Tools -->
+  <rect x="680" y="510" width="170" height="80" rx="5" fill="#b2dfdb" stroke="#00695c" stroke-width="2" />
+  <text x="765" y="540" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Development Tools</text>
+  <text x="765" y="560" font-family="Arial" font-size="12" text-anchor="middle">Docker Compose</text>
+  <text x="765" y="580" font-family="Arial" font-size="12" text-anchor="middle">VS Code + Extensions</text>
+  
+  <!-- Connection Lines -->
+  <!-- Scrapers to Kafka -->
+  <path d="M180 100 H220 A10 10 0 0 1 230 110 V90 A10 10 0 0 1 240 100" fill="none" stroke="#666" stroke-width="2" />
+  <path d="M180 190 H220 A10 10 0 0 0 230 180 V180 A10 10 0 0 1 240 190" fill="none" stroke="#666" stroke-width="2" />
+  
+  <!-- Kafka to Sentiment Analysis -->
+  <path d="M390 100 H420 A10 10 0 0 1 430 110 V130 A10 10 0 0 1 440 140 H450" fill="none" stroke="#666" stroke-width="2" />
+  <path d="M390 200 H420 A10 10 0 0 0 430 190 V150 A10 10 0 0 1 440 160 H450" fill="none" stroke="#666" stroke-width="2" />
+  
+  <!-- Sentiment Analysis to Redis -->
+  <path d="M535 200 V385" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="5,5" />
+  <polygon points="535,385 530,375 540,375" fill="#666" />
+  
+  <!-- Backend API to Redis -->
+  <path d="M535 350 V390" fill="none" stroke="#666" stroke-width="2" />
+  <polygon points="535,390 530,380 540,380" fill="#666" />
+  
+  <!-- Backend API to PostgreSQL -->
+  <path d="M535 350 V510" fill="none" stroke="#666" stroke-width="2" />
+  <polygon points="535,510 530,500 540,500" fill="#666" />
+  
+  <!-- Backend API to Client -->
+  <path d="M620 295 H680" fill="none" stroke="#666" stroke-width="2" />
+  <polygon points="680,295 670,290 670,300" fill="#666" />
+  
+  <!-- Auth to Backend API -->
+  <path d="M765 160 V240" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="5,5" />
+  <polygon points="765,240 760,230 770,230" fill="#666" />
+  
+  <!-- Client to Auth -->
+  <path d="M765 240 V160" fill="none" stroke="#666" stroke-width="2" />
+  <polygon points="765,160 760,170 770,170" fill="#666" />
+  
+  <!-- Monitoring connections -->
+  <path d="M620 150 H650 A10 10 0 0 1 660 160 V430 A10 10 0 0 0 670 440 H680" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="5,5" />
+  <path d="M620 295 H650 A10 10 0 0 1 660 305 V430 A10 10 0 0 0 670 440 H680" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="5,5" />
+  <path d="M620 430 H680" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="5,5" />
+  
+  <!-- Development tools connections -->
+  <path d="M765 495 V510" fill="none" stroke="#666" stroke-width="2" />
+  <polygon points="765,510 760,500 770,500" fill="#666" />
+  
+  <!-- Docker Compose Container Lines -->
+  <rect x="10" y="50" width="860" height="550" rx="10" fill="none" stroke="#666" stroke-width="1" stroke-dasharray="5,5" />
+  <text x="440" y="640" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Docker Compose Managed Environment</text>
+  
+  <!-- Legend -->
+  <rect x="30" y="600" width="15" height="15" fill="#e1f5fe" stroke="#01579b" stroke-width="2" />
+  <text x="55" y="613" font-family="Arial" font-size="12">Data Sources</text>
+  
+  <rect x="130" y="600" width="15" height="15" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2" />
+  <text x="155" y="613" font-family="Arial" font-size="12">Event Ingestion</text>
+  
+  <rect x="250" y="600" width="15" height="15" fill="#fff3e0" stroke="#e65100" stroke-width="2" />
+  <text x="275" y="613" font-family="Arial" font-size="12">Processing</text>
+  
+  <rect x="350" y="600" width="15" height="15" fill="#e1bee7" stroke="#6a1b9a" stroke-width="2" />
+  <text x="375" y="613" font-family="Arial" font-size="12">API Layer</text>
+  
+  <rect x="450" y="600" width="15" height="15" fill="#ffecb3" stroke="#ff6f00" stroke-width="2" />
+  <text x="475" y="613" font-family="Arial" font-size="12">Cache</text>
+  
+  <rect x="530" y="600" width="15" height="15" fill="#bbdefb" stroke="#0d47a1" stroke-width="2" />
+  <text x="555" y="613" font-family="Arial" font-size="12">Data Storage</text>
+  
+  <rect x="630" y="600" width="15" height="15" fill="#dcedc8" stroke="#33691e" stroke-width="2" />
+  <text x="655" y="613" font-family="Arial" font-size="12">Client Apps</text>
+  
+  <rect x="730" y="600" width="15" height="15" fill="#ffcdd2" stroke="#b71c1c" stroke-width="2" />
+  <text x="755" y="613" font-family="Arial" font-size="12">Monitoring</text>
+  
+  <rect x="830" y="600" width="15" height="15" fill="#b2dfdb" stroke="#00695c" stroke-width="2" />
+  <text x="855" y="613" font-family="Arial" font-size="12">Dev Tools</text>
+  
+  <!-- Phase Labels -->
+  <rect x="20" y="520" width="170" height="70" rx="5" fill="white" stroke="#666" stroke-width="1" fill-opacity="0.8" />
+  <text x="105" y="540" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Phased Implementation</text>
+  <text x="105" y="560" font-family="Arial" font-size="11" text-anchor="middle">Phase 1: FinBERT Only</text>
+  <text x="105" y="575" font-family="Arial" font-size="11" text-anchor="middle">Phase 2: Add FinGPT</text>
+  <text x="105" y="590" font-family="Arial" font-size="11" text-anchor="middle">Phase 3: Add Llama 4 Scout</text>
+  
+  <!-- Data Flow Labels -->
+  <rect x="280" y="260" width="120" height="30" rx="15" fill="white" stroke="#666" stroke-width="1" />
+  <text x="340" y="280" font-family="Arial" font-size="12" text-anchor="middle">Sentiment Events</text>
+  
+  <rect x="630" y="380" width="120" height="30" rx="15" fill="white" stroke="#666" stroke-width="1" />
+  <text x="690" y="400" font-family="Arial" font-size="12" text-anchor="middle">Telemetry</text>
+  
+  <rect x="650" y="180" width="120" height="30" rx="15" fill="white" stroke="#666" stroke-width="1" />
+  <text x="710" y="200" font-family="Arial" font-size="12" text-anchor="middle">JWT Auth Flow</text>
+</svg>
+</div>
+</body>
+</html>

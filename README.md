@@ -1,121 +1,113 @@
-# Real-Time Sentiment Analysis for Trading
+# Real-Time Sentiment Analysis System
 
-A real-time financial sentiment analysis system for trading applications, processing news and social media data to provide actionable sentiment insights.
+This repository contains a comprehensive system for real-time sentiment analysis of financial market data.
 
-## Features
+## System Components
 
-- Real-time sentiment analysis of financial news and social media
-- Multiple sentiment analysis models (FinBERT, FinGPT, Llama4)
-- API access with tier-based subscription model
-- Event-driven architecture with Kafka/Event Hub
-- Redis caching for low-latency responses
-- Docker containerization for easy deployment
+The system is composed of several interconnected components:
 
-## Architecture
+1. **Data Acquisition Service**: Collects financial data from various sources
+2. **Sentiment Analysis Service**: Processes text data to extract sentiment
+3. **API Server**: Provides access to sentiment data and statistics
+4. **Storage Engine**: Parquet files and Redis for data persistence
+5. **Dashboard UI**: Visualization of sentiment trends
 
-The application is built with a microservices architecture:
+## New Features
 
-1. **Data Acquisition Layer**: Collects data from various sources
-2. **Event Ingestion Layer**: Processes events via Kafka/Event Hub
-3. **Processing Layer**: Analyzes sentiment using ML models
-4. **API Layer**: Exposes REST endpoints
-5. **Data Persistence Layer**: Stores results
-6. **Monitoring Layer**: Provides metrics and logging
+### Parquet Integration
 
-## Setup
+We've added robust Apache Parquet integration for efficient storage and analysis of historical sentiment data:
+
+- **Columnar Storage**: Efficient storage format optimized for analytical queries
+- **Fast Querying**: Predicate pushdown and column pruning for performance
+- **Historical Analysis**: Access to historical sentiment trends and patterns
+- **Redis Caching**: In-memory caching for frequently accessed data
+- **API Integration**: New endpoints for historical sentiment analysis
+
+Learn more in our [Parquet Integration Documentation](Documentation/parquet_integration.md) and [Historical Sentiment API](Documentation/historical_sentiment_api.md) guides.
+
+## New Component: Ticker Sentiment Analyzer
+
+A new component has been added:
+
+### Ticker Sentiment Analyzer
+
+The Ticker Sentiment Analyzer provides time-weighted sentiment analysis for top S&P 500 tickers with the following features:
+
+- **Time-Weighted Scoring**: Prioritizes recent sentiment data
+- **Source Credibility**: Weights data based on source reliability
+- **Real-Time Dashboard**: Interactive visualization of sentiment trends
+- **Historical Analysis**: Tracks sentiment changes over time
+
+#### Key Components:
+
+- **Sentiment Model**: Calculates weighted sentiment scores
+- **Redis Cache**: Real-time caching of events and scores
+- **Parquet Reader**: Access to historical sentiment data
+- **S&P 500 Tracker**: Top ticker identification
+- **Streamlit Dashboard**: User interface for visualization
+
+## Documentation
+
+- [System Architecture](/documentation/architecture/sentiment_analyzer_architecture.md)
+- [Redis Schema Design](/documentation/architecture/redis_schema.md)
+- [Usage Guide](/documentation/usage_guide.md)
+- [Architecture Overview](/documentation/architecture_overview.md)
+- [Parquet Integration](/Documentation/parquet_integration.md)
+- [Historical Sentiment API](/Documentation/historical_sentiment_api.md)
+
+## Getting Started
 
 ### Prerequisites
 
-- Docker and Docker Compose
-- NVIDIA Docker runtime (for GPU support)
+- Python 3.8+
+- Redis server
+- Access to Parquet sentiment data files
 
-### Quick Start
+### Installation
 
-1. Clone the repository
-2. Run the setup script to download models:
+1. Install dependencies:
+   ```bash
+   pip install -r sentiment_analyzer/requirements.txt
    ```
-   ./scripts/download_models.sh
+
+2. Ensure Redis is running:
+   ```bash
+   redis-cli ping  # Should return "PONG"
    ```
-3. Start the services:
+
+3. Configure the system:
+   Create a `config.json` file with connection settings and parameters.
+
+### Running the System
+
+1. Start the main service:
+   ```bash
+   python sentiment_analyzer/main.py --config config.json
    ```
-   docker-compose up -d
+
+2. Launch the dashboard:
+   ```bash
+   cd sentiment_analyzer
+   streamlit run ui/app.py
    ```
-4. Access the API at http://localhost:8001
 
-## Configuration
+## Testing
 
-Configuration is managed through environment variables, which can be set in the `.env` file or directly in the `docker-compose.yml` file.
-
-### Environment Variables
-
-- `FINBERT_USE_ONNX`: Whether to use ONNX runtime (true/false)
-- `FINBERT_USE_GPU`: Whether to use GPU acceleration (true/false)
-- `REDIS_HOST`: Redis hostname
-- `REDIS_PORT`: Redis port
-- `KAFKA_BOOTSTRAP_SERVERS`: Kafka broker addresses
-
-## Development
-
-### Running Tests
-
-The project includes unit tests, mock-based integration tests, and full integration tests.
-
-To run the mock-based tests (recommended for development):
+Run the tests to verify functionality:
 
 ```bash
-./run_tests.sh --mock
+# Run all tests
+python -m unittest discover tests/sentiment_tests
+
+# Run Parquet integration tests
+pytest tests/test_parquet_integration.py
 ```
-
-To run unit tests for the API:
-
-```bash
-./run_tests.sh --unit
-```
-
-To run full integration tests with Docker Compose:
-
-```bash
-./run_tests.sh --integration
-```
-
-You can also run tests directly inside a running container:
-
-```bash
-docker compose up -d
-docker compose exec api pytest
-```
-
-For more details about testing, see [TESTING.md](TESTING.md).
-
-### Code Formatting
-
-Format code using Black and isort:
-
-```bash
-black .
-isort .
-```
-
-### Type Checking
-
-Check types with MyPy:
-
-```bash
-mypy .
-```
-
-## API Documentation
-
-When running, the API documentation is available at:
-- http://localhost:8001/docs (Swagger UI)
-- http://localhost:8001/redoc (ReDoc)
-
-## Monitoring
-
-- Prometheus metrics: http://localhost:9090
-- Grafana dashboards: http://localhost:3000
-- Kafka monitoring: http://localhost:8080
 
 ## License
 
-[MIT License](LICENSE)
+[Insert license information here]
+
+## Contributors
+
+[Insert contributor information here]

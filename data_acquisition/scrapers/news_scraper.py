@@ -4,6 +4,7 @@ News website scraper implementation.
 import logging
 import aiohttp
 import re
+import os
 from typing import Dict, List, Any, Optional
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
@@ -33,6 +34,11 @@ class NewsScraper(BaseScraper):
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
         }
+        
+        # Setup data directories
+        self.output_dir = os.path.join(os.getcwd(), "data", "output")
+        os.makedirs(self.output_dir, exist_ok=True)
+        
         logger.info(f"Initialized {self.name}")
     
     async def process_data(self, data: List[Dict[str, Any]]):
@@ -62,6 +68,10 @@ class NewsScraper(BaseScraper):
             # Send to appropriate topic
             await self.producer.send(item, priority)
             logger.debug(f"Sent item to {priority} priority topic: {item.get('title', '')}")
+        
+        # Save to Parquet files
+        self._save_to_parquet(data)
+        logger.info(f"Saved {len(data)} news articles to Parquet files")
     
     async def scrape(self) -> List[Dict[str, Any]]:
         """
@@ -152,33 +162,114 @@ class NewsScraper(BaseScraper):
         soup = BeautifulSoup(html_content, 'html.parser')
         source_name = source["name"].lower()
         
-        # Example of source-specific parsing
+        articles = []
+        
+        # Updated selectors for various financial news sites
+        # Try multiple selectors for each site to improve resilience
         if "financial times" in source_name:
-            # CSS selectors for FT articles
-            articles = soup.select('div.o-teaser')
+            # Modern FT selectors
+            selectors = [
+                'div.o-teaser', 
+                'div.o-teaser__content',
+                'div[data-trackable="story-card"]',
+                'li.o-teaser-collection__item',
+                'article.o-teaser'
+            ]
+            for selector in selectors:
+                articles.extend(soup.select(selector))
+                
         elif "wall street journal" in source_name:
-            # CSS selectors for WSJ articles
-            articles = soup.select('article.WSJTheme--story--')
+            # Updated WSJ selectors
+            selectors = [
+                'article.WSJTheme--story--',
+                'article.css-xp4jfu',
+                'div.WSJTheme--story--',
+                'div.article-wrap',
+                'div.wsj-card'
+            ]
+            for selector in selectors:
+                articles.extend(soup.select(selector))
+                
         elif "bloomberg" in source_name:
-            # CSS selectors for Bloomberg articles
-            articles = soup.select('article.story-package-module__story')
+            # Bloomberg selectors
+            selectors = [
+                'article.story-package-module__story',
+                'article.story-list-story',
+                'div.story-package-module__story',
+                'div.story-list-item',
+                'div[data-type="article"]'
+            ]
+            for selector in selectors:
+                articles.extend(soup.select(selector))
+                
         elif "yahoo finance" in source_name:
-            # CSS selectors for Yahoo Finance articles
-            articles = soup.select('div.Ov\(h\).Pend\(44px\)')
+            # Yahoo Finance selectors
+            selectors = [
+                'div.Ov\\(h\\).Pend\\(44px\\)',
+                'div.js-stream-content',
+                'li.js-stream-content',
+                'div.Pos\\(r\\)',
+                'div.finance-list-item'
+            ]
+            for selector in selectors:
+                try:
+                    articles.extend(soup.select(selector))
+                except Exception:
+                    # Some complex selectors might fail
+                    continue
+                    
+        elif "cnbc" in source_name:
+            # CNBC selectors
+            selectors = [
+                'div.Card-standardBreakerCard',
+                'div.Card-card',
+                'div.RiverCard-container',
+                'div.Card',
+                'div.SearchResult-searchResult'
+            ]
+            for selector in selectors:
+                articles.extend(soup.select(selector))
+                
         elif "marketwatch" in source_name:
-            # CSS selectors for MarketWatch articles
-            articles = soup.select('div.article__content')
-        else:
+            # MarketWatch selectors
+            selectors = [
+                'div.article__content',
+                'div.element--article',
+                'div.collection__elements',
+                'div.story__body',
+                'div.story'
+            ]
+            for selector in selectors:
+                articles.extend(soup.select(selector))
+                
+        elif "reuters" in source_name:
+            # Reuters selectors
+            selectors = [
+                'article[data-testid="stack-article-card"]',
+                'li.news-feed-item',
+                'div.news-card',
+                'article.story',
+                'div.item'
+            ]
+            for selector in selectors:
+                articles.extend(soup.select(selector))
+                
+        # If no articles found with specific selectors, try generic approaches
+        if not articles:
             # Generic article finder for other sources
             # Look for common article patterns
+            logger.info(f"No specific selectors matched for {source['name']}, trying generic selectors")
             article_candidates = []
             article_candidates.extend(soup.select('article'))
             article_candidates.extend(soup.select('div.article'))
             article_candidates.extend(soup.select('.story'))
             article_candidates.extend(soup.select('.news-item'))
+            article_candidates.extend(soup.select('[data-article-id]'))
+            article_candidates.extend(soup.select('[data-story-id]'))
             
-            # If nothing found with specific selectors, try to find by tag and class patterns
+            # If still nothing found, try to find by tag and class patterns
             if not article_candidates:
+                logger.info(f"No generic article selectors matched for {source['name']}, searching div elements")
                 for div in soup.find_all('div'):
                     classes = div.get('class', [])
                     if any(c for c in classes if 'article' in c.lower() or 'story' in c.lower() or 'news' in c.lower()):
@@ -186,11 +277,25 @@ class NewsScraper(BaseScraper):
             
             articles = article_candidates
         
-        # For testing purposes, if no articles are found, return some divs as a fallback
+        # Smart fallback: if we still have no articles, look for divs containing title-like elements
         if not articles:
-            logger.warning(f"No articles found for {source['name']}, using fallback method")
-            articles = soup.find_all('div', limit=5)  # Get first 5 divs as a fallback
+            logger.warning(f"No articles found for {source['name']}, using smart fallback method")
+            # Look for divs with h2/h3 elements - likely to be article containers
+            for div in soup.find_all('div'):
+                if div.find('h2') or div.find('h3'):
+                    # Check if it has a paragraph too - more likely to be an article
+                    if div.find('p'):
+                        articles.append(div)
+            
+            # If that didn't work, try to find any elements with links and text
+            if not articles:
+                logger.warning(f"Smart fallback failed for {source['name']}, using basic fallback")
+                for div in soup.find_all(['div', 'li'], limit=10):
+                    # Only consider divs with some paragraph text and a link
+                    if div.find('a') and div.text and len(div.text.strip()) > 50:
+                        articles.append(div)
         
+        logger.info(f"Found {len(articles)} potential articles for {source['name']}")
         return articles
 
     def _extract_title(self, article, source) -> str:

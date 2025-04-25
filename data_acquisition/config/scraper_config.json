@@ -2,16 +2,49 @@
   "kafka_bootstrap_servers": "kafka:9092",
   "high_priority_topic": "sentiment-events-high",
   "standard_priority_topic": "sentiment-events-standard",
-  "polling_interval": 60,
+  "polling_interval": 300,
+  "news_polling_interval": 600,
+  "reddit_polling_interval": 300,
+  "cache_max_age_days": 14,
   "sources": [
+    {"name": "Yahoo Finance", "url": "https://finance.yahoo.com/news"},
+    {"name": "MarketWatch", "url": "https://www.marketwatch.com/latest-news"},
+    {"name": "CNBC", "url": "https://www.cnbc.com/markets"},
+    {"name": "Reuters Business", "url": "https://www.reuters.com/business"},
+    {"name": "Bloomberg Markets", "url": "https://www.bloomberg.com/markets"},
+    {"name": "TheStreet", "url": "https://www.thestreet.com"},
+    {"name": "Seeking Alpha", "url": "https://seekingalpha.com/market-news"},
+    {"name": "Investing.com", "url": "https://www.investing.com/news/stock-market-news"}
+  ],
+  "premium_sources": [
     {"name": "Financial Times", "url": "https://www.ft.com"},
     {"name": "Wall Street Journal", "url": "https://www.wsj.com"}
   ],
   "platforms": [
-    {"name": "Twitter", "api_endpoint": "https://api.twitter.com/2/tweets/search/recent"}
+    {"name": "Twitter", "api_endpoint": "https://api.twitter.com/2/tweets/search/recent", "enabled": false}
   ],
-  "sites": [
-    {"name": "Yahoo Finance", "url": "https://finance.yahoo.com"},
-    {"name": "MarketWatch", "url": "https://www.marketwatch.com"}
-  ]
+  "reddit_subreddits": [
+    "wallstreetbets",
+    "investing",
+    "stocks",
+    "options",
+    "stockmarket",
+    "finance",
+    "personalfinance",
+    "economy",
+    "cryptocurrency",
+    "SecurityAnalysis"
+  ],
+  "reddit_sort_by": "hot",
+  "reddit_time_filter": "day",
+  "reddit_post_limit": 50,
+  "enable_reddit": true,
+  "deduplication": {
+    "enabled": true,
+    "ttl_days": 14
+  },
+  "retry": {
+    "max_attempts": 3,
+    "delay_seconds": 5
+  }
 }

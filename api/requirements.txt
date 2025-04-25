@@ -9,3 +9,4 @@ asyncpg==0.28.0
 redis==4.6.0
 python-dotenv==1.0.0
 prometheus-client==0.17.1
+sqlalchemy==2.0.23

@@ -1,0 +1,120 @@
+services:
+  # Override configurations for specific services
+  
+  # Add metrics service for Grafana dashboard
+  metrics-for-grafana:
+    image: python:3.10-slim
+    command: sh -c "pip install prometheus_client && python /app.py"
+    volumes:
+      - /tmp/simple_metrics_server.py:/app.py
+    ports:
+      - "8084:8084"
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  sentiment-analysis:
+    environment:
+      # Configuration overrides
+      AUTOSTART_LISTENERS: "false"  # Disable automatic starting of event listeners
+      LOG_LEVEL: "DEBUG"            # Set more verbose logging for development
+    ports:
+      - "8095:8000"                 # Expose the API port for direct testing
+  
+  # Fix Kafka networking issues
+  kafka:
+    hostname: kafka
+    networks:
+      - default
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "kafka:127.0.0.1"
+  
+  # Update web-scraper to improve Kafka connection
+  web-scraper:
+    depends_on:
+      - kafka
+    extra_hosts:
+      - "kafka:host-gateway"
+    networks:
+      - default
+    volumes:
+      - ./data_acquisition:/app
+      - ./data:/app/data  # Mount the data directory for output
+      
+  # Configure prometheus to access host metrics  
+  prometheus:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/rules:/etc/prometheus/rules
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      
+  # Configure Grafana with improved dashboard provisioning
+  grafana:
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_LOG_LEVEL=debug
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+  
+  # Add cadvisor to monitor Docker containers
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports:
+      - "8090:8080"
+    restart: unless-stopped
+    
+  # Add metrics server for historical scraper
+  scraper-metrics:
+    build:
+      context: ./data_acquisition
+      dockerfile: Dockerfile.metrics
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      
+  # Add metrics server for parquet data
+  parquet-metrics:
+    build:
+      context: ./data_acquisition
+      dockerfile: Dockerfile.parquet-metrics
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "8082:8082"
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      
+  # Add clean metrics proxy
+  clean-metrics-proxy:
+    build:
+      context: ./data_acquisition
+      dockerfile: Dockerfile.metrics-proxy
+    command: python clean_metrics_proxy.py --port 8085 --target http://scraper-metrics:8081/metrics
+    ports:
+      - "8085:8085"
+    restart: unless-stopped
+    depends_on:
+      - scraper-metrics
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

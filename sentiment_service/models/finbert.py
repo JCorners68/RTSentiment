@@ -1,14 +1,17 @@
 import logging
 import os
 import asyncio
+import math
+from datetime import datetime, timedelta
 from pathlib import Path
 import json
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Union, Tuple
 
 # Mock imports for testing without real dependencies
 try:
     import torch
     import numpy as np
+    import pandas as pd
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
     import onnxruntime as ort
     HAVE_DEPS = True
@@ -42,6 +45,9 @@ except ImportError:
         @staticmethod
         def sum(x, **kwargs):
             return 1.0
+            
+    class pd:
+        DataFrame = dict
 
 logger = logging.getLogger(__name__)
 
@@ -51,13 +57,14 @@ class FinBertModel:
     Supports both PyTorch and ONNX runtime inference.
     """
     
-    def __init__(self, use_onnx=True, use_gpu=True):
+    def __init__(self, use_onnx=True, use_gpu=True, model_dir=None):
         """
         Initialize the FinBERT model.
         
         Args:
             use_onnx (bool): Whether to use ONNX runtime for inference.
             use_gpu (bool): Whether to use GPU for inference.
+            model_dir (str, optional): Directory containing model weights.
         """
         self.use_onnx = use_onnx
         self.use_gpu = use_gpu and torch.cuda.is_available()
@@ -69,10 +76,29 @@ class FinBertModel:
         self.labels = ["negative", "neutral", "positive"]
         
         # Model paths
-        self.model_dir = Path(os.getenv("MODEL_DIR", "./models/weights"))
+        if model_dir:
+            self.model_dir = Path(model_dir)
+        else:
+            self.model_dir = Path(os.getenv("MODEL_DIR", "./models/weights"))
+        
         self.model_name = "finbert-sentiment"
         self.pytorch_path = self.model_dir / "pytorch"
         self.onnx_path = self.model_dir / "onnx" / "finbert-sentiment.onnx"
+        
+        # Source credibility configuration
+        self.source_credibility = {
+            "NewsScraper": 0.9,
+            "RedditScraper": 0.7,
+            "TwitterScraper": 0.6,
+            "default": 0.8
+        }
+        
+        # Time decay parameters
+        self.time_decay_half_life_days = 5.0  # Half-life in days
+        self.time_decay_factor = math.log(2) / (self.time_decay_half_life_days * 24 * 60 * 60)  # Convert to seconds
+        
+        # Batch processing settings
+        self.batch_size = int(os.getenv("FINBERT_BATCH_SIZE", "16"))
         
         logger.info(f"Initializing FinBERT model (ONNX: {use_onnx}, GPU: {self.use_gpu})")
     
@@ -172,6 +198,254 @@ class FinBertModel:
             return await self._predict_onnx(inputs, texts)
         else:
             return await self._predict_pytorch(inputs, texts)
+    
+    async def predict_batch(self, texts: List[str], batch_size: Optional[int] = None) -> List[Dict[str, Any]]:
+        """
+        Predict sentiment for a large batch of texts.
+        
+        Args:
+            texts (List[str]): List of texts to analyze
+            batch_size (Optional[int]): Size of batches to process. If None, uses self.batch_size
+            
+        Returns:
+            List[Dict[str, Any]]: List of dictionaries with sentiment predictions
+        """
+        if not batch_size:
+            batch_size = self.batch_size
+            
+        results = []
+        
+        # Process in batches to avoid OOM errors
+        for i in range(0, len(texts), batch_size):
+            batch_texts = texts[i:i + batch_size]
+            batch_results = await self.predict(batch_texts)
+            results.extend(batch_results)
+            
+            # Add a small delay to prevent resource exhaustion
+            await asyncio.sleep(0.01)
+        
+        return results
+    
+    async def process_parquet_data(self, 
+                                   parquet_path: Union[str, Path],
+                                   text_column: str = "article_title",
+                                   timestamp_column: str = "timestamp",
+                                   source_column: str = "source",
+                                   confidence_column: str = "confidence",
+                                   ticker_column: str = "ticker") -> pd.DataFrame:
+        """
+        Process sentiment from a Parquet file.
+        
+        Args:
+            parquet_path (Union[str, Path]): Path to Parquet file
+            text_column (str): Column containing text to analyze
+            timestamp_column (str): Column containing timestamps
+            source_column (str): Column containing source information
+            confidence_column (str): Column containing confidence scores
+            ticker_column (str): Column containing ticker symbols
+            
+        Returns:
+            pd.DataFrame: DataFrame with sentiment scores
+        """
+        try:
+            # Read Parquet file
+            df = pd.read_parquet(parquet_path)
+            
+            if df.empty:
+                logger.warning(f"Parquet file is empty: {parquet_path}")
+                return df
+                
+            # Check required columns
+            for col in [text_column, timestamp_column]:
+                if col not in df.columns:
+                    logger.error(f"Required column '{col}' not found in Parquet file: {parquet_path}")
+                    return df
+            
+            # Extract texts for sentiment analysis
+            texts = df[text_column].tolist()
+            
+            # Analyze sentiment
+            sentiment_results = await self.predict_batch(texts)
+            
+            # Extract sentiment scores
+            sentiment_scores = [result["sentiment_score"] for result in sentiment_results]
+            sentiment_labels = [result["sentiment_label"] for result in sentiment_results]
+            
+            # Add to DataFrame
+            df["sentiment_raw"] = sentiment_scores
+            df["sentiment_label"] = sentiment_labels
+            
+            # Apply time decay and source credibility if available
+            if timestamp_column in df.columns:
+                df["timestamp_dt"] = pd.to_datetime(df[timestamp_column])
+                
+                # Calculate time decay factors
+                now = datetime.now()
+                df["time_decay"] = df["timestamp_dt"].apply(
+                    lambda x: self._calculate_time_decay(x, now)
+                )
+            else:
+                df["time_decay"] = 1.0
+            
+            # Apply source credibility if available
+            if source_column in df.columns:
+                df["source_credibility"] = df[source_column].apply(
+                    lambda x: self.source_credibility.get(x, self.source_credibility["default"])
+                )
+            else:
+                df["source_credibility"] = self.source_credibility["default"]
+            
+            # Apply confidence weighting if available
+            if confidence_column not in df.columns:
+                df[confidence_column] = 0.8  # Default confidence
+            
+            # Calculate final weighted sentiment score
+            df["sentiment"] = df.apply(
+                lambda row: self._calculate_weighted_sentiment(
+                    row["sentiment_raw"],
+                    row["source_credibility"],
+                    row[confidence_column],
+                    row["time_decay"]
+                ),
+                axis=1
+            )
+            
+            return df
+            
+        except Exception as e:
+            logger.error(f"Error processing Parquet file: {str(e)}")
+            return pd.DataFrame()
+    
+    async def analyze_ticker_sentiment(self, 
+                                       parquet_path: Union[str, Path], 
+                                       ticker: str,
+                                       start_date: Optional[str] = None,
+                                       end_date: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Analyze sentiment for a specific ticker.
+        
+        Args:
+            parquet_path (Union[str, Path]): Path to Parquet file or directory
+            ticker (str): Ticker symbol to analyze
+            start_date (Optional[str]): Start date for filtering (ISO format)
+            end_date (Optional[str]): End date for filtering (ISO format)
+            
+        Returns:
+            Dict[str, Any]: Dictionary with sentiment analysis results
+        """
+        try:
+            # Determine if path is a file or directory
+            path = Path(parquet_path)
+            
+            if path.is_file():
+                # Single file
+                df = await self.process_parquet_data(path)
+            elif path.is_dir():
+                # Directory - look for ticker-specific file
+                ticker_file = path / f"{ticker.lower()}_sentiment.parquet"
+                if ticker_file.exists():
+                    df = await self.process_parquet_data(ticker_file)
+                else:
+                    # Check multi_ticker file
+                    multi_ticker_file = path / "multi_ticker_sentiment.parquet"
+                    if multi_ticker_file.exists():
+                        df = await self.process_parquet_data(multi_ticker_file)
+                    else:
+                        logger.error(f"No sentiment data found for ticker {ticker}")
+                        return {"error": f"No sentiment data found for ticker {ticker}"}
+            else:
+                logger.error(f"Invalid path: {parquet_path}")
+                return {"error": f"Invalid path: {parquet_path}"}
+            
+            # Filter for the specific ticker
+            df = df[df["ticker"] == ticker.upper()]
+            
+            # Apply date filters
+            if start_date or end_date:
+                df["timestamp_dt"] = pd.to_datetime(df["timestamp"])
+                
+                if start_date:
+                    start_dt = pd.to_datetime(start_date)
+                    df = df[df["timestamp_dt"] >= start_dt]
+                
+                if end_date:
+                    end_dt = pd.to_datetime(end_date)
+                    df = df[df["timestamp_dt"] <= end_dt]
+            
+            # Calculate average sentiment
+            if df.empty:
+                return {
+                    "ticker": ticker,
+                    "average_sentiment": 0.0,
+                    "count": 0,
+                    "sentiment_distribution": {"positive": 0, "neutral": 0, "negative": 0},
+                    "time_period": {"start": start_date, "end": end_date}
+                }
+            
+            # Weight by confidence
+            weighted_sentiment = (df["sentiment"] * df["confidence"]).sum() / df["confidence"].sum()
+            
+            # Count sentiment categories
+            sentiment_counts = df["sentiment_label"].value_counts().to_dict()
+            for label in ["positive", "neutral", "negative"]:
+                if label not in sentiment_counts:
+                    sentiment_counts[label] = 0
+            
+            return {
+                "ticker": ticker,
+                "average_sentiment": float(weighted_sentiment),
+                "count": len(df),
+                "sentiment_distribution": sentiment_counts,
+                "time_period": {"start": start_date, "end": end_date}
+            }
+            
+        except Exception as e:
+            logger.error(f"Error analyzing ticker sentiment: {str(e)}")
+            return {"error": str(e)}
+    
+    def _calculate_time_decay(self, timestamp: datetime, current_time: datetime) -> float:
+        """
+        Calculate time decay factor based on elapsed time.
+        
+        Args:
+            timestamp (datetime): Timestamp of the event
+            current_time (datetime): Current time
+            
+        Returns:
+            float: Time decay factor (0-1)
+        """
+        # Calculate time difference in seconds
+        time_diff = (current_time - timestamp).total_seconds()
+        
+        # Apply exponential decay
+        if time_diff < 0:  # Future events get full weight
+            return 1.0
+            
+        decay = math.exp(-self.time_decay_factor * time_diff)
+        return max(0.1, decay)  # Minimum decay factor of 0.1
+    
+    def _calculate_weighted_sentiment(self, 
+                                     raw_sentiment: float, 
+                                     source_credibility: float,
+                                     confidence: float,
+                                     time_decay: float) -> float:
+        """
+        Calculate weighted sentiment score.
+        
+        Args:
+            raw_sentiment (float): Raw sentiment score (-1 to 1)
+            source_credibility (float): Source credibility factor (0-1)
+            confidence (float): Model confidence (0-1)
+            time_decay (float): Time decay factor (0-1)
+            
+        Returns:
+            float: Weighted sentiment score
+        """
+        # Combine factors - each factor scales the sentiment
+        weight = source_credibility * confidence * time_decay
+        
+        # Apply weight to raw sentiment
+        return raw_sentiment * weight
             
     def _predict_mock(self, texts):
         """Mock prediction for testing."""

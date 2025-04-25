@@ -1,0 +1,27 @@
+groups:
+  - name: scraper_metrics
+    interval: 1m
+    rules:
+      - record: job:scraper_items_per_minute
+        expr: rate(scraper_items_scraped_total[5m]) * 60
+      
+      - record: job:scraper_avg_processing_time
+        expr: rate(scraper_processing_duration_seconds_sum[5m]) / rate(scraper_processing_duration_seconds_count[5m])
+      
+      - record: job:scraper_error_rate
+        expr: rate(scraper_errors_total[5m])
+      
+      - record: job:scraper_cache_hit_ratio
+        expr: sum by(source) (rate(scraper_cache_hits_total[5m])) / (sum by(source) (rate(scraper_cache_hits_total[5m])) + sum by(source) (rate(scraper_cache_misses_total[5m])))
+
+  - name: resource_metrics
+    interval: 1m
+    rules:
+      - record: job:cpu_usage_percent
+        expr: 100 * avg by (job) (rate(process_cpu_seconds_total[1m]))
+      
+      - record: job:memory_usage_mb
+        expr: sum by (job) (process_resident_memory_bytes / 1024 / 1024)
+      
+      - record: job:open_file_descriptors_count
+        expr: process_open_fds

@@ -9,6 +9,11 @@ from utils.cache import RedisClient
 from utils.api_client import ApiClient
 from models.model_factory import ModelFactory, ModelType
 
+try:
+    from config import config
+except ImportError:
+    from sentiment_service.config import config
+
 logger = logging.getLogger(__name__)
 
 class BaseConsumer(ABC):
@@ -42,12 +47,12 @@ class BaseConsumer(ABC):
         self.consumer = None
         self.running = False
         
-        # Circuit breaker configuration
-        self.retry_interval = 5  # seconds
-        self.max_retries = 5
+        # Circuit breaker configuration from config
+        self.retry_interval = config["RETRY_INTERVAL"]
+        self.max_retries = config["MAX_RETRIES"]
         self.circuit_breaker_failures = 0
-        self.circuit_breaker_threshold = 3
-        self.circuit_breaker_reset_time = 60  # seconds
+        self.circuit_breaker_threshold = config["CIRCUIT_BREAKER_THRESHOLD"]
+        self.circuit_breaker_reset_time = config["CIRCUIT_BREAKER_RESET_TIME"]
         self.circuit_breaker_timer = None
     
     async def connect(self):

@@ -1,0 +1,18 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Copy requirements file to leverage Docker's caching
+COPY requirements.txt .
+
+# Install dependencies including Flask and Waitress for the proxy server
+RUN pip install --no-cache-dir -r requirements.txt flask waitress
+
+# Copy the application
+COPY . .
+
+# Expose the metrics port
+EXPOSE 8085
+
+# The command will be provided in docker-compose.yml
+CMD ["python", "clean_metrics_proxy.py", "--port", "8085", "--target", "http://web-scraper:8080/metrics"]

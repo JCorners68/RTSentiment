@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://pgadmin:localdev@postgres:5432/sentimentdb?sslmode=disable"
+    ports:
+      - "9187:9187"
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:9187/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis-exporter:
+    image: oliver006/redis_exporter
+    ports:
+      - "9121:9121"
+    command:
+      - '--redis.addr=redis://redis:6379'
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:9121/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports:
+      - "8090:8080"
+    depends_on:
+      - redis
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager:/etc/alertmanager
+      - alertmanager-data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+
+  prometheus:
+    volumes:
+      - ./monitoring/prometheus/rules:/etc/prometheus/rules
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+
+  api:
+    environment:
+      - ENABLE_METRICS=true
+      - METRICS_PORT=8001
+    
+  sentiment-analysis:
+    environment:
+      - ENABLE_METRICS=true
+      - METRICS_PORT=8000
+
+  web-scraper:
+    environment:
+      - ENABLE_METRICS=true
+      - METRICS_PORT=8080
+
+  subscription-receiver:
+    environment:
+      - ENABLE_METRICS=true
+      - METRICS_PORT=8080
+
+volumes:
+  alertmanager-data:
