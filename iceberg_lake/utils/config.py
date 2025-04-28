@@ -14,13 +14,13 @@ class IcebergConfig:
     
     DEFAULT_CONFIG = {
         "catalog": {
-            "uri": "http://iceberg-rest:8181",
-            "warehouse_location": "s3a://warehouse",
+            "uri": "http://localhost:8181",
+            "warehouse_location": "file:///tmp/warehouse/",
             "namespace": "sentiment",
             "table_name": "sentiment_data"
         },
         "minio": {
-            "endpoint_url": "http://minio:9000",
+            "endpoint_url": "http://localhost:9000",
             "access_key": "minioadmin",
             "secret_key": "minioadmin",
             "region": "us-east-1",
@@ -29,7 +29,9 @@ class IcebergConfig:
         "dremio": {
             "endpoint": "http://dremio:9047",
             "username": "dremio",
-            "password": "dremio123"
+            "password": "dremio123",
+            "jdbc_port": 31010,
+            "catalog": "DREMIO"
         },
         "writer": {
             "max_retries": 3,
@@ -115,6 +117,12 @@ class IcebergConfig:
             
         if os.environ.get('DREMIO_PASSWORD'):
             self.config['dremio']['password'] = os.environ.get('DREMIO_PASSWORD')
+            
+        if os.environ.get('DREMIO_JDBC_PORT'):
+            self.config['dremio']['jdbc_port'] = int(os.environ.get('DREMIO_JDBC_PORT'))
+            
+        if os.environ.get('DREMIO_CATALOG'):
+            self.config['dremio']['catalog'] = os.environ.get('DREMIO_CATALOG')
         
         # Writer settings
         if os.environ.get('ICEBERG_WRITER_MAX_RETRIES'):

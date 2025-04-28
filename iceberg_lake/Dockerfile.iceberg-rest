@@ -1,0 +1,31 @@
+FROM eclipse-temurin:17-jre
+
+# Install required packages
+RUN apt-get update && \
+    apt-get install -y curl wget && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set up working directory
+WORKDIR /opt/iceberg
+
+# Download the Iceberg REST service jar
+RUN wget -q https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-rest-service/1.3.1/iceberg-rest-service-1.3.1.jar -O iceberg-rest.jar
+
+# Add AWS S3 dependencies
+RUN wget -q https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar -O hadoop-aws.jar && \
+    wget -q https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.367/aws-java-sdk-bundle-1.12.367.jar -O aws-java-sdk-bundle.jar
+
+# Create a directory for the classpath
+RUN mkdir -p /opt/iceberg/libs/
+COPY hadoop-aws.jar /opt/iceberg/libs/
+COPY aws-java-sdk-bundle.jar /opt/iceberg/libs/
+
+# Expose REST service port
+EXPOSE 8181
+
+# Set environment variables
+ENV JAVA_OPTS="-Xmx1g"
+
+# Start the REST service
+CMD ["java", "-cp", "iceberg-rest.jar:libs/*", "org.apache.iceberg.rest.RESTServer", "--port", "8181"]

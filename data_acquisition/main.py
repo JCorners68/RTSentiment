@@ -177,10 +177,15 @@ async def main():
     """
     Main entry point for the scraper service.
     """
-    # Create data directories if they don't exist
-    os.makedirs("data/output", exist_ok=True)
-    os.makedirs("data/cache/deduplication", exist_ok=True)
+    # Create data directories if they don't exist - ensure real data separation
+    os.makedirs("data/output/real", exist_ok=True)
+    os.makedirs("data/cache/real_data/deduplication", exist_ok=True)
     os.makedirs("data/logs", exist_ok=True)
+    
+    # Create simulated data directories (separate from real data)
+    os.makedirs("data_sim/output", exist_ok=True)
+    os.makedirs("data_sim/cache/deduplication", exist_ok=True)
+    os.makedirs("data_sim/logs", exist_ok=True)
     
     logger.info("Web scraper service started")
     

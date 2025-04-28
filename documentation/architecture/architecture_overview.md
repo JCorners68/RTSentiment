@@ -1,138 +1,206 @@
-# Ticker Sentiment Analyzer - Architecture Overview
+# Real-Time Sentiment Analysis - System Architecture Overview
 
 ## System Purpose
 
-The Ticker Sentiment Analyzer extends the existing Real-Time Sentiment Analysis system by providing:
+The Real-Time Sentiment Analysis system provides:
 
-- Continuous tracking of sentiment for top S&P 500 tickers
+- Continuous acquisition and analysis of financial sentiment data from multiple sources
+- Real-time sentiment scoring for financial instruments (stocks, cryptocurrencies, etc.)
 - Time-weighted sentiment calculation with configurable decay functions
 - Impact scoring based on source credibility and engagement metrics
-- Real-time visualization dashboard for sentiment monitoring
-- Historical sentiment trend analysis
+- Real-time visualization through a Flutter dashboard
+- Historical sentiment trend analysis using Parquet file storage
 
 ## High-Level Architecture
 
-The system is composed of five main components:
+The system is composed of these main components:
 
 ```
-┌───────────────────┐       ┌───────────────────┐       ┌───────────────────┐
-│                   │       │                   │       │                   │
-│  Parquet Reader   │◄─────►│  Sentiment Model  │◄─────►│    Redis Cache    │
-│                   │       │                   │       │                   │
-└───────────────────┘       └────────┬──────────┘       └───────────────────┘
+┌───────────────────┐       ┌────────────────────┐       ┌───────────────────┐
+│                   │       │                    │       │                   │
+│  Data Acquisition │──────►│ Sentiment Analysis │──────►│    Data Storage   │
+│                   │       │                    │       │                   │
+└───────────────────┘       └────────────────────┘       └──────────┬────────┘
+                                                                    │
+┌───────────────────┐       ┌────────────────────┐                 │
+│                   │       │                    │                 │
+│     Monitoring    │◄──────┤       API Layer    │◄────────────────┘
+│                   │       │                    │
+└───────────────────┘       └────────┬───────────┘
                                      │
                                      ▼
-┌───────────────────┐       ┌───────────────────┐
-│                   │       │                   │
-│   S&P500 Tracker  │◄─────►│    Streamlit UI   │
-│                   │       │                   │
-└───────────────────┘       └───────────────────┘
+                            ┌────────────────────┐
+                            │                    │
+                            │ Client Applications │
+                            │                    │
+                            └────────────────────┘
 ```
+
+## Component Details
+
+### 1. Data Acquisition (`/data_acquisition`)
+
+Responsible for gathering data from various sources:
+
+- **Scrapers**: Extract data from financial news and social media:
+  - `news_scraper.py`: Financial news sources
+  - `reddit_scraper.py`: Reddit financial communities
+  - Additional specialized scrapers in subdirectories
+  
+- **Subscription Services**: Process premium data sources:
+  - `subscription_service.py`: Coordinates subscription data processing
+  - `subscription/bloomberg.py`: Bloomberg data integration
+  
+- **Data Pre-processing**:
+  - `weight_calculator.py`: Assigns initial weight to data points
+  - `cache_manager.py`: Manages deduplication and caching
+  - `event_producer.py`: Formats and sends events to analysis pipeline
+
+### 2. Sentiment Analysis (`/sentiment_service`, `/sentiment_analyzer`)
+
+Performs sentiment analysis on the acquired data:
+
+- **Analysis Models**:
+  - `finbert.py`: BERT-based financial sentiment model
+  - `fingpt.py`: GPT-based financial sentiment model
+  - `llama4_scout.py`: LLaMA-based model for complex content
+  
+- **Processing Logic**:
+  - `sentiment_analyzer.py`: Core analysis algorithms
+  - `decay_functions.py`: Time-based sentiment decay functions
+  - `impact_scoring.py`: Source credibility and relevance scoring
+  
+- **Event Processing**:
+  - `hipri_consumer.py`: High priority event processing
+  - `stdpri_consumer.py`: Standard priority event processing
+
+### 3. Data Storage
+
+Manages persistence and retrieval of sentiment data:
+
+- **Redis Cache**:
+  - `redis_sentiment_cache.py`: Real-time sentiment storage
+  - `redis_cache.py`: General caching functionality
+  - `redis_manager.py`: Connection and configuration management
+  
+- **Parquet Storage**:
+  - `parquet_reader.py`: Efficient reading of Parquet files
+  - `parquet_loader.py`: Writing and updating Parquet files
+  - Organized by ticker (`{ticker}_sentiment.parquet`)
+  
+- **PostgreSQL Database**:
+  - `database.py`: Database connection and ORM models
+
+### 4. API Layer (`/api`)
+
+Provides access to the system's functionality:
+
+- **REST API**:
+  - `routes/sentiment.py`: Sentiment data endpoints
+  - `routes/stats.py`: Statistical data endpoints
+  - `routes/subscriptions.py`: Subscription management
+  
+- **Authentication**:
+  - `routes/auth.py`: User authentication and authorization
+  - `auth_service/`: Standalone authentication service
+  
+- **Real-time Updates**:
+  - `routes/websocket.py`: WebSocket implementation
+  - `ws_test.py`: WebSocket testing utilities
+
+### 5. Client Applications
+
+User interfaces for interacting with the system:
+
+- **Flutter Dashboard** (`/senti`):
+  - Modern cross-platform application with WebSocket support
+  - State management via Provider architecture
+  - Real-time updates and interactive visualizations
+  
+- **Streamlit Dashboard** (`/streamlit_dashboard`, deprecated):
+  - Legacy web-based visualization interface
+  
+- **Parquet Query Viewer** (`/parquet_query_viewer`):
+  - Specialized tool for querying and visualizing Parquet data
+
+### 6. Monitoring
+
+System observability and metrics:
+
+- **Prometheus & Grafana** (`/monitoring`):
+  - System metrics collection and visualization
+  - Custom alerts for system health
+  
+- **Metrics Collection**:
+  - `metrics.py`: Application-level metrics collection
+  - `metrics_server.py`: Metrics HTTP endpoints
+  - `parquet_metrics_server.py`: Parquet-specific metrics
 
 ## Data Flow
 
-1. **Data Acquisition**:
-   - Parquet Reader loads sentiment events from existing Parquet files
-   - Events are stored in Redis cache with appropriate time-based sorted sets
+1. **Data Collection**:
+   - Scrapers collect data from news and social media
+   - Subscription services process premium data
+   - Data is validated, weighted, and deduplicated
 
-2. **Sentiment Calculation**:
-   - Sentiment Model applies time decay to historical events
-   - Impact scoring weights events by credibility and engagement
-   - Aggregated scores are calculated and stored in Redis
+2. **Sentiment Analysis**:
+   - Events are routed to appropriate analysis models
+   - Multiple models may analyze the same content for verification
+   - Results are scored based on source credibility and content relevance
 
-3. **Ticker Selection**:
-   - S&P500 Tracker identifies top tickers by market cap or volume
-   - Periodically refreshes the tracked ticker list
+3. **Storage & Aggregation**:
+   - Real-time results stored in Redis for immediate access
+   - Aggregated results written to Parquet files for long-term storage
+   - PostgreSQL maintains system state and configuration
 
-4. **Visualization**:
-   - Streamlit UI presents real-time sentiment scores and trends
-   - Allows customization of decay parameters and timeframes
+4. **Access & Visualization**:
+   - API provides data access to client applications
+   - WebSockets deliver real-time updates
+   - Flutter dashboard visualizes current and historical sentiment
 
-5. **Continuous Updates**:
-   - Main service periodically refreshes data from Parquet files
-   - Updates sentiment scores with appropriate time decay
+5. **Monitoring & Maintenance**:
+   - Prometheus collects system metrics
+   - Grafana dashboards visualize performance
+   - Scheduled jobs optimize and maintain Parquet files
 
 ## Integration Points
 
-The system integrates with the existing RTSentiment architecture at these points:
+### External Data Sources
+- News APIs and web scrapers
+- Reddit and other social media platforms
+- Financial data providers through subscription services
 
-1. **Data Sources**:
-   - Reads from the same Parquet files produced by existing scrapers
-   - Uses the same schema for sentiment events
+### Client Integration
+- REST API for data retrieval and system management
+- WebSocket API for real-time updates
+- Authentication system for secure access
 
-2. **Storage**:
-   - Adds Redis as a real-time cache layer
-   - Maintains compatibility with existing Parquet storage
+### Observability
+- Prometheus metrics endpoints
+- Logging infrastructure
+- Health check endpoints
 
-3. **Processing**:
-   - Complements existing sentiment analysis with time-weighted scoring
-   - Provides additional impact metrics based on research
+## Deployment Architecture
 
-## Implementation Details
+The system is deployed using Docker containers:
 
-### Python Libraries:
-- pandas/pyarrow for Parquet processing
-- redis-py for Redis integration
-- streamlit for dashboard UI
-- plotly for interactive visualizations
-
-### Key Algorithms:
-- Time decay functions (exponential, linear, half-life)
-- Impact scoring based on source credibility matrix
-- Weighted sentiment aggregation
-
-### Data Structures:
-- Redis sorted sets for time-ordered events
-- Redis strings for current sentiment scores
-- DataFrame-based processing for historical trends
+- Individual services have dedicated Dockerfiles
+- `docker-compose.yml` defines the full stack configuration
+- Monitoring stack defined in `docker-compose.monitoring.yml`
+- Test environment defined in `docker-compose.test.yml`
 
 ## Configuration and Extensibility
 
-The system is designed to be configurable through:
+The system is designed to be highly configurable:
 
-### JSON Configuration:
-- Redis connection parameters
-- Decay function selection and parameters
-- Ticker tracking parameters
-- Update intervals
-
-### Extensibility Points:
-- Additional decay functions can be added to decay_functions.py
-- Source credibility matrix can be extended in impact_scoring.py
-- UI components can be added to the Streamlit dashboard
+- Environment variables for deployment configuration
+- JSON configuration files for component settings
+- Pluggable architecture for sentiment models
+- Extensible scraper framework for new data sources
 
 ## Performance Considerations
 
-### Redis Caching:
-- Provides sub-millisecond access to current sentiment scores
-- Efficient time-based filtering with sorted sets
-
-### Selective Parquet Reading:
-- Uses PyArrow for efficient column and predicate filtering
-- Loads only necessary data for the requested time periods
-
-### Asynchronous Updates:
-- Background thread handles periodic updates
-- Prevents UI blocking during data refreshes
-
-### Time-Based Expiry:
-- Prevents unbounded growth of the Redis database
-- Configurable retention period (default 7 days)
-
-## Future Enhancements
-
-Potential enhancements for future versions:
-
-### Machine Learning Integration:
-- ML-based impact scoring
-- Automated credibility assessment
-- Predictive sentiment modeling
-
-### Additional Data Sources:
-- Direct integration with social media APIs
-- Real-time news feed processing
-
-### Advanced Visualizations:
-- Sentiment correlation with price movements
-- Network graphs of influencer impact
-- Anomaly detection and alerting
+- Redis caching for high-speed data access
+- Efficient Parquet file structure for historical data
+- Priority-based event processing
+- Asynchronous processing with FastAPI

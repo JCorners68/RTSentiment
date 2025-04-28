@@ -27,77 +27,39 @@ This module implements an advanced data tier for the RT Sentiment Analysis syste
 └────────────────┘     └──────────────┘     └─────────────┘
 ```
 
-## Components
-
-### Schema
-
-The schema is defined in `schema/iceberg_schema.py` and includes:
-
-- Core fields (timestamps, sources, content)
-- Sentiment analysis fields (scores, emotion vectors, aspect-based sentiment)
-- Entity recognition
-- Financial context (tickers, sources)
-
-### Writer
-
-The writer in `writer/iceberg_writer.py` provides:
-
-- ACID transaction support
-- Schema validation
-- Default values for backward compatibility
-- Error handling and retry logic
-
-### Configuration
-
-Configuration in `utils/config.py` supports:
-
-- Environment variable overrides
-- JSON configuration files
-- Validation and defaults
-
 ## Getting Started
 
 1. **Start the services**:
    ```bash
-   ./setup_iceberg.sh
+   docker-compose -f docker-compose.iceberg.yml up -d
    ```
 
-2. **Use the writer in your code**:
-   ```python
-   from iceberg_lake.utils.config import IcebergConfig
-   from iceberg_lake.writer.iceberg_writer import IcebergSentimentWriter
+2. **Access Dremio**:
+   - Open http://localhost:9047 in your browser
+   - Login with default credentials (dremio/dremio123)
+   - Create a new Space (e.g., "iceberg")
+   - Use the Dremio UI to run SQL queries or upload the provided example SQL script
 
-   # Load configuration
-   config = IcebergConfig()
-   catalog_config = config.get_catalog_config()
+3. **Use the SQL Example**:
+   - Copy and paste SQL from `dremio_sql_example.sql` into Dremio's query editor
+   - Run the queries step by step to create tables and insert data
 
-   # Create a writer
-   writer = IcebergSentimentWriter(
-       catalog_uri=catalog_config["uri"],
-       warehouse_location=catalog_config["warehouse_location"],
-       namespace=catalog_config["namespace"],
-       table_name=catalog_config["table_name"]
-   )
+4. **Explore Data in Dremio**:
+   - Use Dremio's interface to browse the data structure
+   - Create data visualizations and dashboards
+   - Export results to various formats
 
-   # Write data
-   writer.write_sentiment_analysis_result(
-       message_id="unique-id",
-       text_content="Apple stock is rising due to strong iPhone sales.",
-       source_system="news",
-       analysis_result={
-           "sentiment_score": 0.75,
-           "sentiment_magnitude": 0.85,
-           "primary_emotion": "positive"
-       },
-       ticker="AAPL",
-       article_title="Apple Reports Strong Q3 Earnings"
-   )
-   ```
+## Troubleshooting
 
-3. **Query with Dremio**:
-   - Access Dremio at http://localhost:9047
-   - Add a new Source pointing to Iceberg
-   - Run SQL queries against the sentiment data
+- **Service Connection Issues**: 
+  - Check service status with `docker ps`
+  - View logs with `docker logs container_name`
+  - Ensure proper networking between containers
+
+- **Python Client Issues**:
+  - Check PyIceberg version compatibility (0.9.0+)
+  - Verify connection strings and authentication
+  - Check warehouse path permissions
 
 ## Docker Services
 
@@ -107,10 +69,8 @@ The following services are provided in `docker-compose.iceberg.yml`:
 - **Iceberg REST Catalog**: REST API for Iceberg catalogs (port 8181)
 - **Dremio CE**: SQL query engine (port 9047)
 
-## Testing
+## Known Limitations
 
-Run the integration tests with:
-
-```bash
-python -m unittest tests/test_iceberg_integration.py
-```
+- Direct PyIceberg to REST Catalog connectivity requires additional setup for S3 compatibility
+- Dremio CE has some limitations with Iceberg table feature support compared to Enterprise version
+- Local file storage is used for simplicity in the development environment

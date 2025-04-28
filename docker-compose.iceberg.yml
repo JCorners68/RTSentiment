@@ -26,22 +26,13 @@ services:
     ports:
       - "8181:8181"
     environment:
-      - AWS_ACCESS_KEY_ID=minioadmin
-      - AWS_SECRET_ACCESS_KEY=minioadmin
-      - AWS_REGION=us-east-1
-      - CATALOG_WAREHOUSE=s3a://warehouse/
-      - CATALOG_URI=http://iceberg-rest:8181
+      - CATALOG_WAREHOUSE=file:///tmp/warehouse/
+      - CATALOG_URI=http://localhost:8181
       - CATALOG_IMPL=org.apache.iceberg.rest.RESTCatalog
-      - S3_ENDPOINT=http://minio:9000
-      - S3_PATH_STYLE_ACCESS=true
-    depends_on:
-      - minio
+      - CATALOG_IO_IMPL=org.apache.iceberg.io.FileIO
+    volumes:
+      - iceberg-warehouse:/tmp/warehouse
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8181/v1/config"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
 
   # Dremio CE for SQL Query Engine
   dremio:
@@ -63,20 +54,7 @@ services:
       timeout: 20s
       retries: 3
 
-  # Initialize MinIO buckets and folders
-  minio-init:
-    image: minio/mc
-    depends_on:
-      - minio
-    entrypoint: >
-      /bin/sh -c "
-      sleep 10;
-      /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin;
-      /usr/bin/mc mb myminio/warehouse;
-      /usr/bin/mc policy set public myminio/warehouse;
-      exit 0;
-      "
-
 volumes:
   minio-data:
   dremio-data:
+  iceberg-warehouse:

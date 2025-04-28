@@ -13,7 +13,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from ..utils.cache_manager import DeduplicationCache
+from utils.cache_manager import DeduplicationCache
 
 logger = logging.getLogger(__name__)
 
@@ -33,12 +33,12 @@ class BaseScraper:
         self.name = self.__class__.__name__
         self.running = False
         
-        # Setup data directories
-        self.output_dir = os.path.join(os.getcwd(), "data", "output")
+        # Setup data directories for real data
+        self.output_dir = os.path.join(os.getcwd(), "data", "output", "real")
         os.makedirs(self.output_dir, exist_ok=True)
         
-        # Setup cache directory
-        self.cache_dir = os.path.join(os.getcwd(), "data", "cache", "deduplication")
+        # Setup cache directory for real data
+        self.cache_dir = os.path.join(os.getcwd(), "data", "cache", "real_data", "deduplication")
         os.makedirs(self.cache_dir, exist_ok=True)
         
         # Initialize deduplication cache

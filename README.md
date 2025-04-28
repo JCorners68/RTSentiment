@@ -9,7 +9,7 @@ The system is composed of several interconnected components:
 1. **Data Acquisition Service**: Collects financial data from various sources
 2. **Sentiment Analysis Service**: Processes text data to extract sentiment
 3. **API Server**: Provides access to sentiment data and statistics
-4. **Storage Engine**: Parquet files and Redis for data persistence (with Iceberg enhancement in development)
+4. **Storage Engine**: Parquet files and Redis for data persistence (with Iceberg enhancement now available)
 5. **Dashboard UI**: Visualization of sentiment trends
 
 ## New Features
@@ -38,9 +38,9 @@ We've added robust Apache Parquet integration for efficient storage and analysis
 
 Learn more in our [Parquet Integration Documentation](documentation/architecture/parquet_integration.md) and [Historical Sentiment API](documentation/api/historical_sentiment_api.md) guides.
 
-### Iceberg Lakehouse (In Development)
+### Iceberg Lakehouse Integration
 
-We're enhancing our data tier with Apache Iceberg for even better performance and data management:
+We've enhanced our data tier with Apache Iceberg for better performance and data management:
 
 - **ACID Transactions**: Ensure data consistency with full ACID compliance
 - **Schema Evolution**: Flexible schema updates without data rewriting
@@ -48,7 +48,7 @@ We're enhancing our data tier with Apache Iceberg for even better performance an
 - **Advanced Partitioning**: Optimized for financial time-series data
 - **Dremio Integration**: SQL-based querying with powerful analytics
 
-This enhancement is currently in development. See our [Data Tier Plan](documentation/future_plans/Definitive%20Data%20Tier%20Plan%20for%20Sentiment%20Analysis.md) for details.
+See our [Iceberg Lakehouse Integration](iceberg_lake/README.md) for details and setup instructions.
 
 ## New Component: Ticker Sentiment Analyzer
 
@@ -97,6 +97,7 @@ Our system is extensively documented in the `/documentation` directory:
 - Python 3.8+
 - Redis server
 - Access to Parquet sentiment data files
+- Docker and Docker Compose (for Iceberg integration)
 
 ### Data Processing Tools
 
@@ -133,6 +134,11 @@ Our repository includes several tools for data processing and maintenance:
    ```bash
    cd sentiment_analyzer
    streamlit run ui/app.py
+   ```
+
+3. Start Iceberg services (optional):
+   ```bash
+   docker-compose -f docker-compose.iceberg.yml up -d
    ```
 
 ## Testing

@@ -86,7 +86,7 @@ groups:
         severity: warning
       annotations:
         summary: "High Parquet storage usage"
-        description: "Parquet storage usage is {{ $value | humanizeBytes }} (>10GB threshold)."
+        description: "Parquet storage usage is {{ $value }} bytes (>10GB threshold)."
         
     - alert: ParquetMissingValues
       expr: sum(parquet_missing_values) by (ticker, column) > 1000

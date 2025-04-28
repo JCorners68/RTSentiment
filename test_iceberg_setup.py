@@ -44,6 +44,7 @@ def main():
     print("\n3. Testing configuration...")
     try:
         # Test our config module
+        import os
         sys.path.insert(0, os.path.abspath('.'))
         from iceberg_lake.utils.config import IcebergConfig
         

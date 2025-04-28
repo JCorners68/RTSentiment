@@ -1,4 +1,13 @@
 # CLAUDE.md
+## Preferences
+- progress in slow incremental steps with progress verified at each step.
+- be clear about synthetic data.  it should be stored in a completely separte file system and not comingled with other data.
+- user must see at console or in a test file evidence of success that includes verifable data.
+- update pip to the latest version to minimize dependency problems.
+- keep documentation in sync after successful completion of a phase.
+- be clear about verification procedure so that user can verify easily.
+- iterate until errors are resolved.
+
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
