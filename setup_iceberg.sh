@@ -21,7 +21,7 @@ mkdir -p iceberg_lake/dremio/data
 # Install Python dependencies
 echo "Installing Python dependencies..."
 pip install -r requirements.txt
-pip install pyiceberg==1.4.0 boto3>=1.28.0 requests>=2.31.0
+pip install pyiceberg==0.9.1 boto3>=1.28.0 requests>=2.31.0
 
 # Start Iceberg services
 echo "Starting Iceberg services..."
