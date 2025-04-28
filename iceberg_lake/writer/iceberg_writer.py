@@ -85,10 +85,10 @@ class IcebergSentimentWriter:
                 
             # Create the table
             table = self.catalog.create_table(
-                self.table_identifier, 
-                schema, 
-                partition_spec,
-                self.warehouse_location + "/" + self.table_name,
+                identifier=self.table_identifier, 
+                schema=schema, 
+                partition_spec=partition_spec,
+                location=self.warehouse_location + "/" + self.table_name,
                 properties=properties
             )
             
@@ -211,14 +211,10 @@ class IcebergSentimentWriter:
         for attempt in range(self.max_retries):
             try:
                 # Get a writer from the table
-                writer = self.table.new_append()
-                
-                # Add all records
-                for record in processed_records:
-                    writer.append(record)
-                    
-                # Commit the write operation
-                writer.commit()
+                with self.table.new_append() as writer:
+                    # Add all records
+                    for record in processed_records:
+                        writer.append(record)
                 
                 self.logger.info(f"Successfully wrote {len(processed_records)} records (skipped {skipped_records})")
                 return len(processed_records)
