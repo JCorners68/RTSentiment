@@ -6,6 +6,7 @@ This module provides a writer for storing sentiment analysis data in Iceberg tab
 import uuid
 import logging
 import time
+import json
 from datetime import datetime
 from typing import Dict, Any, List, Optional, Tuple
 

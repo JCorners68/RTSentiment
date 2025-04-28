@@ -1,80 +1,70 @@
 #!/bin/bash
 # Setup script for the Iceberg lakehouse integration
 
+# Enable error handling
 set -e
 
-# Check if docker and docker-compose are installed
-if ! command -v docker &> /dev/null; then
-    echo "Error: docker is not installed"
-    exit 1
-fi
-
-if ! command -v docker-compose &> /dev/null; then
-    echo "Error: docker-compose is not installed"
-    exit 1
-fi
+echo "======================================================================"
+echo "  ICEBERG LAKEHOUSE INTEGRATION SETUP"
+echo "======================================================================"
 
 # Create required directories
+echo -e "\n1. Creating directories..."
 mkdir -p data/iceberg_warehouse
 mkdir -p iceberg_lake/dremio/data
+echo "   ✓ Directories created"
 
-# Check for Python virtual environment
+# Create virtual environment
 VENV_DIR="iceberg_venv"
+echo -e "\n2. Setting up Python environment..."
 if [ ! -d "$VENV_DIR" ]; then
-    echo "Creating Python virtual environment..."
-    
-    # Check if python3-venv is installed
-    if ! python3 -m venv --help > /dev/null 2>&1; then
-        echo "Installing python3-venv..."
-        sudo apt-get update && sudo apt-get install -y python3-venv python3-full
+    echo "   Creating virtual environment at $VENV_DIR"
+    # Try to create virtual environment with python3 -m venv
+    if command -v python3 &> /dev/null; then
+        python3 -m venv "$VENV_DIR" || {
+            echo "   ⚠️  Could not create venv with python3 -m venv"
+            echo "   Trying with virtualenv..."
+            # If venv fails, try virtualenv as a fallback
+            if command -v virtualenv &> /dev/null; then
+                virtualenv "$VENV_DIR"
+            else
+                echo "   ⚠️  Neither python3 -m venv nor virtualenv is available"
+                echo "   Please install one of them and try again"
+                exit 1
+            fi
+        }
+    else
+        echo "   ⚠️  python3 command not found"
+        exit 1
     fi
-    
-    # Create virtual environment
-    python3 -m venv "$VENV_DIR"
+else
+    echo "   ✓ Virtual environment already exists at $VENV_DIR"
 fi
 
 # Activate virtual environment
-echo "Activating virtual environment..."
-source "$VENV_DIR/bin/activate"
+echo "   Activating virtual environment..."
+source "$VENV_DIR/bin/activate" || {
+    echo "   ⚠️  Failed to activate virtual environment"
+    exit 1
+}
 
-# Install Python dependencies
-echo "Installing Python dependencies..."
-pip install --upgrade pip
-pip install -r iceberg_lake/requirements.txt
+# Install minimal dependencies
+echo -e "\n3. Installing minimal dependencies..."
+pip install --upgrade pip || echo "   ⚠️  Failed to upgrade pip, continuing anyway"
+pip install pyiceberg==0.9.0 boto3 requests || {
+    echo "   ⚠️  Failed to install dependencies"
+    exit 1
+}
+echo "   ✓ Dependencies installed"
 
-# Start Iceberg services
-echo "Starting Iceberg services..."
-docker-compose -f docker-compose.iceberg.yml up -d
+# Test basic functionality
+echo -e "\n4. Testing basic functionality..."
+python test_iceberg_setup.py
 
-# Wait for services to be ready
-echo "Waiting for services to be ready..."
-sleep 10
-
-# Test setup (skipping for initial setup)
-echo "Testing Iceberg schema configuration..."
-python -m unittest discover -s tests -p "test_iceberg_integration.py" -k "TestIcebergSchema"
-
-# Provide instructions for running full tests later
-echo "Note: Full integration tests are skipped during initial setup."
-echo "      To run them after services are fully running, use:"
-echo "      source $VENV_DIR/bin/activate && python -m unittest tests/test_iceberg_integration.py"
-
-echo "Iceberg lakehouse integration setup complete!"
+# Provide usage instructions
+echo -e "\n5. Next steps:"
+echo "   a. Start Docker services: docker-compose -f docker-compose.iceberg.yml up -d"
+echo "   b. Run example: source $VENV_DIR/bin/activate && python iceberg_example.py"
+echo "   c. Access Dremio: http://localhost:9047 (dremio/dremio123)"
 echo ""
-echo "Available services:"
-echo "  - MinIO: http://localhost:9000 (console: http://localhost:9001)"
-echo "  - Iceberg REST Catalog: http://localhost:8181"
-echo "  - Dremio: http://localhost:9047"
-echo ""
-echo "Next steps:"
-echo "  1. Run the example script in the virtual environment:"
-echo "     source $VENV_DIR/bin/activate && python iceberg_example.py"
-echo ""
-echo "  2. Access Dremio at http://localhost:9047"
-echo "     Username: dremio"
-echo "     Password: dremio123"
-echo ""
-echo "  3. When you're done, deactivate the virtual environment:"
-echo "     deactivate"
-echo ""
-echo "Your virtual environment is at: $VENV_DIR"
+echo "   Your virtual environment is at: $VENV_DIR"
