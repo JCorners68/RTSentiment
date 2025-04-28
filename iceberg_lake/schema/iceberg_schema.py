@@ -33,52 +33,56 @@ def create_sentiment_schema() -> Schema:
     Returns:
         Schema: PyIceberg schema for sentiment data
     """
-    return Schema(
+    # In PyIceberg 0.9.0, we need to create fields using Schema.NestedField
+    # and pass them to the Schema constructor
+    fields = [
         # Basic Fields
-        NestedField.required(1, "message_id", StringType()),
-        NestedField.required(2, "event_timestamp", TimestampType.with_timezone()),
-        NestedField.required(3, "ingestion_timestamp", TimestampType.with_timezone()),
-        NestedField.required(4, "source_system", StringType()),
-        NestedField.required(5, "text_content", StringType()),
+        Schema.NestedField(field_id=1, name="message_id", field_type=StringType(), required=True),
+        Schema.NestedField(field_id=2, name="event_timestamp", field_type=TimestampType(), required=True),
+        Schema.NestedField(field_id=3, name="ingestion_timestamp", field_type=TimestampType(), required=True),
+        Schema.NestedField(field_id=4, name="source_system", field_type=StringType(), required=True),
+        Schema.NestedField(field_id=5, name="text_content", field_type=StringType(), required=True),
         
         # Core Sentiment Fields
-        NestedField.required(6, "sentiment_score", FloatType()),
-        NestedField.required(7, "sentiment_magnitude", FloatType()),
-        NestedField.required(8, "primary_emotion", StringType()),
+        Schema.NestedField(field_id=6, name="sentiment_score", field_type=FloatType(), required=True),
+        Schema.NestedField(field_id=7, name="sentiment_magnitude", field_type=FloatType(), required=True),
+        Schema.NestedField(field_id=8, name="primary_emotion", field_type=StringType(), required=True),
         
         # Advanced Sentiment Fields
-        NestedField.optional(9, "emotion_intensity_vector", 
-                           MapType.of(StringType(), FloatType())),
-        NestedField.optional(10, "aspect_target_identification", 
-                           ListType.of_required(StringType())),
-        NestedField.optional(11, "aspect_based_sentiment", 
-                           MapType.of(StringType(), FloatType())),
-        NestedField.required(12, "sarcasm_detection", BooleanType()),
-        NestedField.required(13, "subjectivity_score", FloatType()),
-        NestedField.required(14, "toxicity_score", FloatType()),
+        Schema.NestedField(field_id=9, name="emotion_intensity_vector", 
+                          field_type=MapType(StringType(), FloatType()), required=False),
+        Schema.NestedField(field_id=10, name="aspect_target_identification", 
+                          field_type=ListType(StringType()), required=False),
+        Schema.NestedField(field_id=11, name="aspect_based_sentiment", 
+                          field_type=MapType(StringType(), FloatType()), required=False),
+        Schema.NestedField(field_id=12, name="sarcasm_detection", field_type=BooleanType(), required=True),
+        Schema.NestedField(field_id=13, name="subjectivity_score", field_type=FloatType(), required=True),
+        Schema.NestedField(field_id=14, name="toxicity_score", field_type=FloatType(), required=True),
         
         # Entity Recognition
-        NestedField.optional(15, "entity_recognition", 
-                           ListType.of_required(
-                               StructType.of(
-                                   NestedField.required(1, "text", StringType()),
-                                   NestedField.required(2, "type", StringType())
-                               )
-                           )),
+        Schema.NestedField(field_id=15, name="entity_recognition", 
+                         field_type=ListType(
+                             StructType([
+                                 Schema.NestedField(field_id=1, name="text", field_type=StringType(), required=True),
+                                 Schema.NestedField(field_id=2, name="type", field_type=StringType(), required=True)
+                             ])
+                         ), required=False),
         
         # Intent and Influence
-        NestedField.required(16, "user_intent", StringType()),
-        NestedField.optional(17, "influence_score", FloatType()),
+        Schema.NestedField(field_id=16, name="user_intent", field_type=StringType(), required=True),
+        Schema.NestedField(field_id=17, name="influence_score", field_type=FloatType(), required=False),
         
         # Metadata
-        NestedField.required(18, "processing_version", StringType()),
+        Schema.NestedField(field_id=18, name="processing_version", field_type=StringType(), required=True),
         
         # Financial Context
-        NestedField.optional(19, "ticker", StringType()),
-        NestedField.optional(20, "article_title", StringType()),
-        NestedField.optional(21, "source_url", StringType()),
-        NestedField.optional(22, "model_name", StringType()),
-    )
+        Schema.NestedField(field_id=19, name="ticker", field_type=StringType(), required=False),
+        Schema.NestedField(field_id=20, name="article_title", field_type=StringType(), required=False),
+        Schema.NestedField(field_id=21, name="source_url", field_type=StringType(), required=False),
+        Schema.NestedField(field_id=22, name="model_name", field_type=StringType(), required=False),
+    ]
+    
+    return Schema(fields)
 
 
 def create_partition_spec() -> PartitionSpec:
@@ -93,13 +97,18 @@ def create_partition_spec() -> PartitionSpec:
     Returns:
         PartitionSpec: PyIceberg partition specification
     """
-    return PartitionSpec(
-        PartitionField(source_id=2, field_id=100, transform=YearTransform(), name="year"),
-        PartitionField(source_id=2, field_id=101, transform=MonthTransform(), name="month"),
-        PartitionField(source_id=2, field_id=102, transform=DayTransform(), name="day"),
-        PartitionField(source_id=19, field_id=103, transform=IdentityTransform(), name="ticker"),
-        PartitionField(source_id=4, field_id=104, transform=IdentityTransform(), name="source_system")
-    )
+    # Create a simple partition spec by event timestamp (field ID 2) and ticker (field ID 19)
+    partition_fields = [
+        # Partition by year/month/day from the event_timestamp field (ID 2)
+        PartitionField(source_id=2, field_id=100, transform="year", name="year"),
+        PartitionField(source_id=2, field_id=101, transform="month", name="month"),
+        PartitionField(source_id=2, field_id=102, transform="day", name="day"),
+        # Partition by ticker (ID 19) and source (ID 4)
+        PartitionField(source_id=19, field_id=103, transform="identity", name="ticker"),
+        PartitionField(source_id=4, field_id=104, transform="identity", name="source_system")
+    ]
+    
+    return PartitionSpec(fields=partition_fields)
 
 
 def create_table_properties() -> Dict[str, Any]:

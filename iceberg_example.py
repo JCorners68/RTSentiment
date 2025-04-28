@@ -8,6 +8,10 @@ import uuid
 import sys
 import os
 from datetime import datetime
+import dotenv
+
+# Load environment variables from .env.iceberg file
+dotenv.load_dotenv('.env.iceberg')
 
 # Add the project root to Python path if needed
 sys.path.insert(0, os.path.abspath('.'))
