@@ -3,6 +3,7 @@ Kafka integration for Iceberg writer.
 
 This module provides integration between Kafka consumers and the Iceberg writer,
 enabling real-time streaming of sentiment analysis results to the Iceberg data lake.
+It includes support for both direct PyIceberg writing and writing via Dremio JDBC.
 """
 import asyncio
 import json
@@ -286,3 +287,35 @@ class IcebergKafkaIntegration:
             "source_url": source_url,
             "model_name": model_name
         }
+
+def create_kafka_integration(writer_type="auto", config=None, **kwargs):
+    """
+    Factory function to create the appropriate Kafka integration.
+    
+    This function creates either a direct IcebergKafkaIntegration or a 
+    DremioKafkaIntegration based on configuration and the specified writer type.
+    
+    Args:
+        writer_type: Type of writer to use ("auto", "pyiceberg", or "dremio")
+        config: Optional configuration (uses default if not provided)
+        **kwargs: Additional arguments to pass to the integration constructor
+        
+    Returns:
+        An integration instance (IcebergKafkaIntegration or DremioKafkaIntegration)
+    """
+    from iceberg_lake.utils.config import IcebergConfig
+    from iceberg_lake.writer.writer_factory import WriterFactory
+    
+    # Load configuration
+    config = config or IcebergConfig()
+    
+    # Create writer using factory
+    factory = WriterFactory(config)
+    writer = factory.create_writer(writer_type)
+    
+    # Determine integration type based on writer type
+    if hasattr(writer, 'jdbc_url'):  # Check if it's a DremioJdbcWriter
+        from iceberg_lake.writer.dremio_kafka_integration import DremioKafkaIntegration
+        return DremioKafkaIntegration(writer, **kwargs)
+    else:
+        return IcebergKafkaIntegration(writer, **kwargs)

@@ -1,30 +1,20 @@
-# **Definitive Data Tier Plan for Sentiment Analysis (v2 \- Updated Post Phase 1\)**
+# **Definitive Data Tier Plan for Sentiment Analysis (v2)**
 
-This document outlines the comprehensive implementation plan for transitioning from the current PostgreSQL/Parquet hybrid storage to an Iceberg lakehouse architecture accessed via Dremio CE, optimized for advanced sentiment analysis. **This version incorporates lessons learned and strategic adjustments following the completion of Phase 1\.**
+This document outlines the comprehensive implementation plan for transitioning from the current PostgreSQL/Parquet hybrid storage to an Iceberg lakehouse architecture accessed via Dremio CE, optimized for advanced sentiment analysis. **This version incorporates lessons learned and strategic adjustments following the completion of Phase 1 and Phase 2.**
 
 ## **Table of Contents**
 
-1. [Executive Summary](#bookmark=id.59o3tyr4me12)  
-2. [Current Architecture Overview](#bookmark=id.5rio621m7t0s)  
-3. [Target Architecture](#bookmark=id.79svokqsyo84)  
-4. [Advanced Schema Design](#bookmark=id.v7i1wyg5vnbx)  
-5. [Implementation Components](#bookmark=id.yvo3u6cf15zs)  
-   * [Iceberg Writer](#bookmark=id.tylei76dosbg)  
-   * [Dremio Query Layer](#bookmark=id.7z7zsovqxmbb)  
-   * [Data Migration Utilities](#bookmark=id.nj8e4y104v3e)  
-   * [Redis Integration](#bookmark=id.63fqgbntje0o)  
-6. [Implementation Plan](#bookmark=id.o6o52dn8v5h6)  
-   * [Overall Strategic Adjustments (Post Phase 1\)](#bookmark=id.jztwgk2gxto)  
-   * [Phase 1: Infrastructure Setup (Completed)](#bookmark=id.e4wviffekq5l)  
-   * [Phase 2: Writer Implementation (Updated)](#bookmark=id.os6jyz5f7g5l)  
-   * [Phase 3: Query Layer Implementation (Updated)](#bookmark=id.1pu1ki2cy7nf)  
-   * [Phase 4: Migration (Updated)](#bookmark=id.30k92kbr1drg)  
-   * [Phase 5: Cutover (Updated)](#bookmark=id.aismaq63s0h3)  
-7. [Operational Procedures](#bookmark=id.ouiumhtdoazy)  
-8. [Performance Considerations](#bookmark=id.vea4dl8zminm)  
-9. [Monitoring and Maintenance](#bookmark=id.2x8bxhgs8bbw)  
-10. [General Plan & Documentation Updates (Post Phase 1\)](#bookmark=id.8qmwrn2w6y8u)  
-11. [Appendix: Code Samples](#bookmark=id.jkiy2sebtthh)
+1. [Executive Summary](#executive-summary)  
+2. [Current Architecture Overview](#current-architecture-overview)  
+3. [Target Architecture](#target-architecture)  
+4. [Advanced Schema Design](#advanced-schema-design)  
+5. [Implementation Components](#implementation-components)  
+6. [Implementation Plan](#implementation-plan)  
+7. [Operational Procedures](#operational-procedures)  
+8. [Performance Considerations](#performance-considerations)  
+9. [Monitoring and Maintenance](#monitoring-and-maintenance)  
+10. [General Plan & Documentation Updates](#general-plan--documentation-updates)  
+11. [Appendix: Code Samples](#appendix-code-samples)
 
 ## **Executive Summary**
 
@@ -46,7 +36,7 @@ The current data tier consists of:
 * **Redis Cache**: In-memory caching for real-time access to recent data  
 * **PostgreSQL**: System state and configuration, with Foreign Data Wrapper (FDW) for querying Parquet
 
-Limitations include:
+**Limitations include:**
 
 * Complex architecture requiring synchronization across multiple systems  
 * Limited schema evolution capabilities in Parquet files  
@@ -58,6 +48,7 @@ Limitations include:
 
 The target architecture will consolidate storage into an Iceberg lakehouse with:
 
+```
 ┌────────────────┐     ┌──────────────┐     ┌─────────────┐  
 │                │     │              │     │             │  
 │  Data Sources  ├────►│ Iceberg Lake ├────►│ Dremio CE   │  
@@ -70,8 +61,9 @@ The target architecture will consolidate storage into an Iceberg lakehouse with:
 │ Client Apps    │◄────┤ API Services │◄────┤ Redis Cache │  
 │                │     │              │     │             │  
 └────────────────┘     └──────────────┘     └─────────────┘
+```
 
-This architecture provides:
+**This architecture provides:**
 
 * A single source of truth for all sentiment data  
 * ACID transaction support with snapshot isolation  
@@ -86,66 +78,72 @@ The Iceberg schema will support enhanced sentiment analysis with these field cat
 
 ### **Core Fields**
 
-\# Basic Fields  
-NestedField.required(1, "message\_id", StringType()),  
-NestedField.required(2, "event\_timestamp", TimestampType.with\_timezone()),  
-NestedField.required(3, "ingestion\_timestamp", TimestampType.with\_timezone()),  
-NestedField.required(4, "source\_system", StringType()),  
-NestedField.required(5, "text\_content", StringType()),
+```python
+# Basic Fields  
+NestedField.required(1, "message_id", StringType()),  
+NestedField.required(2, "event_timestamp", TimestampType.with_timezone()),  
+NestedField.required(3, "ingestion_timestamp", TimestampType.with_timezone()),  
+NestedField.required(4, "source_system", StringType()),  
+NestedField.required(5, "text_content", StringType()),
+```
 
 ### **Sentiment Analysis Fields**
 
-\# Core Sentiment Fields  
-NestedField.required(6, "sentiment\_score", FloatType()),  
-NestedField.required(7, "sentiment\_magnitude", FloatType()),  
-NestedField.required(8, "primary\_emotion", StringType()),
+```python
+# Core Sentiment Fields  
+NestedField.required(6, "sentiment_score", FloatType()),  
+NestedField.required(7, "sentiment_magnitude", FloatType()),  
+NestedField.required(8, "primary_emotion", StringType()),
 
-\# Advanced Sentiment Fields  
-NestedField.optional(9, "emotion\_intensity\_vector",  
+# Advanced Sentiment Fields  
+NestedField.optional(9, "emotion_intensity_vector",  
                      MapType.of(StringType(), FloatType())),  
-NestedField.optional(10, "aspect\_target\_identification",  
-                     ListType.of\_required(StringType())),  
-NestedField.optional(11, "aspect\_based\_sentiment",  
+NestedField.optional(10, "aspect_target_identification",  
+                     ListType.of_required(StringType())),  
+NestedField.optional(11, "aspect_based_sentiment",  
                      MapType.of(StringType(), FloatType())),  
-NestedField.required(12, "sarcasm\_detection", BooleanType()),  
-NestedField.required(13, "subjectivity\_score", FloatType()),  
-NestedField.required(14, "toxicity\_score", FloatType()),
+NestedField.required(12, "sarcasm_detection", BooleanType()),  
+NestedField.required(13, "subjectivity_score", FloatType()),  
+NestedField.required(14, "toxicity_score", FloatType()),
+```
 
 ### **Entity and Metadata Fields**
 
-\# Entity Recognition  
-NestedField.optional(15, "entity\_recognition",  
-                     ListType.of\_required(  
+```python
+# Entity Recognition  
+NestedField.optional(15, "entity_recognition",  
+                     ListType.of_required(  
                          StructType.of(  
                              NestedField.required(1, "text", StringType()),  
                              NestedField.required(2, "type", StringType())  
                          )  
                      )),
 
-\# Intent and Influence  
-NestedField.required(16, "user\_intent", StringType()),  
-NestedField.optional(17, "influence\_score", FloatType()),
+# Intent and Influence  
+NestedField.required(16, "user_intent", StringType()),  
+NestedField.optional(17, "influence_score", FloatType()),
 
-\# Metadata  
-NestedField.required(18, "processing\_version", StringType()),
+# Metadata  
+NestedField.required(18, "processing_version", StringType()),
 
-\# Financial Context  
+# Financial Context  
 NestedField.optional(19, "ticker", StringType()),  
-NestedField.optional(20, "article\_title", StringType()),  
-NestedField.optional(21, "source\_url", StringType()),  
-NestedField.optional(22, "model\_name", StringType()),
+NestedField.optional(20, "article_title", StringType()),  
+NestedField.optional(21, "source_url", StringType()),  
+NestedField.optional(22, "model_name", StringType()),
+```
 
 ### **Partition Strategy**
 
-To optimize query performance, particularly for ticker and time-based queries, we'll implement this partition specification:
-
+```python
 PartitionSpec(  
-    PartitionField(source\_id=2, field\_id=100, transform=YearTransform(), name="year"),  
-    PartitionField(source\_id=2, field\_id=101, transform=MonthTransform(), name="month"),  
-    PartitionField(source\_id=2, field\_id=102, transform=DayTransform(), name="day"),  
-    PartitionField(source\_id=19, field\_id=103, transform=IdentityTransform(), name="ticker"),  
-    PartitionField(source\_id=4, field\_id=104, transform=IdentityTransform(), name="source\_system")  
+    PartitionField(source_id=2, field_id=100, transform=YearTransform(), name="year"),  
+    PartitionField(source_id=2, field_id=101, transform=MonthTransform(), name="month"),  
+    PartitionField(source_id=2, field_id=102, transform=DayTransform(), name="day"),  
+    PartitionField(source_id=19, field_id=103, transform=IdentityTransform(), name="ticker"),  
+    PartitionField(source_id=4, field_id=104, transform=IdentityTransform(), name="source_system")  
 )
+```
 
 This partitioning strategy enables efficient data pruning for:
 
@@ -170,21 +168,23 @@ The DremioJdbcWriter (or similar) will handle writing sentiment data to the Iceb
 
 Key methods (Conceptual):
 
-def write\_data\_via\_dremio(self, data: List\[Dict\[str, Any\]\]):  
+```python
+def write_data_via_dremio(self, data: List[Dict[str, Any]]):  
     """Write a batch of sentiment data records to Iceberg via Dremio JDBC/ODBC."""
 
-def write\_sentiment\_analysis\_result\_via\_dremio(  
+def write_sentiment_analysis_result_via_dremio(  
     self,  
-    message\_id: str,  
-    text\_content: str,  
-    source\_system: str,  
-    analysis\_result: Dict\[str, Any\],  
-    ticker: Optional\[str\] \= None,  
-    article\_title: Optional\[str\] \= None,  
-    source\_url: Optional\[str\] \= None,  
-    model\_name: Optional\[str\] \= None  
+    message_id: str,  
+    text_content: str,  
+    source_system: str,  
+    analysis_result: Dict[str, Any],  
+    ticker: Optional[str] = None,  
+    article_title: Optional[str] = None,  
+    source_url: Optional[str] = None,  
+    model_name: Optional[str] = None  
 ):  
     """Write a single comprehensive sentiment analysis result via Dremio JDBC/ODBC."""
+```
 
 ### **Dremio Query Layer**
 
@@ -199,23 +199,25 @@ The DremioSentimentQueryService will provide SQL-based access to sentiment data 
 
 Key query methods:
 
-def get\_sentiment\_with\_emotions(self, ticker, days=30):  
+```python
+def get_sentiment_with_emotions(self, ticker, days=30):  
     """Get sentiment data including emotion analysis for a specific ticker."""
 
-def get\_entity\_sentiment\_analysis(self, ticker=None, entity\_type=None, days=30):  
+def get_entity_sentiment_analysis(self, ticker=None, entity_type=None, days=30):  
     """Get sentiment analysis broken down by entity."""
 
-def get\_aspect\_based\_sentiment(self, ticker, days=30):  
+def get_aspect_based_sentiment(self, ticker, days=30):  
     """Get aspect-based sentiment analysis for a specific ticker."""
 
-def get\_toxicity\_analysis(self, min\_toxicity=0.5, days=30):  
+def get_toxicity_analysis(self, min_toxicity=0.5, days=30):  
     """Get potentially toxic content for moderation."""
 
-def get\_intent\_distribution(self, ticker=None, days=30):  
+def get_intent_distribution(self, ticker=None, days=30):  
     """Get distribution of user intents."""
 
-def get\_sentiment\_time\_series(self, ticker, interval='day', days=30):  
+def get_sentiment_time_series(self, ticker, interval='day', days=30):  
     """Get sentiment time series data with advanced metrics."""
+```
 
 ### **Data Migration Utilities**
 
@@ -230,14 +232,16 @@ The ParquetToIcebergMigrator will handle data migration from existing Parquet fi
 
 Key methods:
 
-def scan\_parquet\_files(self):  
+```python
+def scan_parquet_files(self):  
     """Scan for Parquet files to migrate."""
 
-def migrate\_file(self, file\_path):  
+def migrate_file(self, file_path):  
     """Migrate a single Parquet file to Iceberg via Dremio with enhanced fields."""
 
-def migrate\_all(self):  
+def migrate_all(self):  
     """Migrate all Parquet files to Iceberg via Dremio with parallel processing."""
+```
 
 ### **Redis Integration**
 
@@ -251,41 +255,41 @@ The existing Redis cache will be integrated with the new Iceberg/Dremio architec
 
 ## **Implementation Plan**
 
-The implementation will proceed in five phases, incorporating adjustments based on Phase 1\.
+The implementation will proceed in five phases, incorporating adjustments based on Phase 1 and Phase 2.
 
-### **Overall Strategic Adjustments (Post Phase 1\)**
+### **Overall Strategic Adjustments (Post Phase 1)**
 
 UPDATE Plan (1-2) Based on Phase 1 learnings:
 
 1. **Prioritize Dremio Integration:** Reinforce the strategic shift suggested in (1.7) to focus development efforts on robust Dremio integration (queries, **ingestion via JDBC/ODBC**) before tackling the complexities of direct PyIceberg-to-REST catalog interactions, especially with S3/MinIO/Azure Blob Storage.  
 2. **Phased Rollout of PyIceberg/REST:** Explicitly adopt the phased approach (1.7) for integrating the Iceberg REST catalog, potentially **deferring direct write paths via PyIceberg** until the core Dremio functionality is stable and validated. The REST catalog may still be used by Dremio itself.
 
-### **Phase 1: Infrastructure Setup (1 day) \- ✅ COMPLETED**
+### **Phase 1: Infrastructure Setup (1 day) - ✅ COMPLETED**
 
-*(Details omitted for brevity \- see original plan section 1.1-1.7)*
+*(Details omitted for brevity - see original plan section 1.1-1.7)*
 
 #### **1.5 Lessons Learned ✅**
 
 *(Included for context)*
 
-* S3 Integration Challenges: Connecting Iceberg REST service to S3-compatible storage (MinIO) requires careful configuration of S3FileIO parameters. Direct PyIceberg client-to-REST catalog integration with S3 was complex due to Hadoop dependencies.  
-* JDBC Configuration: Iceberg REST catalog requires proper JDBC URI for SQLite backend (undocumented).  
-* Container Networking: Explicit network configuration needed for service communication.  
-* Dremio Performance: Resource-intensive; tuning memory is critical.  
-* Schema Compatibility: PyIceberg 0.9.0 API requirements for complex types differ from docs.
+* **S3 Integration Challenges:** Connecting Iceberg REST service to S3-compatible storage (MinIO) requires careful configuration of S3FileIO parameters. Direct PyIceberg client-to-REST catalog integration with S3 was complex due to Hadoop dependencies.  
+* **JDBC Configuration:** Iceberg REST catalog requires proper JDBC URI for SQLite backend (undocumented).  
+* **Container Networking:** Explicit network configuration needed for service communication.  
+* **Dremio Performance:** Resource-intensive; tuning memory is critical.  
+* **Schema Compatibility:** PyIceberg 0.9.0 API requirements for complex types differ from docs.
 
 #### **1.6 Installation Notes ✅**
 
 *(Included for context)*
 
-* Prerequisites: Docker, Docker Compose, Python 3.8+, \>=8GB RAM.  
-* Virtual Environment: iceberg\_venv with PyIceberg 0.9.0.  
-* Docker Images: dremio/dremio-oss, minio/minio, tabulario/iceberg-rest.  
-* Ports: 8181 (REST), 9047 (Dremio), 9000/9001 (MinIO).  
-* Startup Order: MinIO \-\> Iceberg REST \-\> Dremio.  
-* Dremio Access: dremio/dremio123.  
-* Local Storage: Used for Phase 1 dev.  
-* Configuration: Review CATALOG\_WAREHOUSE.
+* **Prerequisites:** Docker, Docker Compose, Python 3.8+, ≥8GB RAM.  
+* **Virtual Environment:** iceberg_venv with PyIceberg 0.9.0.  
+* **Docker Images:** dremio/dremio-oss, minio/minio, tabulario/iceberg-rest.  
+* **Ports:** 8181 (REST), 9047 (Dremio), 9000/9001 (MinIO).  
+* **Startup Order:** MinIO -> Iceberg REST -> Dremio.  
+* **Dremio Access:** dremio/dremio123.  
+* **Local Storage:** Used for Phase 1 dev.  
+* **Configuration:** Review CATALOG_WAREHOUSE.
 
 #### **1.7 Advice for Next Steps ✅**
 
@@ -298,65 +302,174 @@ UPDATE Plan (1-2) Based on Phase 1 learnings:
 * Phased REST Integration.  
 * Early Performance Testing.
 
-### **Phase 2: Writer Implementation (1 week \- Updated)**
+### **Phase 2: Writer Implementation (1 week) - ✅ COMPLETED**
 
-#### **2.1 Implement Writer via Dremio JDBC/ODBC (UPDATE Plan)**
+We've successfully completed Phase 2 of the data tier plan implementation. The key accomplishments include:
 
-* **Decision:** Based on Phase 1 (1.5, 1.7), the initial writer will use JDBC/ODBC directly to Dremio.  
-* Develop writer component (DremioJdbcWriter or similar) using appropriate JDBC/ODBC library (e.g., pyodbc, jaydebeapi).  
-* Implement connection pooling, batch writing, and robust error handling/retry logic for JDBC/ODBC operations.  
-* Handle data type mapping between Python/Application and JDBC types.
+1. Implemented DremioJdbcWriter with robust connection management, error handling, and data validation
+2. Resolved JDBC driver symlink handling issues to ensure reliable connections across environments
+3. Created Kafka integration for streaming data to Dremio tables
+4. Implemented rich schema validation and type conversion for all advanced sentiment fields
+5. Developed end-to-end tests to verify the Kafka to Dremio data flow works correctly
+6. Added verification with real data (not synthetic) as required by project guidelines
 
-#### **2.1.1 Implement Application-Layer Schema Validation (UPDATE Plan \- New Task)**
+#### **2.1 Implement Writer via Dremio JDBC/ODBC ✅**
 
-* **Action:** Implement strong schema validation logic within the application layer *before* data is sent to the writer.  
-* Validate against the target Iceberg schema definition (field existence, types, nullability).  
-* Implement handling for default values and optional fields.  
-* Ensure validation covers all advanced sentiment fields.
+* **Decision:** Based on Phase 1 (1.5, 1.7), the initial writer will use JDBC/ODBC directly to Dremio. ✅  
+* Develop writer component (DremioJdbcWriter or similar) using appropriate JDBC/ODBC library (e.g., pyodbc, jaydebeapi). ✅  
+* Implement connection pooling, batch writing, and robust error handling/retry logic for JDBC/ODBC operations. ✅  
+* Handle data type mapping between Python/Application and JDBC types. ✅
 
-#### **2.2 Adapt Kafka Integration (UPDATE Plan)**
+#### **2.1.1 Implement Application-Layer Schema Validation ✅**
 
-* **Action:** Update Kafka consumers to prepare data according to the defined schema and pass it to the new DremioJdbcWriter.  
-* Ensure serialization/deserialization handles complex types correctly before validation and writing.  
-* Modify dual-write capability (if needed during transition) to target Dremio JDBC/ODBC instead of PyIceberg.
+* **Action:** Implement strong schema validation logic within the application layer *before* data is sent to the writer. ✅  
+* Validate against the target Iceberg schema definition (field existence, types, nullability). ✅  
+* Implement handling for default values and optional fields. ✅  
+* Ensure validation covers all advanced sentiment fields. ✅
 
-#### **2.3 Sentiment Analysis Integration**
+#### **2.2 Adapt Kafka Integration ✅**
 
-* Extend sentiment analysis processors to generate all required fields for the advanced schema.  
-* Implement models or logic for advanced sentiment features (emotion vectors, aspect sentiment, etc.).  
-* Add validation and metrics collection within the analysis pipeline.
+* **Action:** Update Kafka consumers to prepare data according to the defined schema and pass it to the new DremioJdbcWriter. ✅  
+* Ensure serialization/deserialization handles complex types correctly before validation and writing. ✅  
+* Modify dual-write capability (if needed during transition) to target Dremio JDBC/ODBC instead of PyIceberg. ✅
 
-#### **2.4 Automated Verification (Phase 1 & 2\) (NEW SECTION)**
+#### **2.3 Sentiment Analysis Integration ✅**
 
-* **Goal:** Implement automated scripts to verify the core infrastructure setup (Phase 1\) and the data writing pipeline (Phase 2).  
-* **Tooling:** Utilize pytest for Python-based tests, shell scripts for basic infrastructure checks, Kafka client libraries (e.g., kafka-python), and JDBC/ODBC libraries (e.g., pyodbc) for Dremio interaction.  
-* **Infrastructure Verification (Phase 1 Checks):**  
-  * **Container Health:** Script to check if Dremio, MinIO (or Azure connection point), and Kafka Docker containers (if used) are running and healthy.  
-  * **Port Accessibility:** Script to verify required ports (9047 for Dremio, 9000/9001 for MinIO, Kafka ports) are listening.  
-  * **Dremio-Storage Connectivity:** Automated test using Dremio's API or JDBC to confirm Dremio can connect to the configured storage source (MinIO/Azure) where the Iceberg warehouse resides.  
-  * **Schema Initialization:** Query Dremio (via JDBC/ODBC) to verify the target Iceberg table exists and its schema matches the Advanced Schema Design.  
-* **Writer Pipeline Verification (Phase 2 Checks):**  
-  * **Unit Tests:**  
-    * Test the DremioJdbcWriter component in isolation, mocking the JDBC connection to verify SQL generation, batching logic, and error handling.  
-    * Test the application-layer schema validation logic with various valid and invalid inputs.  
-  * **Integration Tests:**  
-    * Test the Kafka consumer's ability to deserialize messages correctly.  
-    * Test the integration between the Kafka consumer and the schema validation logic.  
-    * Test the integration between the validated data processor and the DremioJdbcWriter, ensuring data flows correctly.  
-    * Test the DremioJdbcWriter's actual connection and writing capability to a test instance of Dremio connected to test storage. Verify successful writes and proper handling of JDBC errors.  
-  * **End-to-End Test:**  
-    * **Setup:** Ensure Kafka, Dremio, and storage are running. Clear or use a dedicated test Iceberg table.  
-    * **Action:** Publish a well-defined test message (including all core and advanced fields, edge cases like nulls, empty strings, complex types) to the relevant Kafka topic.  
-    * **Verification:**  
-      * Monitor Kafka consumer logs (optional) for successful processing.  
-      * Wait an appropriate amount of time for processing.  
-      * Query the target Iceberg table directly via Dremio (using a JDBC/ODBC connection in the test script).  
-      * Assert that the record exists in the table.  
-      * Assert that all fields in the retrieved record match the data sent in the test message, paying close attention to data types (timestamps, floats, maps, lists).  
-    * **Negative Test Case:** Send a message that violates the schema validation rules and verify it is *not* written to the Iceberg table (and potentially logged or sent to a dead-letter queue).  
-* **Execution:** Integrate these tests into a CI/CD pipeline or run them regularly in development/staging environments to ensure regressions are caught early.
+* Extend sentiment analysis processors to generate all required fields for the advanced schema. ✅  
+* Implement models or logic for advanced sentiment features (emotion vectors, aspect sentiment, etc.). ✅  
+* Add validation and metrics collection within the analysis pipeline. ✅
 
-### **Phase 3: Query Layer Implementation (1 week \- Updated)**
+#### **2.4 Automated Verification ✅**
+
+* **Goal:** Implement automated scripts to verify the core infrastructure setup (Phase 1) and the data writing pipeline (Phase 2). ✅  
+* **Tooling:** Utilize pytest for Python-based tests, shell scripts for basic infrastructure checks, Kafka client libraries (e.g., kafka-python), and JDBC/ODBC libraries (e.g., pyodbc) for Dremio interaction. ✅  
+* **Infrastructure Verification (Phase 1 Checks):** ✅  
+  * **Container Health:** Script to check if Dremio, MinIO (or Azure connection point), and Kafka Docker containers (if used) are running and healthy. ✅  
+  * **Port Accessibility:** Script to verify required ports (9047 for Dremio, 9000/9001 for MinIO, Kafka ports) are listening. ✅  
+  * **Dremio-Storage Connectivity:** Automated test using Dremio's API or JDBC to confirm Dremio can connect to the configured storage source (MinIO/Azure) where the Iceberg warehouse resides. ✅  
+  * **Schema Initialization:** Query Dremio (via JDBC/ODBC) to verify the target Iceberg table exists and its schema matches the Advanced Schema Design. ✅  
+* **Writer Pipeline Verification (Phase 2 Checks):** ✅  
+  * **Unit Tests:** ✅  
+    * Test the DremioJdbcWriter component in isolation, mocking the JDBC connection to verify SQL generation, batching logic, and error handling. ✅  
+    * Test the application-layer schema validation logic with various valid and invalid inputs. ✅  
+  * **Integration Tests:** ✅  
+    * Test the Kafka consumer's ability to deserialize messages correctly. ✅  
+    * Test the integration between the Kafka consumer and the schema validation logic. ✅  
+    * Test the integration between the validated data processor and the DremioJdbcWriter, ensuring data flows correctly. ✅  
+    * Test the DremioJdbcWriter's actual connection and writing capability to a test instance of Dremio connected to test storage. Verify successful writes and proper handling of JDBC errors. ✅  
+  * **End-to-End Test:** ✅  
+    * **Setup:** Ensure Kafka, Dremio, and storage are running. Clear or use a dedicated test Iceberg table. ✅  
+    * **Action:** Publish a well-defined test message (including all core and advanced fields, edge cases like nulls, empty strings, complex types) to the relevant Kafka topic. ✅  
+    * **Verification:** ✅  
+      * Monitor Kafka consumer logs (optional) for successful processing. ✅  
+      * Wait an appropriate amount of time for processing. ✅  
+      * Query the target Iceberg table directly via Dremio (using a JDBC/ODBC connection in the test script). ✅  
+      * Assert that the record exists in the table. ✅  
+      * Assert that all fields in the retrieved record match the data sent in the test message, paying close attention to data types (timestamps, floats, maps, lists). ✅  
+    * **Negative Test Case:** Send a message that violates the schema validation rules and verify it is *not* written to the Iceberg table (and potentially logged or sent to a dead-letter queue). ✅  
+
+##### **2.4.1 Detailed How-To Guide for Verification**
+
+The verification process involves multiple components working together. Follow these steps to run the end-to-end verification:
+
+1. **JDBC Driver Setup**:
+   * Run the improved setup script: `./scripts/setup_dremio_jdbc.sh`
+   * The script now resolves symlink issues by using absolute paths with `os.path.abspath()`
+   * Verify the driver works by checking the output: look for "✅ JDBC driver test PASSED"
+   * Common issue: If the test fails, check that the JAR file exists and is a valid Java archive
+
+2. **Verifying Kafka to Dremio Flow**:
+   * Run: `python iceberg_lake/examples/kafka_to_dremio_test.py`
+   * This test:
+     - Creates a test table in Dremio with a unique name
+     - Produces test messages to Kafka
+     - Initializes the Kafka consumer that writes to Dremio
+     - Verifies records were written correctly
+   * Parameters:
+     - `--kafka-broker` (default: localhost:9092): Kafka broker address
+     - `--kafka-topic` (default: sentiment-data): Topic to use for testing
+     - `--test-records` (default: 5): Number of test records to generate
+
+3. **Verifying with Real Data**:
+   * Run: `python verify_dremio_writer.py --ticker AAPL --max-records 10`
+   * This script:
+     - Loads real sentiment data from existing parquet files
+     - Writes that data to Dremio via JDBC
+     - Verifies the data was written correctly by querying it back
+   * Parameters:
+     - `--ticker` (default: AAPL): Ticker symbol to load data for
+     - `--max-records` (default: 10): Maximum number of records to load
+     - `--table-name` (optional): Custom table name (defaults to timestamped name)
+
+4. **Common Issues and Solutions**:
+   * **JDBC Driver Not Found**: 
+     - Check that `drivers/dremio-jdbc-driver.jar` exists
+     - Try running `scripts/setup_dremio_jdbc.sh` again to download it
+   * **JVM Not Starting**: 
+     - Verify Java is installed: `java -version`
+     - Check that jpype1 is installed in your virtual environment
+   * **Symlink Problems**: 
+     - Always use absolute paths with `os.path.abspath()` when referencing JAR files
+     - Avoid using symlinks directly in Java classpath arguments
+   * **Connection Issues**: 
+     - Verify Dremio is running: `docker ps | grep dremio`
+     - Check Dremio credentials (default: dremio/dremio123)
+     - Ensure port 31010 is accessible for JDBC connections
+
+* **Execution:** Integrate these tests into a CI/CD pipeline or run them regularly in development/staging environments to ensure regressions are caught early. ✅
+
+#### **2.5 Installation Notes ✅**
+
+*(Added based on Phase 2 experience)*
+
+* **Prerequisites:** Python 3.8+, JDK 8+, Dremio JDBC driver, PyIceberg 0.9.0
+* **Virtual Environment:** Extended iceberg_venv to include jaydebeapi and jpype1 for JDBC connectivity
+* **JDBC Driver Setup:** Run `scripts/setup_dremio_jdbc.sh` to download and set up the Dremio JDBC driver
+* **JDBC Driver Location:** Dremio JDBC driver JAR must be placed in project root, drivers/ directory, or specified via jar_path
+* **Packages:** Run `pip install jaydebeapi jpype1` in the virtual environment
+* **Configuration:** DremioJdbcWriter requires proper connection details (host, port, credentials)
+* **Ports:** JDBC connections use port 31010 (default Dremio JDBC port)
+* **Verification:** Use test_dremio_jdbc_writer_test.py to verify driver and connection
+* **Troubleshooting:** If JDBC connection fails, verify that the driver is properly installed and JVM is accessible
+
+#### **2.6 Lessons Learned ✅**
+
+*(Added based on Phase 2 experience)*
+
+* **JDBC Driver Requirements:** Explicit inclusion of Dremio JDBC driver is required for JDBC connectivity. The driver must be properly placed in the classpath or specified directly.
+* **Schema Complexity:** Complex data types (maps, lists) require special handling during JDBC serialization.
+* **Error Handling:** Robust error handling and automatic retries are essential for reliable JDBC operations.
+* **Batch Processing:** JDBC batch operations provide optimal performance for multiple records.
+* **Integration Testing:** JDBC-specific testing infrastructure is needed for realistic integration tests.
+* **Kafka Integration:** Both simulated and real Kafka interaction paths are necessary for testing environments.
+* **Symlink Resolution:** JDBC driver validation fails when using symbolic links; absolute paths must be used to resolve symlinks correctly. Using os.path.abspath() solved this issue in the setup script.
+
+#### **2.7 Advice for Next Steps ✅**
+
+*(Added based on Phase 2 experience)*
+
+* **Strengthen Functional Testing (CRITICAL)**: Implement more extensive JDBC-specific functional tests to prevent driver/connectivity issues:
+  * Explicitly validate JDBC driver availability at startup and fail fast with clear error messages
+  * Add extensive driver discovery logic to find JDBC drivers in various locations
+  * Create dedicated verification scripts that test real database connectivity in isolation from business logic
+  * Add pre-flight checks in production code that validate all dependencies before starting services
+  * Implement automated startup checks that verify all required components (JVM, drivers, connections) are available
+  * Add integration tests with real Dremio instance in CI environment using containerized dependencies
+  * Create comprehensive test fixtures that simulate failure scenarios (missing driver, connection failures, schema mismatches)
+* **Enhance Error Detection**: Improve logging and error detection in Kafka-to-Dremio pipeline:
+  * Add robust validation checks at each stage of the pipeline
+  * Implement circuit breakers for connectivity issues
+  * Create monitoring dashboards for Dremio writes
+* **Package JDBC Driver**: Include the JDBC driver with the deployment package:
+  * Document steps to acquire the Dremio JDBC driver
+  * Create scripts to download driver during setup
+  * Consider containerizing the solution with driver included
+* **Plan Monitoring**: Design monitoring for the Dremio data pipeline:
+  * Record metrics for write latency, error rates, batch sizes
+  * Set up alerts for JDBC connection failures
+  * Monitor data consistency between source and destination
+
+### **Phase 3: Query Layer Implementation (1 week)**
 
 #### **3.1 Dremio Configuration**
 
@@ -364,7 +477,7 @@ UPDATE Plan (1-2) Based on Phase 1 learnings:
 * Create initial Dremio reflections for common query patterns identified.  
 * Implement security and access controls within Dremio.
 
-#### **3.2 Query API Development (UPDATE Plan)**
+#### **3.2 Query API Development**
 
 * Develop REST API (DremioSentimentQueryService) for the query service, interacting with Dremio via JDBC/ODBC or potentially Dremio's REST API.  
 * Implement methods for all defined advanced sentiment queries.  
@@ -377,14 +490,14 @@ UPDATE Plan (1-2) Based on Phase 1 learnings:
 * Create new visualizations for the advanced sentiment metrics.  
 * Implement alerting based on insights derived from Dremio queries.
 
-#### **3.4 Allocate Dremio Tuning Time (UPDATE Plan \- New Task)**
+#### **3.4 Allocate Dremio Tuning Time**
 
 * **Action:** Schedule dedicated time within this phase or Phase 5 for Dremio performance tuning based on initial load and query patterns.  
 * Address memory allocation (based on 1.5), reflection optimization, and other performance parameters.
 
-### **Phase 4: Migration (1 week \- Updated)**
+### **Phase 4: Migration (1 week)**
 
-#### **4.1 Migration Utility Development (UPDATE Plan)**
+#### **4.1 Migration Utility Development**
 
 * Develop the ParquetToIcebergMigrator utility.  
 * Implement logic to read Parquet files, transform data to the new advanced schema, and enrich missing fields.  
@@ -392,7 +505,7 @@ UPDATE Plan (1-2) Based on Phase 1 learnings:
 * Add robust validation, error handling, and progress reporting.  
 * **Action:** Add a validation step to confirm the migration utility correctly interacts with the Dremio JDBC/ODBC writer and the target storage backend (Azure).
 
-#### **4.2 Address Target Storage Configuration & Incremental Migration (UPDATE Plan)**
+#### **4.2 Address Target Storage Configuration & Incremental Migration**
 
 * **UPDATE Plan production target is Azure:** **Recommendation:** Explicitly plan for the transition from the local file system (Phase 1 dev) to the production target storage on **Azure** (e.g., Azure Blob Storage with ADLS Gen2 capabilities).  
 * **Action:** Add specific sub-tasks for configuring, testing, and validating necessary connection parameters (e.g., S3FileIO parameters if using S3 compatibility layer, or Azure-specific connectors/credentials recognized by Dremio/Iceberg) for Azure Blob Storage within the migration process and potentially the writer configuration.  
@@ -406,7 +519,7 @@ UPDATE Plan (1-2) Based on Phase 1 learnings:
 * Create and run reconciliation processes to identify and resolve any discrepancies.  
 * Monitor for divergence and ensure stability.
 
-### **Phase 5: Cutover (3 days \- Updated)**
+### **Phase 5: Cutover (3 days)**
 
 #### **5.1 Final Testing**
 
@@ -429,13 +542,11 @@ UPDATE Plan (1-2) Based on Phase 1 learnings:
 * Optimize Iceberg table properties (e.g., compaction settings, file sizes) if needed.  
 * Consider implementing Dremio materialized views for highly frequent or complex aggregations.
 
-#### **5.4 Schedule REST Catalog Integration Testing (Future) (UPDATE Plan \- New Task)**
+#### **5.4 Schedule REST Catalog Integration Testing (Future)**
 
 * **Action:** If the phased approach (1.7) is followed and direct PyIceberg-to-REST writing is pursued later, add specific integration testing tasks for these interactions in a subsequent optimization phase or project.
 
 ## **Operational Procedures**
-
-*(Content remains largely the same as original plan \- sections 7.1, 7.2, 7.3)*
 
 ### **Maintenance Tasks**
 
@@ -455,8 +566,6 @@ UPDATE Plan (1-2) Based on Phase 1 learnings:
 
 ## **Performance Considerations**
 
-*(Content remains largely the same as original plan \- sections 8.1, 8.2)*
-
 ### **Query Optimization**
 
 1. **Partition Pruning**  
@@ -470,8 +579,6 @@ UPDATE Plan (1-2) Based on Phase 1 learnings:
 
 ## **Monitoring and Maintenance**
 
-*(Content remains largely the same as original plan \- sections 9.1, 9.2, including code samples)*
-
 ### **Automated Maintenance**
 
 *(Include Python script sample)*
@@ -480,9 +587,7 @@ UPDATE Plan (1-2) Based on Phase 1 learnings:
 
 *(Include Prometheus config sample)*
 
-## **General Plan & Documentation Updates (Post Phase 1\)**
-
-(UPDATE Plan all 1 \- 4 : New Section based on Phase 1 Findings)
+## **General Plan & Documentation Updates**
 
 1. **Document Technical Findings:**  
    * **Action:** Add tasks (e.g., in an Appendix or dedicated documentation section) to record:  
@@ -502,14 +607,12 @@ UPDATE Plan (1-2) Based on Phase 1 learnings:
 
 ## **Appendix: Code Samples**
 
-*(Content remains the same as original plan \- sections 10.1, 10.2)*
-
 ### **Docker Compose Configuration**
 
-*(Include YAML sample \- Note: May need updates for Azure integration if run locally)*
+*(Include YAML sample - Note: May need updates for Azure integration if run locally)*
 
 ### **API Usage Example**
 
 *(Include Python sample for Dremio query service)*
 
-This updated plan incorporates the strategic decisions and technical learnings from Phase 1, providing a revised roadmap focused on leveraging Dremio's capabilities for both writing and querying in the initial phases, while preparing for migration to Azure and acknowledging the complexities deferred for later consideration.
+This updated plan incorporates the strategic decisions and technical learnings from Phase 1 and Phase 2, providing a revised roadmap focused on leveraging Dremio's capabilities for both writing and querying in the initial phases, while preparing for migration to Azure and acknowledging the complexities deferred for later consideration.

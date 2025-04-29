@@ -252,14 +252,26 @@ def main():
     """Main test function."""
     logger.info("===== DREMIO JDBC WRITER TEST =====")
     
-    # Check for jar file
-    jar_files = [f for f in os.listdir('.') if f.endswith('.jar') and 'dremio' in f.lower()]
+    # Check for JDBC driver in multiple locations
+    jar_paths = [
+        # Check current directory
+        [f for f in os.listdir('.') if f.endswith('.jar') and 'dremio' in f.lower()],
+        # Check drivers directory if it exists
+        [os.path.join('drivers', f) for f in os.listdir('drivers') if os.path.exists('drivers') and f.endswith('.jar') and 'dremio' in f.lower()],
+        # Check standard lib directories
+        [os.path.join('/usr/lib/dremio', f) for f in os.listdir('/usr/lib/dremio') if os.path.exists('/usr/lib/dremio') and f.endswith('.jar') and 'dremio' in f.lower()],
+        [os.path.join('/usr/local/lib/dremio', f) for f in os.listdir('/usr/local/lib/dremio') if os.path.exists('/usr/local/lib/dremio') and f.endswith('.jar') and 'dremio' in f.lower()]
+    ]
+    
+    # Flatten the list and take the first JAR found
+    jar_files = [item for sublist in jar_paths for item in sublist]
     jar_path = jar_files[0] if jar_files else None
     
     if jar_path:
         logger.info(f"Found Dremio JDBC driver: {jar_path}")
     else:
         logger.warning("No Dremio JDBC driver JAR found. You'll need a driver on the CLASSPATH.")
+        logger.warning("Please run scripts/setup_dremio_jdbc.sh to download and set up the driver.")
     
     # Get Dremio configuration
     dremio_config = get_dremio_config()

@@ -27,7 +27,7 @@ class IcebergConfig:
             "bucket": "warehouse"
         },
         "dremio": {
-            "endpoint": "http://dremio:9047",
+            "endpoint": "http://localhost:9047",
             "username": "dremio",
             "password": "dremio123",
             "jdbc_port": 31010,

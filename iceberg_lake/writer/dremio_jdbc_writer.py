@@ -77,8 +77,60 @@ class DremioJdbcWriter:
         # Initialize connection pool
         self.connection = None
         
+        # Verify JDBC driver availability first
+        self._verify_jdbc_driver()
+        
         # Ensure the table exists
         self._ensure_table_exists()
+    
+    def _verify_jdbc_driver(self) -> None:
+        """
+        Verify that the Dremio JDBC driver is available.
+        
+        Raises:
+            RuntimeError: If the driver is not found
+        """
+        import jpype
+        import os
+        
+        # Check if jar_path is provided
+        if self.jar_path and os.path.exists(self.jar_path):
+            self.logger.info(f"Using provided JDBC driver: {self.jar_path}")
+            return
+            
+        # Check multiple locations for the driver
+        jar_paths = [
+            # Check current directory
+            [f for f in os.listdir('.') if f.endswith('.jar') and 'dremio' in f.lower()],
+            # Check drivers directory if it exists
+            [os.path.join('drivers', f) for f in os.listdir('drivers') if os.path.exists('drivers') and f.endswith('.jar') and 'dremio' in f.lower()],
+            # Check standard lib directories
+            [os.path.join('/usr/lib/dremio', f) for f in os.listdir('/usr/lib/dremio') if os.path.exists('/usr/lib/dremio') and f.endswith('.jar') and 'dremio' in f.lower()],
+            [os.path.join('/usr/local/lib/dremio', f) for f in os.listdir('/usr/local/lib/dremio') if os.path.exists('/usr/local/lib/dremio') and f.endswith('.jar') and 'dremio' in f.lower()]
+        ]
+        
+        # Flatten the list and take the first JAR found
+        jar_files = [item for sublist in jar_paths for item in sublist]
+        
+        if jar_files:
+            self.jar_path = jar_files[0]
+            self.logger.info(f"Found Dremio JDBC driver: {self.jar_path}")
+            return
+            
+        # Try to load the driver class directly from classpath
+        try:
+            if not jpype.isJVMStarted():
+                jpype.startJVM()
+            driver_class = jpype.JClass(self.driver_class)
+            self.logger.info(f"Found Dremio JDBC driver class in classpath: {self.driver_class}")
+            return
+        except Exception as e:
+            self.logger.warning(f"Could not load driver class from classpath: {str(e)}")
+        
+        raise RuntimeError(
+            "Dremio JDBC driver not found. Please run scripts/setup_dremio_jdbc.sh to download and set up the driver, "
+            "or provide the jar_path parameter with the path to the driver JAR file."
+        )
     
     def _get_connection(self) -> jaydebeapi.Connection:
         """
