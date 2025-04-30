@@ -48,7 +48,16 @@ We've enhanced our data tier with Apache Iceberg for better performance and data
 - **Advanced Partitioning**: Optimized for financial time-series data
 - **Dremio Integration**: SQL-based querying with powerful analytics
 
-See our [Iceberg Lakehouse Integration](iceberg_lake/README.md) for details and setup instructions.
+#### Advanced Sentiment Query Layer (NEW)
+
+We've completed Phase 3 of our data tier plan with a comprehensive query layer for sentiment analysis:
+
+- **DremioSentimentQueryService**: JDBC-based access to sentiment data with advanced analytics
+- **Optimized Dremio Reflections**: Performance-optimized materialized views for common query patterns
+- **REST API**: FastAPI service exposing sentiment query functionality
+- **Verification Tools**: Comprehensive testing and validation for query functionality
+
+See our [Iceberg Lakehouse Integration](iceberg_lake/README.md) and [Query Layer Documentation](iceberg_lake/query/README.md) for details and setup instructions.
 
 ## New Component: Ticker Sentiment Analyzer
 
@@ -159,4 +168,12 @@ pytest tests/test_parquet_integration.py
 
 ## Contributors
 
-[Insert contributor information here]# Successfully completed Phase 2 of the Iceberg/Dremio implementation
+[Insert contributor information here]
+
+## Status
+
+- ✅ Phase 1: Iceberg Infrastructure Setup - **COMPLETED**
+- ✅ Phase 2: Iceberg Writer Implementation - **COMPLETED**
+- ✅ Phase 3: Dremio Query Layer Implementation - **COMPLETED**
+- ⏳ Phase 4: Data Migration - Pending
+- ⏳ Phase 5: Cutover - Pending

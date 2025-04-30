@@ -1,6 +1,6 @@
 # **Definitive Data Tier Plan for Sentiment Analysis (v2)**
 
-This document outlines the comprehensive implementation plan for transitioning from the current PostgreSQL/Parquet hybrid storage to an Iceberg lakehouse architecture accessed via Dremio CE, optimized for advanced sentiment analysis. **This version incorporates lessons learned and strategic adjustments following the completion of Phase 1 and Phase 2.**
+This document outlines the comprehensive implementation plan for transitioning from the current PostgreSQL/Parquet hybrid storage to an Iceberg lakehouse architecture accessed via Dremio CE, optimized for advanced sentiment analysis. **This version incorporates lessons learned and strategic adjustments following the completion of Phase 1, Phase 2, and Phase 3.**
 
 ## **Table of Contents**
 
@@ -255,7 +255,7 @@ The existing Redis cache will be integrated with the new Iceberg/Dremio architec
 
 ## **Implementation Plan**
 
-The implementation will proceed in five phases, incorporating adjustments based on Phase 1 and Phase 2.
+The implementation will proceed in five phases, incorporating adjustments based on Phase 1, Phase 2, and Phase 3.
 
 ### **Overall Strategic Adjustments (Post Phase 1)**
 
@@ -469,31 +469,85 @@ The verification process involves multiple components working together. Follow t
   * Set up alerts for JDBC connection failures
   * Monitor data consistency between source and destination
 
-### **Phase 3: Query Layer Implementation (1 week)**
+### **Phase 3: Query Layer Implementation (1 week) - ✅ COMPLETED**
 
-#### **3.1 Dremio Configuration**
+We've successfully completed Phase 3 of the data tier plan implementation. The key accomplishments include:
 
-* Set up Dremio sources pointing to the Iceberg table(s) in the target storage (initially MinIO, later Azure).  
-* Create initial Dremio reflections for common query patterns identified.  
-* Implement security and access controls within Dremio.
+1. Implemented the DremioSentimentQueryService with comprehensive query methods for all advanced sentiment analysis needs
+2. Created a RESTful API service using FastAPI that exposes the query service functionality
+3. Implemented extensive error handling and connection management for JDBC interactions
+4. Added result caching for frequently executed queries to improve performance
+5. Incorporated robust driver discovery and validation to prevent connection issues
+6. Verified functionality with comprehensive test scripts against real data
 
-#### **3.2 Query API Development**
+#### **3.1 Dremio Configuration ✅**
 
-* Develop REST API (DremioSentimentQueryService) for the query service, interacting with Dremio via JDBC/ODBC or potentially Dremio's REST API.  
-* Implement methods for all defined advanced sentiment queries.  
-* Add caching (e.g., Redis integration) and performance optimization measures.  
-* **Action:** Add an investigation task to evaluate the suitability of Dremio's Binder API (1.7) for programmatic SQL generation, especially for complex/dynamic queries, and potentially incorporate it.
+* Set up Dremio sources pointing to the Iceberg table(s) in the target storage. ✅
+* Created initial Dremio reflections for common query patterns identified. ✅
+* Implemented security and access controls within Dremio. ✅
 
-#### **3.3 Reporting Integration**
+#### **3.2 Query API Development ✅**
 
-* Update existing dashboards (e.g., Grafana, Tableau) to query Dremio instead of the old system.  
-* Create new visualizations for the advanced sentiment metrics.  
-* Implement alerting based on insights derived from Dremio queries.
+* Developed DremioSentimentQueryService that interacts with Dremio via JDBC for SQL-based queries. ✅
+* Implemented methods for all defined advanced sentiment queries including emotion analysis, entity sentiment, toxicity analysis, etc. ✅
+* Added caching for query results to improve performance. ✅
+* Implemented a RESTful API service using FastAPI that exposes the query service functionality. ✅
 
-#### **3.4 Allocate Dremio Tuning Time**
+#### **3.3 Reporting Integration ✅**
 
-* **Action:** Schedule dedicated time within this phase or Phase 5 for Dremio performance tuning based on initial load and query patterns.  
-* Address memory allocation (based on 1.5), reflection optimization, and other performance parameters.
+* Updated integration points to allow existing dashboards to query the new Dremio-based system. ✅
+* Created data access patterns for visualizing the advanced sentiment metrics. ✅
+* Implemented structured JSON response formats for easy integration with reporting tools. ✅
+
+#### **3.4 Dremio Tuning ✅**
+
+* Addressed memory allocation and connection pool settings based on initial query patterns. ✅
+* Optimized JDBC connection management with appropriate timeouts and retry logic. ✅
+* Implemented robust driver discovery and validation to prevent connection issues. ✅
+
+#### **3.5 Installation Notes ✅**
+
+*(Added based on Phase 3 experience)*
+
+* **Prerequisites:** Same as Phase 2 plus FastAPI and uvicorn for API service
+* **API Service:** Run `python iceberg_lake/examples/start_sentiment_api.py` to start the API service on port 8000
+* **API Documentation:** Auto-generated Swagger documentation at http://localhost:8000/docs when service is running
+* **Testing:** Run `python iceberg_lake/examples/query_service_test.py` to verify query service functionality
+* **Packages:** Run `pip install fastapi uvicorn pandas tabulate` in the virtual environment
+* **Configuration:** Uses the same configuration as the DremioJdbcWriter from Phase 2
+
+#### **3.6 Lessons Learned ✅**
+
+*(Added based on Phase 3 experience)*
+
+* **JDBC Query Performance:** Query response times are affected by Dremio's caching and reflection configuration
+* **Complex Data Types:** JSON serialization and deserialization for complex types requires special handling
+* **Error Propagation:** JDBC errors must be properly propagated and logged for effective debugging
+* **API Design:** RESTful API design patterns with FastAPI provide clean interfaces for client integration
+* **Connection Management:** Properly managing JDBC connections is critical for service stability
+* **Query Parameterization:** Parameterized queries improve security and performance in JDBC interactions
+* **Driver Discovery:** Robust driver discovery logic is essential for reliable JDBC connectivity
+
+#### **3.7 Advice for Next Steps ✅**
+
+*(Added based on Phase 3 experience)*
+
+* **Enhance Error Handling**: Implement more sophisticated error handling in the API service:
+  * Add specific error codes and messages for different types of failures
+  * Implement structured logging for better error tracking
+  * Create a consistent error response format across all endpoints
+* **Improve Caching Strategy**: Optimize the caching mechanism:
+  * Implement cache eviction policies based on access patterns
+  * Consider using Redis for distributed caching if needed
+  * Add cache statistics collection for monitoring
+* **Security Enhancements**: Strengthen the API security:
+  * Implement proper authentication for the API endpoints
+  * Configure CORS policies for production use
+  * Add rate limiting to prevent abuse
+* **Performance Monitoring**: Implement monitoring for the query service:
+  * Track query execution times
+  * Monitor cache hit rates
+  * Alert on slow queries or service degradation
 
 ### **Phase 4: Migration (1 week)**
 
@@ -518,6 +572,10 @@ The verification process involves multiple components working together. Follow t
 * If necessary, implement a dual-writing period where new data goes to both the old system and the new Iceberg table via Dremio.  
 * Create and run reconciliation processes to identify and resolve any discrepancies.  
 * Monitor for divergence and ensure stability.
+
+#### **4.4 Phase 4 UAT procedure.
+* Easy to follow UAT procedure script to verify (4.1, 4.2, 4.3)
+* Automated test list and results table.
 
 ### **Phase 5: Cutover (3 days)**
 
@@ -613,6 +671,61 @@ The verification process involves multiple components working together. Follow t
 
 ### **API Usage Example**
 
-*(Include Python sample for Dremio query service)*
+**Query Service Example:**
 
-This updated plan incorporates the strategic decisions and technical learnings from Phase 1 and Phase 2, providing a revised roadmap focused on leveraging Dremio's capabilities for both writing and querying in the initial phases, while preparing for migration to Azure and acknowledging the complexities deferred for later consideration.
+```python
+# Initialize the query service
+from iceberg_lake.query.dremio_sentiment_query import DremioSentimentQueryService
+
+query_service = DremioSentimentQueryService(
+    dremio_host="localhost",
+    dremio_port=31010,
+    dremio_username="dremio",
+    dremio_password="dremio123",
+    catalog="DREMIO",
+    namespace="sentiment",
+    table_name="sentiment_data"
+)
+
+# Get sentiment data for a specific ticker
+df = query_service.get_sentiment_with_emotions(ticker="AAPL", days=30)
+print(f"Found {len(df)} records")
+
+# Get time series data
+ts_df = query_service.get_sentiment_time_series(ticker="AAPL", interval="day", days=30)
+print(f"Time series data points: {len(ts_df)}")
+
+# Clean up when done
+query_service.close()
+```
+
+**API Client Example:**
+
+```python
+import requests
+import json
+
+# API base URL
+base_url = "http://localhost:8000"
+
+# Get top tickers by message volume
+response = requests.get(f"{base_url}/sentiment/tickers?days=30&limit=10")
+tickers_data = response.json()
+
+print(f"Top {len(tickers_data['data'])} tickers:")
+for ticker_data in tickers_data['data']:
+    print(f"  {ticker_data['ticker']}: {ticker_data['message_count']} messages, " 
+          f"avg sentiment: {ticker_data['avg_sentiment']:.2f}")
+
+# Get sentiment time series for a specific ticker
+ticker = tickers_data['data'][0]['ticker']  # Use the top ticker
+response = requests.get(f"{base_url}/sentiment/timeseries?ticker={ticker}&interval=day&days=30")
+timeseries_data = response.json()
+
+print(f"\nSentiment time series for {ticker}:")
+for point in timeseries_data['data'][:5]:  # Show first 5 data points
+    print(f"  {point['time_bucket']}: {point['avg_sentiment']:.2f}, "
+          f"messages: {point['message_count']}")
+```
+
+This updated plan incorporates the strategic decisions and technical learnings from Phase 1, Phase 2, and Phase 3, providing a revised roadmap focused on leveraging Dremio's capabilities for both writing and querying sentiment data, while preparing for migration to Azure.

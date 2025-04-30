@@ -7,6 +7,7 @@
 - keep documentation in sync after successful completion of a phase.
 - be clear about verification procedure so that user can verify easily.
 - iterate until errors are resolved.
+- files referenced or created should use entire path so I can find them.
 
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
