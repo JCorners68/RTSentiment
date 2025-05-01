@@ -176,30 +176,32 @@ class DremioJdbcWriter:
     def _ensure_table_exists(self) -> None:
         """
         Ensure the target Iceberg table exists in Dremio, create if not.
+        
+        Uses a Dremio-compatible approach to check for table existence by
+        attempting to query the table and handling the exception if it doesn't exist.
+        This avoids issues with SQL dialect differences in INFORMATION_SCHEMA queries.
         """
         connection = self._get_connection()
         cursor = connection.cursor()
         
         try:
-            # Check if table exists
+            # Use TRY-CATCH approach: attempt to query the table
+            # If it fails with TableNotFoundException, create it
             self.logger.info(f"Checking if table exists: {self.table_identifier}")
             
-            # Use Dremio's INFORMATION_SCHEMA to check for table existence
-            cursor.execute(f"""
-                SELECT COUNT(*)
-                FROM INFORMATION_SCHEMA.TABLES
-                WHERE TABLE_CATALOG = '{self.catalog}'
-                AND TABLE_SCHEMA = '{self.namespace}'
-                AND TABLE_NAME = '{self.table_name}'
-            """)
-            
-            count = cursor.fetchone()[0]
-            
-            if count == 0:
-                self.logger.info(f"Table does not exist. Creating table: {self.table_identifier}")
-                self._create_table(cursor)
-            else:
+            try:
+                # Try a simple query that will fail if table doesn't exist
+                cursor.execute(f"SELECT COUNT(*) FROM {self.table_identifier} LIMIT 1")
                 self.logger.info(f"Table exists: {self.table_identifier}")
+            except Exception as e:
+                # Check if error message indicates table doesn't exist
+                error_str = str(e).lower()
+                if "table not found" in error_str or "does not exist" in error_str or "object not found" in error_str:
+                    self.logger.info(f"Table does not exist. Creating table: {self.table_identifier}")
+                    self._create_table(cursor)
+                else:
+                    # If it's some other error, re-raise it
+                    raise
         
         except Exception as e:
             self.logger.error(f"Error checking/creating table: {str(e)}")
@@ -245,9 +247,10 @@ class DremioJdbcWriter:
             nullable = "" if field.required else "NULL"
             column_defs.append(f'"{col_name}" {col_type} {nullable}')
         
-        # Create the table with Iceberg format
+        # Create the table with Iceberg format using IF NOT EXISTS
+        # This is more compatible with Dremio's SQL dialect
         create_table_sql = f"""
-        CREATE TABLE {self.table_identifier} (
+        CREATE TABLE IF NOT EXISTS {self.table_identifier} (
             {', '.join(column_defs)}
         )
         WITH (

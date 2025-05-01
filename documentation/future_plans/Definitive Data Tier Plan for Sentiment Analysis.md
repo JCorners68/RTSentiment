@@ -1,6 +1,6 @@
-# **Definitive Data Tier Plan for Sentiment Analysis (v2)**
+# **Definitive Data Tier Plan for Sentiment Analysis (v3)**
 
-This document outlines the comprehensive implementation plan for transitioning from the current PostgreSQL/Parquet hybrid storage to an Iceberg lakehouse architecture accessed via Dremio CE, optimized for advanced sentiment analysis. **This version incorporates lessons learned and strategic adjustments following the completion of Phase 1, Phase 2, and Phase 3.**
+This document outlines the comprehensive implementation plan for transitioning from the current PostgreSQL/Parquet hybrid storage to an Iceberg lakehouse architecture accessed via Dremio CE, optimized for advanced sentiment analysis. **This version incorporates lessons learned and strategic adjustments following the completion of Phase 1, Phase 2, and Phase 3, with detailed planning for Phase 4 Azure migration.**
 
 ## **Table of Contents**
 
@@ -10,11 +10,12 @@ This document outlines the comprehensive implementation plan for transitioning f
 4. [Advanced Schema Design](#advanced-schema-design)  
 5. [Implementation Components](#implementation-components)  
 6. [Implementation Plan](#implementation-plan)  
-7. [Operational Procedures](#operational-procedures)  
-8. [Performance Considerations](#performance-considerations)  
-9. [Monitoring and Maintenance](#monitoring-and-maintenance)  
-10. [General Plan & Documentation Updates](#general-plan--documentation-updates)  
-11. [Appendix: Code Samples](#appendix-code-samples)
+7. [Azure Migration Strategy](#azure-migration-strategy)  
+8. [Operational Procedures](#operational-procedures)  
+9. [Performance Considerations](#performance-considerations)  
+10. [Monitoring and Maintenance](#monitoring-and-maintenance)  
+11. [General Plan & Documentation Updates](#general-plan--documentation-updates)  
+12. [Appendix: Code Samples](#appendix-code-samples)
 
 ## **Executive Summary**
 
@@ -27,6 +28,7 @@ The Real-Time Sentiment Analysis system currently uses a hybrid data storage app
 * **Schema Evolution**: Flexible schema updates without data rewriting  
 * **Performance Optimization**: Improved query performance through partition pruning and metadata indexing  
 * **Operational Efficiency**: Streamlined maintenance procedures and monitoring
+* **Cloud-Native Design**: Azure deployment with enterprise-grade reliability and scalability
 
 ## **Current Architecture Overview**
 
@@ -43,6 +45,7 @@ The current data tier consists of:
 * Redundant storage and potential for data inconsistency  
 * Performance bottlenecks for complex analytical queries  
 * Maintenance overhead for multiple systems
+* Scaling limitations for on-premise deployments
 
 ## **Target Architecture**
 
@@ -71,6 +74,7 @@ The target architecture will consolidate storage into an Iceberg lakehouse with:
 * Optimized query performance through partition pruning  
 * Seamless integration with existing Redis caching  
 * SQL-based access through Dremio CE
+* Cloud-native scalability on Azure
 
 ## **Advanced Schema Design**
 
@@ -528,54 +532,214 @@ We've successfully completed Phase 3 of the data tier plan implementation. The k
 * **Query Parameterization:** Parameterized queries improve security and performance in JDBC interactions
 * **Driver Discovery:** Robust driver discovery logic is essential for reliable JDBC connectivity
 
-#### **3.7 Advice for Next Steps ✅**
+#### **3.7 SQL Dialect Compatibility and JDBC/JVM Approach**
 
-*(Added based on Phase 3 experience)*
+*(Added based on UAT experience)*
 
-* **Enhance Error Handling**: Implement more sophisticated error handling in the API service:
-  * Add specific error codes and messages for different types of failures
-  * Implement structured logging for better error tracking
-  * Create a consistent error response format across all endpoints
-* **Improve Caching Strategy**: Optimize the caching mechanism:
-  * Implement cache eviction policies based on access patterns
-  * Consider using Redis for distributed caching if needed
-  * Add cache statistics collection for monitoring
-* **Security Enhancements**: Strengthen the API security:
-  * Implement proper authentication for the API endpoints
-  * Configure CORS policies for production use
-  * Add rate limiting to prevent abuse
-* **Performance Monitoring**: Implement monitoring for the query service:
-  * Track query execution times
-  * Monitor cache hit rates
-  * Alert on slow queries or service degradation
+* **SQL Dialect Considerations**: When working with Dremio's SQL dialect, be aware of these key differences:
+  * **Information Schema**: Dremio's implementation of `INFORMATION_SCHEMA.TABLES` differs from standard SQL. Use Dremio's `sys.tables` instead or implement a try-catch approach for table existence checks.
+  * **Table Creation**: Always use `CREATE TABLE IF NOT EXISTS` syntax to prevent errors when tables might already exist.
+  * **Quoting Identifiers**: Dremio requires proper quoting of catalog, schema, and table names in SQL statements.
+  * **Data Type Mappings**: Pay attention to Dremio's specific type mappings, especially for complex types like maps and arrays.
 
-### **Phase 4: Migration (1 week)**
+* **JDBC/JVM Configuration Requirements**:
+  * **JVM Arguments**: Modern Java (9+) requires specific arguments to allow the Dremio JDBC driver access to internal APIs:
+    ```
+    --add-opens=java.base/java.lang=ALL-UNNAMED
+    --add-opens=java.base/java.nio=ALL-UNNAMED
+    --add-opens=java.base/java.util=ALL-UNNAMED
+    --add-opens=java.base/java.io=ALL-UNNAMED
+    ```
+  * **Driver Discovery**: Implement robust JDBC driver discovery logic that checks multiple potential locations.
+  * **Connection Management**: Use proper connection pooling and ensure connections are always closed after use.
+  * **Error Handling**: Implement comprehensive error handling that gracefully manages JDBC exceptions.
 
-#### **4.1 Migration Utility Development**
+* **Alternative Approaches**:
+  * **REST API First**: For many operations, Dremio's REST API is more reliable and has fewer dependencies than JDBC.
+  * **Binder API**: Consider using Dremio's Binder API for programmatic query generation if available.
+  * **Native Java Service**: For critical production workloads, consider implementing JDBC operations in a separate Java service.
 
-* Develop the ParquetToIcebergMigrator utility.  
-* Implement logic to read Parquet files, transform data to the new advanced schema, and enrich missing fields.  
-* Ensure the utility writes data using the chosen DremioJdbcWriter.  
-* Add robust validation, error handling, and progress reporting.  
-* **Action:** Add a validation step to confirm the migration utility correctly interacts with the Dremio JDBC/ODBC writer and the target storage backend (Azure).
+#### **3.8 User Acceptance Testing (UAT) Lessons Learned**
 
-#### **4.2 Address Target Storage Configuration & Incremental Migration**
+*(Added based on UAT experience)*
 
-* **UPDATE Plan production target is Azure:** **Recommendation:** Explicitly plan for the transition from the local file system (Phase 1 dev) to the production target storage on **Azure** (e.g., Azure Blob Storage with ADLS Gen2 capabilities).  
-* **Action:** Add specific sub-tasks for configuring, testing, and validating necessary connection parameters (e.g., S3FileIO parameters if using S3 compatibility layer, or Azure-specific connectors/credentials recognized by Dremio/Iceberg) for Azure Blob Storage within the migration process and potentially the writer configuration.  
-* Migrate historical data from Parquet to Iceberg (via Dremio) in manageable batches.  
-* Validate data integrity and consistency after each batch migration.  
-* Monitor system performance (Dremio, Azure storage, network) during migration.
+* **Documentation Importance**: 
+  * **Comprehensive Documentation**: UAT revealed the critical need for thorough documentation covering all aspects of the system:
+    * Detailed setup instructions with exact prerequisites and versions
+    * Step-by-step troubleshooting guides for common issues
+    * SQL compatibility details and differences from standard SQL
+    * JDBC driver configuration requirements
+    * Environment variable specifications
+  * **Configuration Documentation**: Each configuration parameter must be documented with:
+    * Purpose and impact
+    * Valid values and constraints
+    * Default values and when to change them
+    * Example configurations for different environments
 
-#### **4.3 Dual-Write Period**
+* **Tester Role Definition**:
+  * **Clear Role Boundaries**: The UAT tester's role is to run tests and report results, not to modify code:
+    * Tests should be executable without code modifications
+    * All necessary scripts should be provided in advance
+    * Environment setup should be fully automated or clearly documented
+    * Test results should be captured in a standardized format
+  * **Result Documentation**: Testers should document:
+    * Environment details (OS, versions, etc.)
+    * Exact steps executed
+    * Expected versus actual results
+    * Any error messages or unexpected behavior
+    * Timestamps of test execution
 
-* If necessary, implement a dual-writing period where new data goes to both the old system and the new Iceberg table via Dremio.  
-* Create and run reconciliation processes to identify and resolve any discrepancies.  
-* Monitor for divergence and ensure stability.
+* **Test Organization**:
+  * **Test Structure**: Tests must be organized in our standard testing folder structure:
+    * `/tests/data_tests/` for data tier specific tests
+    * Clear naming convention (e.g., `test_dremio_connectivity.py`)
+    * Test categories (unit, integration, e2e) in separate directories
+    * Consistent argument format across test scripts
+  * **Test Documentation**: Each test script should include:
+    * Purpose of the test
+    * Prerequisites and setup requirements
+    * Expected outcomes and success criteria
+    * Cleanup procedures
+    * Known limitations or edge cases
 
-#### **4.4 Phase 4 UAT procedure.
-* Easy to follow UAT procedure script to verify (4.1, 4.2, 4.3)
-* Automated test list and results table.
+* **Automated Verification**:
+  * **Verification Scripts**: Provide scripts that automatically verify the environment and prerequisites
+  * **Status Checks**: Include status check endpoints or commands that report on system health
+  * **Self-Diagnosis**: Implement verbose logging and self-diagnostic capabilities
+  * **Test Reports**: Generate structured test reports in a standardized format (e.g., JUnit XML)
+
+## **Azure Migration Strategy**
+
+### **Phase 4: Migration to Azure (2 weeks)**
+
+The migration to Azure requires careful planning and execution to ensure data integrity, performance optimization, and minimal disruption to operations. Phase 4 will extend the existing Iceberg/Dremio implementation to leverage Azure's cloud infrastructure.
+
+#### **4.1 Azure Infrastructure Setup**
+
+* **Azure Blob Storage Configuration**:
+  * Set up Azure Blob Storage account with ADLS Gen2 capabilities for Iceberg data
+  * Configure appropriate storage tiers based on access patterns (hot/cool/archive)
+  * Implement Azure-specific security controls including network security groups
+  * Set up geo-replication for improved global performance and disaster recovery
+  * Configure automated backup policies for critical data
+
+* **Service Principal Authentication**:
+  * Create dedicated service principal for non-interactive Dremio access to Azure resources
+  * Configure RBAC permissions to ensure principle of least privilege
+  * Set up secure credential management using environment variables or Azure Key Vault
+  * Document clear rotation procedures for authentication credentials
+
+* **Network Configuration**:
+  * Establish secure network connectivity between application services and Azure
+  * Configure VNet and subnet design for optimal security and performance
+  * Set up private endpoints for Azure Blob Storage to enhance security
+  * Implement proper DNS resolution for Azure resources
+
+#### **4.2 Azure Integration with Dremio**
+
+* **Dremio-Azure Connection**:
+  * Configure Dremio to connect to Azure Blob Storage using the appropriate connection string
+  * Set up authentication using the service principal credentials
+  * Optimize connection parameters for performance in cloud environment
+  * Implement proper error handling for Azure-specific connectivity issues
+
+* **Performance Tuning for Azure**:
+  * Increase JVM memory allocation for optimal query performance in cloud environment
+  * Configure reflections specifically optimized for Azure Blob Storage patterns
+  * Implement ZSV metadata for improved partitioning in cloud storage
+  * Configure connection pooling and timeout settings appropriate for cloud access patterns
+
+* **Monitoring Setup**:
+  * Set up Azure Monitor for comprehensive resource monitoring
+  * Create Dremio-specific performance dashboards
+  * Configure alerting thresholds for critical operations
+  * Implement cost monitoring and optimization
+
+#### **4.3 Migration Utility Development**
+
+* **Enhanced ParquetToIcebergMigrator Utility**:
+  * Extend the existing utility to support Azure Blob Storage as the target
+  * Implement batch processing with comprehensive validation at each step
+  * Add detailed logging and progress tracking during migration
+  * Implement schema transformation and enrichment for advanced sentiment fields
+  * Integrate with monitoring systems for real-time migration status updates
+
+* **Key Methods**:
+  ```python
+  def setup_azure_target_connection(self, connection_string, container_name):
+      """Configure Azure Blob Storage as the target for migration."""
+      
+  def validate_azure_connectivity(self):
+      """Verify connectivity to Azure Blob Storage and appropriate permissions."""
+      
+  def migrate_file_to_azure(self, file_path, batch_size=1000):
+      """Migrate a single Parquet file to Iceberg on Azure with batched processing."""
+      
+  def verify_migration_integrity(self, source_file, target_table):
+      """Validate data integrity between source Parquet and target Iceberg table."""
+  ```
+
+* **Validation Framework**:
+  * Implement row count comparison between original and migrated data
+  * Add statistical validation of numeric fields (min, max, avg, sum)
+  * Include hash-based verification of text content
+  * Add sample-based manual validation of critical records
+  * Create validation reports in standardized format
+
+#### **4.4 Incremental Migration Approach**
+
+* **Batch Processing Strategy**:
+  * Implement migration in manageable batches, starting with approximately 10% of data
+  * Focus initial migration on non-critical historical data (oldest records first)
+  * Schedule migration batches during off-peak hours
+  * Establish clear success criteria for each migration batch
+
+* **Dual-Write Implementation**:
+  * Set up a dual-write mechanism to maintain continuous data flow during migration
+  * Implement reconciliation process to ensure consistency between old and new systems
+  * Create monitoring dashboards to track dual-write success rates
+  * Document clear endpoint switch procedures for client applications
+
+* **Rollback Planning**:
+  * Define clear rollback triggers and procedures for each migration step
+  * Create restore points before significant migration actions
+  * Implement quick fallback mechanisms in case of migration issues
+  * Document step-by-step recovery procedures for various failure scenarios
+
+#### **4.5 Client Application Updates**
+
+* **API Integration**:
+  * Update API services to query the Azure-hosted Dremio/Iceberg system
+  * Implement proper error handling for cloud-specific connectivity
+  * Add connection resilience patterns (circuit breakers, retries)
+  * Update documentation for API changes
+
+* **Dashboard and Reporting Tools**:
+  * Update integration points for existing dashboards
+  * Test all reporting tools with the new Azure backend
+  * Optimize query patterns for cloud-based data access
+  * Document any performance changes or new features
+
+#### **4.6 Phase 4 UAT Procedure**
+
+* **UAT Testing Framework**:
+  * Develop detailed testing scripts that are executable without code modifications
+  * Create comprehensive validation procedures with clear pass/fail criteria
+  * Document environment setup requirements for UAT testers
+  * Provide automated verification tools for easy validation
+
+* **Key UAT Scenarios**:
+  * Migration validation tests (data integrity verification)
+  * Query performance tests against Azure-hosted data
+  * Failover and recovery testing
+  * Security and access control verification
+  * End-to-end functional validation
+
+* **UAT Results Documentation**:
+  * Standardized format for test results reporting
+  * Clear tracking of all discovered issues
+  * Resolution verification processes
+  * Final acceptance criteria validation
 
 ### **Phase 5: Cutover (3 days)**
 
@@ -584,6 +748,7 @@ We've successfully completed Phase 3 of the data tier plan implementation. The k
 * Perform comprehensive end-to-end validation of data consistency between old and new systems (if applicable).  
 * Run performance benchmarks against the Dremio/Iceberg system with representative workloads.  
 * Verify all dependent applications and reporting tools function correctly against the new system.
+* Execute disaster recovery simulations to validate recovery procedures.
 
 #### **5.2 Cutover Execution**
 
@@ -592,6 +757,7 @@ We've successfully completed Phase 3 of the data tier plan implementation. The k
 * Complete final data synchronization/migration if needed.  
 * Switch all read applications, APIs, and reporting tools to query the Dremio/Iceberg data tier.  
 * Enable the primary writer targeting Dremio JDBC/ODBC.
+* Implement progressive rollout to minimize risk, starting with non-critical components.
 
 #### **5.3 Post-Cutover Optimization**
 
@@ -599,6 +765,7 @@ We've successfully completed Phase 3 of the data tier plan implementation. The k
 * Refine Dremio reflections based on actual query patterns.  
 * Optimize Iceberg table properties (e.g., compaction settings, file sizes) if needed.  
 * Consider implementing Dremio materialized views for highly frequent or complex aggregations.
+* Implement continuous performance monitoring and optimization.
 
 #### **5.4 Schedule REST Catalog Integration Testing (Future)**
 
@@ -608,42 +775,211 @@ We've successfully completed Phase 3 of the data tier plan implementation. The k
 
 ### **Maintenance Tasks**
 
-1. **Snapshot Management**  
-2. **Compaction**  
-3. **Statistics Collection**
+#### **1. Snapshot Management**  
+
+* **Regular Cleanup**: Implement automated expiration of old snapshots based on retention policy
+* **Metadata Compaction**: Schedule regular metadata file compaction to improve query performance
+* **History Tracking**: Maintain snapshot history logging for audit and recovery purposes
+
+#### **2. Compaction**  
+
+* **Small Files Compaction**: Schedule regular compaction to merge small files into larger ones
+* **Partition Optimization**: Implement partition-aware compaction for balanced file sizes
+* **Monitoring**: Track file counts and sizes to trigger compaction when thresholds are reached
+
+#### **3. Statistics Collection**
+
+* **Column Statistics**: Generate and maintain column-level statistics for query optimization
+* **Partition Statistics**: Collect partition-level statistics to improve partition pruning
+* **Usage Analytics**: Track query patterns to inform optimization decisions
 
 ### **Backup and Recovery**
 
-1. **Regular Backups**  
-2. **Disaster Recovery**
+#### **1. Regular Backups**  
+
+* **Azure Snapshots**: Configure regular Azure Blob Storage snapshots for point-in-time recovery
+* **Catalog Backups**: Implement automated backups of Iceberg catalog metadata
+* **Cross-Region Replication**: Set up geo-redundant storage for disaster recovery
+
+#### **2. Disaster Recovery**
+
+* **Recovery Testing**: Schedule regular recovery testing to validate procedures
+* **RTO/RPO Objectives**: Define and monitor recovery time and point objectives
+* **Failover Automation**: Implement automated failover procedures where possible
 
 ### **Monitoring**
 
-1. **System Metrics**  
-2. **Data Quality**
+#### **1. System Metrics**  
+
+* **Resource Utilization**: Monitor CPU, memory, and storage utilization
+* **Query Performance**: Track query latency, throughput, and error rates
+* **Connection Pools**: Monitor JDBC connection pool utilization and health
+
+#### **2. Data Quality**
+
+* **Validation Checks**: Implement automated data quality validation
+* **Schema Conformance**: Monitor schema evolution and compatibility
+* **Anomaly Detection**: Implement statistical anomaly detection for incoming data
 
 ## **Performance Considerations**
 
 ### **Query Optimization**
 
-1. **Partition Pruning**  
-2. **Metadata Management**  
-3. **Caching Strategy**
+#### **1. Partition Pruning**  
+
+* **Partition Design**: Optimize partition strategy based on actual query patterns
+* **Predicate Pushdown**: Ensure queries leverage partition pruning effectively
+* **Metadata Caching**: Implement efficient metadata caching for improved partition pruning
+
+#### **2. Metadata Management**  
+
+* **Metadata Compaction**: Schedule regular metadata file compaction
+* **Statistics Utilization**: Ensure query planning leverages available statistics
+* **Metadata Caching**: Configure appropriate metadata caching policies
+
+#### **3. Caching Strategy**
+
+* **Dremio Reflections**: Configure and fine-tune Dremio reflections for common query patterns
+* **Redis Integration**: Optimize Redis caching for frequently accessed data
+* **Memory Allocation**: Tune memory allocation for optimal cache performance
 
 ### **Storage Optimization**
 
-1. **Compression Settings**  
-2. **File Layout**
+#### **1. Compression Settings**  
+
+* **Algorithm Selection**: Choose appropriate compression algorithms based on query patterns
+* **Compression Level**: Balance compression ratio and CPU overhead
+* **Column-specific Settings**: Apply different compression settings based on data characteristics
+
+#### **2. File Layout**
+
+* **File Size Tuning**: Optimize target file sizes for balanced read performance
+* **Data Clustering**: Implement data clustering for co-located access patterns
+* **Sort Order**: Configure sort orders to improve compression and query efficiency
 
 ## **Monitoring and Maintenance**
 
 ### **Automated Maintenance**
 
-*(Include Python script sample)*
+#### **Script for Regular Maintenance**
+
+```python
+#!/usr/bin/env python3
+"""
+Iceberg Table Maintenance Script for Sentiment Analysis Data.
+
+This script performs regular maintenance tasks on Iceberg tables:
+1. Expire old snapshots based on retention policy
+2. Remove orphaned files
+3. Compact small files
+4. Update statistics
+"""
+import logging
+import argparse
+import os
+from datetime import datetime, timedelta
+
+from iceberg_lake.maintenance import (
+    expire_snapshots,
+    remove_orphan_files,
+    compact_data_files,
+    update_statistics
+)
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger('iceberg-maintenance')
+
+def main():
+    parser = argparse.ArgumentParser(description='Iceberg Table Maintenance')
+    parser.add_argument('--catalog-uri', required=True, help='Iceberg catalog URI')
+    parser.add_argument('--warehouse', required=True, help='Warehouse location')
+    parser.add_argument('--namespace', required=True, help='Table namespace')
+    parser.add_argument('--table', required=True, help='Table name')
+    parser.add_argument('--retention-days', type=int, default=90, 
+                       help='Snapshot retention in days')
+    parser.add_argument('--target-file-size-mb', type=int, default=512, 
+                       help='Target file size for compaction in MB')
+    args = parser.parse_args()
+    
+    start_time = datetime.now()
+    logger.info(f"Starting maintenance for {args.namespace}.{args.table}")
+    
+    # Connect to the catalog
+    catalog = connect_to_catalog(args.catalog_uri, args.warehouse)
+    table = catalog.load_table(f"{args.namespace}.{args.table}")
+    
+    # 1. Expire snapshots older than retention period
+    retention_timestamp = datetime.now() - timedelta(days=args.retention_days)
+    snapshot_count = expire_snapshots(table, retention_timestamp)
+    logger.info(f"Expired {snapshot_count} snapshots older than {retention_timestamp}")
+    
+    # 2. Remove orphaned files
+    orphan_count = remove_orphan_files(table)
+    logger.info(f"Removed {orphan_count} orphaned files")
+    
+    # 3. Compact small files
+    compaction_count = compact_data_files(
+        table, target_file_size_mb=args.target_file_size_mb
+    )
+    logger.info(f"Compacted {compaction_count} groups of small files")
+    
+    # 4. Update statistics
+    stats_updated = update_statistics(table)
+    logger.info(f"Updated statistics for {stats_updated} partitions")
+    
+    end_time = datetime.now()
+    duration = (end_time - start_time).total_seconds()
+    logger.info(f"Maintenance completed in {duration:.2f} seconds")
+
+if __name__ == "__main__":
+    main()
+```
 
 ### **Metrics Collection**
 
-*(Include Prometheus config sample)*
+#### **Prometheus Configuration for Dremio/Iceberg Monitoring**
+
+```yaml
+# prometheus.yml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'dremio'
+    static_configs:
+      - targets: ['dremio:9090']
+    metrics_path: '/metrics'
+  
+  - job_name: 'sentiment_service'
+    static_configs:
+      - targets: ['sentiment_service:8000']
+    metrics_path: '/metrics'
+  
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['node_exporter:9100']
+
+  - job_name: 'iceberg_metrics'
+    static_configs:
+      - targets: ['iceberg_metrics:8080']
+    metrics_path: '/metrics'
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - 'alertmanager:9093'
+
+# Rules for Iceberg and Dremio metrics
+rule_files:
+  - 'iceberg_rules.yml'
+  - 'dremio_rules.yml'
+```
 
 ## **General Plan & Documentation Updates**
 
@@ -728,4 +1064,61 @@ for point in timeseries_data['data'][:5]:  # Show first 5 data points
           f"messages: {point['message_count']}")
 ```
 
-This updated plan incorporates the strategic decisions and technical learnings from Phase 1, Phase 2, and Phase 3, providing a revised roadmap focused on leveraging Dremio's capabilities for both writing and querying sentiment data, while preparing for migration to Azure.
+**Azure Blob Storage Configuration Example:**
+
+```python
+# Azure Storage Configuration for Dremio
+from azure.storage.blob import BlobServiceClient
+
+def configure_azure_blob_storage(
+    connection_string: str,
+    container_name: str,
+    folder_path: str
+) -> str:
+    """
+    Configure Azure Blob Storage for Iceberg tables.
+    
+    Args:
+        connection_string: Azure Storage connection string
+        container_name: Azure Storage container name
+        folder_path: Path within the container for Iceberg data
+        
+    Returns:
+        Storage location URI for Dremio configuration
+    """
+    # Create the BlobServiceClient
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+    
+    # Check if container exists, create if not
+    try:
+        container_client = blob_service_client.get_container_client(container_name)
+        if not container_client.exists():
+            container_client = blob_service_client.create_container(container_name)
+            print(f"Created container: {container_name}")
+        else:
+            print(f"Container {container_name} already exists")
+    except Exception as e:
+        print(f"Error creating/accessing container: {str(e)}")
+        raise
+    
+    # Create the folder path if it doesn't exist (represented as a blob with empty content)
+    if folder_path and not folder_path.endswith('/'):
+        folder_path += '/'
+    
+    marker_blob_name = f"{folder_path}.iceberg_ready"
+    blob_client = container_client.get_blob_client(marker_blob_name)
+    
+    if not blob_client.exists():
+        blob_client.upload_blob(b"", overwrite=True)
+        print(f"Created marker blob: {marker_blob_name}")
+    
+    # Return the storage location URI for Dremio configuration
+    # Format: abfss://<container>@<account>.dfs.core.windows.net/<path>
+    account_name = blob_service_client.account_name
+    storage_location = f"abfss://{container_name}@{account_name}.dfs.core.windows.net/{folder_path}"
+    
+    print(f"Configured storage location: {storage_location}")
+    return storage_location
+```
+
+This updated plan incorporates the key findings from the Comprehensive Phase 4 Implementation Guidelines, with a specific focus on the Azure migration strategy, validation requirements, and enhanced operational procedures.
