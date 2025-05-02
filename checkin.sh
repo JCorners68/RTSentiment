@@ -3,7 +3,7 @@
 # Simple script to add, commit, and push changes to Git.
 
 # Define the commit message
-COMMIT_MESSAGE="post phase 3 UAT testing."
+COMMIT_MESSAGE="post phase4  UAT testing."
 
 # Define the remote name (usually 'origin')
 REMOTE_NAME="origin"

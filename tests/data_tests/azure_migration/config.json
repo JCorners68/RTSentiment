@@ -1,0 +1,28 @@
+{
+  "azure": {
+    "connection_string": "",
+    "account_name": "",
+    "account_key": "",
+    "container_name": "iceberg-warehouse",
+    "folder_path": "sentiment-data",
+    "service_principal_id": "",
+    "service_principal_secret": "",
+    "tenant_id": ""
+  },
+  "dremio": {
+    "host": "localhost",
+    "port": 31010,
+    "username": "dremio",
+    "password": "dremio123",
+    "catalog": "DREMIO",
+    "namespace": "sentiment",
+    "table_name": "sentiment_data_azure"
+  },
+  "test": {
+    "parquet_dir": "/home/jonat/WSL_RT_Sentiment/data_sim/output",
+    "batch_size": 100,
+    "max_workers": 4,
+    "validation_sample_size": 50,
+    "output_dir": "/home/jonat/WSL_RT_Sentiment/tests/data_tests/azure_migration/results"
+  }
+}
