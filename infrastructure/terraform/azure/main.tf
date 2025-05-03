@@ -1,10 +1,5 @@
 # Configure the Azure Provider
 provider "azurerm" {
-  # NOTE: You are using azurerm v4.27.0, which is not a standard HashiCorp release version.
-  # Standard releases are typically in the 3.x range.
-  # If errors persist, especially regarding AKS default_node_pool arguments,
-  # please consult the documentation specific to v4.27.0 or consider switching
-  # to an official 3.x version (e.g., ~> 3.100).
   features {}
 }
 
@@ -135,7 +130,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   dns_prefix          = "${var.aks_cluster_name}-dns" # Make DNS prefix unique
-  kubernetes_version  = "1.28"                       # Specify a desired Kubernetes version or use data source to get latest
+  kubernetes_version  = "1.28"                        # Specify a desired Kubernetes version or use data source to get latest
 
   default_node_pool {
     name                  = "default"
@@ -143,16 +138,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_count            = 1 # Initial node count
     min_count             = 1 # Minimum nodes for autoscaling
     max_count             = 3 # Maximum nodes for autoscaling
-    # --- Potential Provider Version Issue ---
-    # The following two arguments (enable_auto_scaling, availability_zones) are standard
-    # within default_node_pool for official azurerm provider versions (3.x).
-    # If you continue to get errors on these lines with provider v4.27.0,
-    # it indicates an incompatibility or difference in that specific version.
-    # Check the v4.27.0 documentation or switch to a standard 3.x provider version.
     enable_auto_scaling   = true
-    availability_zones    = ["1", "2", "3"] # Ensure the selected region (var.location) supports AZs
-    # --- End Potential Issue ---
-    os_disk_size_gb       = 128             # Default OS disk size
+    availability_zones    = ["1", "2", "3"]
+    os_disk_size_gb       = 128 # Default OS disk size
     type                  = "VirtualMachineScaleSets"
     # proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id # Assign PPG if default pool needs low latency
   }
@@ -163,7 +151,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   network_profile {
     network_plugin = "azure"       # Using Azure CNI
-    # docker_bridge_cidr is removed as it's not applicable for Azure CNI
     service_cidr   = "10.0.0.0/16" # Ensure this doesn't overlap with other networks
     dns_service_ip = "10.0.0.10"   # Must be within service_cidr
   }
@@ -230,12 +217,9 @@ resource "azurerm_frontdoor_firewall_policy" "wafpolicy" {
   mode                              = "Prevention" # Use "Detection" to log only, "Prevention" to block
   redirect_url                      = "https://www.example.com/blocked.html" # Optional: Custom block response page
   custom_block_response_status_code = 403
-  # FIX: custom_block_response_body requires a Base64 encoded string.
-  # Original HTML: <html><head><title>Blocked</title></head><body>Request blocked by WAF.</body></html>
-  custom_block_response_body        = "PGh0bWw+PGhlYWQ+PHRpdGxlPkJsb2NrZWQ8L3RpdGxlPjwvaGVhZD48Ym9keT5SZXF1ZXN0IGJsb2NrZWQgYnkgV0FGLjwvYm9keT48L2h0bWw+"
+  custom_block_response_body        = "PGh0bWw+PGhlYWQ+PHRpdGxlPkJsb2NrZWQ8L3RpdGxlPjwvaGVhZD48Ym9keT5SZXF1ZXN0IGJsb2NrZWQgYnkgV0FGLjwvYm9keT48L2h0bWw+" # Base64 encoded HTML
 
   # Managed rules define the sets of rules to apply.
-  # The 'mode' argument above ('Prevention') determines the default action (Block).
   managed_rule {
     type    = "DefaultRuleSet"
     version = "2.1" # Use a recent Default Rule Set version
@@ -258,10 +242,10 @@ resource "azurerm_frontdoor" "frontdoor" {
 
   # Frontend Endpoint where users connect
   frontend_endpoint {
-    name                                        = "DefaultFrontendEndpoint" # Can rename if needed
-    host_name                                   = "${var.front_door_name}.azurefd.net" # Default FD domain
-    session_affinity_enabled                    = true
-    session_affinity_ttl_seconds                = 300
+    name                              = "DefaultFrontendEndpoint" # Can rename if needed
+    host_name                         = "${var.front_door_name}.azurefd.net" # Default FD domain
+    session_affinity_enabled          = true
+    session_affinity_ttl_seconds      = 300
     web_application_firewall_policy_link_id = azurerm_frontdoor_firewall_policy.wafpolicy.id
   }
 
@@ -290,7 +274,6 @@ resource "azurerm_frontdoor" "frontdoor" {
     name                        = "DefaultLoadBalancingSettings"
     sample_size                 = 4 # Number of samples to consider for health
     successful_samples_required = 2 # Number of successful samples to mark backend as healthy
-    # latency_sensitivity_in_milliseconds = 0 # Use 0 for fastest available (default)
   }
 
   # Health Probe Settings for the Backend Pool
@@ -312,7 +295,6 @@ resource "azurerm_frontdoor" "frontdoor" {
     forwarding_configuration {
       forwarding_protocol = "HttpsOnly" # Redirect HTTP to HTTPS, or use "MatchRequest"
       backend_pool_name   = "DataAcquisitionBackend" # Name defined in backend_pool block
-      # cache_enabled = false # Enable caching if applicable
     }
   }
 
@@ -326,17 +308,9 @@ resource "azurerm_frontdoor" "frontdoor" {
 
 # Role Assignment: Grant AKS Managed Identity 'AcrPull' role on ACR
 resource "azurerm_role_assignment" "acr_pull" {
-  # Use the principal ID of the AKS cluster's system-assigned managed identity
   principal_id         = azurerm_kubernetes_cluster.aks.identity[0].principal_id
   role_definition_name = "AcrPull" # Allows pulling images from the registry
   scope                = azurerm_container_registry.acr.id # Assign role at the ACR scope
-
-  # Dependencies are implicitly handled by referencing the resources,
-  # but explicit depends_on can be added for clarity if preferred.
-  # depends_on = [
-  #   azurerm_kubernetes_cluster.aks,
-  #   azurerm_container_registry.acr
-  # ]
 }
 
 # --- Outputs ---
