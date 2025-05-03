@@ -75,14 +75,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: Set lowercase repository name
+        id: repo-name
+        run: |
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_LC=${REPO_LC}" >> $GITHUB_ENV
+      
       - name: Build and push Data Acquisition service
         uses: docker/build-push-action@v4
         with:
           context: ./services/data-acquisition
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/data-acquisition:${{ github.event.inputs.version }}
-            ghcr.io/${{ github.repository }}/data-acquisition:latest
+            ghcr.io/${{ env.REPO_LC }}/data-acquisition:${{ github.event.inputs.version }}
+            ghcr.io/${{ env.REPO_LC }}/data-acquisition:latest
       
       # Add similar steps for other services as they are developed
   
@@ -101,12 +107,18 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
+      - name: Set lowercase repository name
+        id: repo-name
+        run: |
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_LC=${REPO_LC}" >> $GITHUB_ENV
+      
       - name: Deploy to Azure with Terraform
         run: |
           # Configure environment variables for the deployment
           export GITHUB_PAT=${{ secrets.GITHUB_TOKEN }}
           export GITHUB_USER=${{ github.actor }}
-          export GITHUB_REPO=${{ github.repository }}
+          export GITHUB_REPO=${{ env.REPO_LC }}
           export TF_VAR_location="westus"  # US West for low latency
           export ARM_SUBSCRIPTION_ID="644936a7-e58a-4ccb-a882-0005f213f5bd"
           export ARM_TENANT_ID="1ced8c49-a03c-439c-9ff1-0c23f5128720"
