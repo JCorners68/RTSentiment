@@ -138,11 +138,26 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_count          = 1
     min_count           = 1
     max_count           = 3
-    enable_auto_scaling = true
-    availability_zones  = ["1", "2", "3"]
     os_disk_size_gb     = 128
     type                = "VirtualMachineScaleSets"
     # proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id # Assign PPG if default pool needs low latency
+  }
+
+  auto_scaler_profile {
+    balance_similar_node_groups      = true
+    expander                         = "random"
+    max_graceful_termination_sec     = 600
+    max_node_provisioning_time       = "15m"
+    max_unready_nodes                = 3
+    max_unready_percentage           = 45
+    new_pod_scale_up_delay           = "10s"
+    scale_down_delay_after_add       = "10m"
+    scale_down_delay_after_delete    = "10s"
+    scale_down_delay_after_failure   = "3m"
+    scan_interval                    = "10s"
+    scale_down_unneeded              = "10m"
+    scale_down_unready               = "20m"
+    scale_down_utilization_threshold = 0.5
   }
 
   identity {
@@ -177,10 +192,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "datanodes" {
   node_count                   = 2 # Initial node count
   os_disk_size_gb              = 200
   proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id # Place data nodes in PPG
-  availability_zones           = ["1", "2", "3"]                          # Match AZs with default pool if region supports it
-  enable_auto_scaling          = true
-  min_count                    = 1
-  max_count                    = 4
   mode                         = "User" # Dedicated node pool for specific workloads
   node_taints                  = ["workload=dataprocessing:NoSchedule"] # Taint to prevent general pods scheduling here
 
