@@ -125,57 +125,36 @@ resource "azurerm_log_analytics_workspace" "workspace" {
 
 # Create AKS cluster with PPG for low latency
 resource "azurerm_kubernetes_cluster" "aks" {
-  name                = var.aks_cluster_name
+  name                = "myAKSCluster"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  dns_prefix          = "rt-sentiment" # Consider making this unique if deploying multiple times
-  kubernetes_version  = "1.26.6"       # Specify a stable version supported in your region
+  dns_prefix          = "aksdns"
 
-  # Configure with private cluster option for better security (ensure network connectivity)
-  # private_cluster_enabled = true # Uncomment if needed, requires network setup
-
-  # Default (System) Node Pool Configuration
   default_node_pool {
-    name                         = "default" # System node pool name
-    node_count                   = 3
-    vm_size                      = "Standard_D4s_v3" # More capable VM for better performance
-    os_disk_size_gb              = 100
-    proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id
-    availability_zones           = ["1", "2", "3"] # For high availability
-    enable_auto_scaling          = true
-    min_count                    = 2
-    max_count                    = 5
-    # only_critical_addons_enabled = true # Consider setting to true for system pool stability
-    type                         = "VirtualMachineScaleSets" # Default, explicit is fine
-    tags = {
-      pool_type = "system"
-    }
+    name                  = "default"
+    node_count            = 1
+    vm_size               = "Standard_DS2_v2"
+    availability_zones    = ["1", "2", "3"]
+    enable_auto_scaling   = true
+    min_count             = 1
+    max_count             = 3
   }
 
-  # Use managed identity (SystemAssigned is simpler for basic scenarios)
   identity {
     type = "SystemAssigned"
   }
 
-  # Network profile
   network_profile {
-    network_plugin     = "azure" # CNI plugin
-    network_policy     = "calico" # Or "azure"
+    network_plugin     = "azure"
+    docker_bridge_cidr = "172.17.0.1/16"
     service_cidr       = "10.0.0.0/16"
     dns_service_ip     = "10.0.0.10"
-    docker_bridge_cidr = "172.17.0.1/16"
-    # pod_cidr = "10.244.0.0/16" # Often required depending on CNI setup
-  }
-
-  # Enable monitoring with Azure Monitor for Containers
-  oms_agent {
-    log_analytics_workspace_id = azurerm_log_analytics_workspace.workspace.id
   }
 
   tags = {
     environment = "uat"
-    ppg         = var.ppg_name
   }
+}
 
   # Define dependency on PPG explicitly if needed (usually implicit)
   # depends_on = [azurerm_proximity_placement_group.ppg]
