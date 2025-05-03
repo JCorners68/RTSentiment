@@ -138,8 +138,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_count            = 1 # Initial node count
     min_count             = 1 # Minimum nodes for autoscaling
     max_count             = 3 # Maximum nodes for autoscaling
-    enable_auto_scaling   = true
-    availability_zones    = ["1", "2", "3"] # Ensure the selected region (var.location) supports AZs
+    enable_auto_scaling   = true # Correctly placed within default_node_pool
+    availability_zones    = ["1", "2", "3"] # Correctly placed within default_node_pool. Ensure the selected region (var.location) supports AZs
     os_disk_size_gb       = 128             # Default OS disk size
     type                  = "VirtualMachineScaleSets"
     # proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id # Assign PPG if default pool needs low latency
@@ -220,16 +220,18 @@ resource "azurerm_frontdoor_firewall_policy" "wafpolicy" {
   custom_block_response_status_code = 403
   custom_block_response_body        = "<html><head><title>Blocked</title></head><body>Request blocked by WAF.</body></html>"
 
+  # Managed rules define the sets of rules to apply.
+  # The 'mode' argument above ('Prevention') determines the default action (Block).
   managed_rule {
     type    = "DefaultRuleSet"
     version = "2.1" # Use a recent Default Rule Set version
-    action  = "Block"
+    # action = "Block" # REMOVED: Action is controlled by 'mode' or overrides
   }
 
   managed_rule {
     type    = "Microsoft_BotManagerRuleSet"
     version = "1.0"
-    action  = "Block"
+    # action = "Block" # REMOVED: Action is controlled by 'mode' or overrides
   }
 
   tags = {
