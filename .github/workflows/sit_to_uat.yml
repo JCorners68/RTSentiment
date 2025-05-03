@@ -7,14 +7,7 @@ on:
         description: 'Version to promote'
         required: true
         default: 'latest'
-  
-  # Optionally, could be triggered on specific branch or tag
-  # push:
-  #   branches: [ main ]
-  #   paths:
-  #     - 'services/**'
 
-# Add permissions at the top level
 permissions:
   contents: read
   packages: write
@@ -95,8 +88,6 @@ jobs:
           tags: |
             ghcr.io/${{ env.REPO_LC }}/data-acquisition:${{ github.event.inputs.version }}
             ghcr.io/${{ env.REPO_LC }}/data-acquisition:latest
-      
-      # Add similar steps for other services as they are developed
   
   deploy_to_uat:
     name: Deploy to UAT Environment
@@ -108,10 +99,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       
-      - name: Set up Azure CLI
+      # Update Azure login to use a clearer credential format
+      - name: Azure Login
         uses: azure/login@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       
       - name: Set lowercase repository name
         id: repo-name
@@ -126,5 +120,41 @@ jobs:
           export GITHUB_USER=${{ github.actor }}
           export GITHUB_REPO=${{ env.REPO_LC }}
           export TF_VAR_location="westus"  # US West for low latency
-          export ARM_SUBSCRIPTION_ID="644936a7-e58a-4ccb-a882-0005f213f5bd"
-          export ARM_TENANT_ID="1ced8c49-a03c
+          export ARM_SUBSCRIPTION_ID="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+          export ARM_TENANT_ID="${{ secrets.AZURE_TENANT_ID }}"
+          export ARM_CLIENT_ID="${{ secrets.AZURE_CLIENT_ID }}"
+          
+          # Initialize and apply Terraform configuration
+          cd infrastructure/terraform/azure
+          terraform init
+          terraform apply -auto-approve
+          
+          # Use terraform output to set variables for the next steps
+          RESOURCE_GROUP=$(terraform output -raw resource_group_name)
+          AKS_CLUSTER=$(terraform output -raw aks_cluster_name)
+          ACR_LOGIN_SERVER=$(terraform output -raw acr_login_server)
+          
+          echo "Deploying version ${{ github.event.inputs.version }} to UAT environment..."
+          echo "Using Proximity Placement Group in US West region for low latency"
+          
+          # Get AKS credentials for kubectl
+          az aks get-credentials --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER --overwrite-existing
+          
+          # Update Kubernetes manifests with the correct image reference
+          sed -i "s|image:.*|image: ${ACR_LOGIN_SERVER}/data-acquisition:${{ github.event.inputs.version }}|g" ../../kubernetes/base/data-acquisition.yaml
+          
+          # Apply Kubernetes manifests
+          kubectl apply -f ../../kubernetes/base/data-acquisition.yaml
+          
+          # Wait for deployment to complete
+          kubectl rollout status deployment/data-acquisition
+      
+      - name: Run UAT verification tests
+        run: |
+          cd environments/uat/tests
+          # In a real implementation, this would run tests against the UAT environment
+          echo "Running UAT verification tests..."
+      
+      - name: Update UAT version
+        run: |
+          echo "Updated UAT environment to version ${{ github.event.inputs.version }}"
