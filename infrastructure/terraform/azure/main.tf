@@ -1,6 +1,9 @@
+# Configure the Azure Provider
 provider "azurerm" {
   features {}
 }
+
+# --- Variables ---
 
 variable "resource_group_name" {
   description = "Name of the resource group"
@@ -11,7 +14,7 @@ variable "resource_group_name" {
 variable "location" {
   description = "Azure region"
   type        = string
-  default     = "westus"
+  default     = "westus" # Consider using a region that supports Availability Zones if needed for production.
 }
 
 variable "aks_cluster_name" {
@@ -23,7 +26,7 @@ variable "aks_cluster_name" {
 variable "acr_name" {
   description = "Name of the Azure Container Registry"
   type        = string
-  default     = "rtsentiregistry"
+  default     = "rtsentiregistry" # Ensure this name is globally unique
 }
 
 variable "ppg_name" {
@@ -35,13 +38,13 @@ variable "ppg_name" {
 variable "storage_account_name" {
   description = "Name of the Storage Account"
   type        = string
-  default     = "rtsentistorage"
+  default     = "rtsentistorage" # Ensure this name is globally unique
 }
 
 variable "front_door_name" {
-  description = "Name of Azure Front Door"
+  description = "Name of Azure Front Door (Classic)"
   type        = string
-  default     = "rt-sentiment-fd"
+  default     = "rt-sentiment-fd" # Ensure this name is globally unique
 }
 
 variable "app_insights_name" {
@@ -50,11 +53,26 @@ variable "app_insights_name" {
   default     = "rt-sentiment-insights"
 }
 
+variable "log_analytics_workspace_name" {
+  description = "Name of the Log Analytics Workspace"
+  type        = string
+  default     = "rt-sentiment-logs"
+}
+
+# --- Resources ---
+
+# Resource Group
 resource "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
   location = var.location
+
+  tags = {
+    environment = "uat"
+    purpose     = "realtime-sentiment-analysis"
+  }
 }
 
+# Proximity Placement Group
 resource "azurerm_proximity_placement_group" "ppg" {
   name                = var.ppg_name
   location            = azurerm_resource_group.rg.location
@@ -62,28 +80,30 @@ resource "azurerm_proximity_placement_group" "ppg" {
 
   tags = {
     environment = "uat"
-    purpose     = "low-latency"
+    purpose     = "low-latency-compute"
   }
 }
 
+# Azure Container Registry
 resource "azurerm_container_registry" "acr" {
   name                = var.acr_name
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  sku                 = "Premium"
-  admin_enabled       = true
+  sku                 = "Premium" # Premium SKU allows for features like private endpoints, geo-replication
+  admin_enabled       = true      # Set to false if using service principals or managed identities for auth
 
   tags = {
     environment = "uat"
   }
 }
 
+# Storage Account
 resource "azurerm_storage_account" "storage" {
   name                     = var.storage_account_name
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
-  account_replication_type = "LRS"
+  account_replication_type = "LRS" # Locally-redundant storage. Choose GRS, ZRS, etc. based on requirements.
   account_kind             = "StorageV2"
 
   tags = {
@@ -91,8 +111,9 @@ resource "azurerm_storage_account" "storage" {
   }
 }
 
+# Log Analytics Workspace
 resource "azurerm_log_analytics_workspace" "workspace" {
-  name                = "rt-sentiment-logs"
+  name                = var.log_analytics_workspace_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   sku                 = "PerGB2018"
@@ -103,20 +124,25 @@ resource "azurerm_log_analytics_workspace" "workspace" {
   }
 }
 
+# Azure Kubernetes Service (AKS) Cluster
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.aks_cluster_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  dns_prefix          = "aksdns"
+  dns_prefix          = "${var.aks_cluster_name}-dns" # Make DNS prefix unique
+  kubernetes_version  = "1.28"                       # Specify a desired Kubernetes version or use data source to get latest
 
   default_node_pool {
-    name                = "default"
-    vm_size             = "Standard_DS2_v2"
-    node_count          = 1
-    min_count           = 1
-    max_count           = 3
-    enable_auto_scaling = true
-    availability_zones  = ["1", "2", "3"]
+    name                  = "default"
+    vm_size               = "Standard_DS2_v2"
+    node_count            = 1 # Initial node count
+    min_count             = 1 # Minimum nodes for autoscaling
+    max_count             = 3 # Maximum nodes for autoscaling
+    enable_auto_scaling   = true
+    availability_zones    = ["1", "2", "3"] # Ensure the selected region (var.location) supports AZs
+    os_disk_size_gb       = 128             # Default OS disk size
+    type                  = "VirtualMachineScaleSets"
+    # proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id # Assign PPG if default pool needs low latency
   }
 
   identity {
@@ -124,65 +150,86 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   network_profile {
-    network_plugin     = "azure"
-    docker_bridge_cidr = "172.17.0.1/16"
-    service_cidr       = "10.0.0.0/16"
-    dns_service_ip     = "10.0.0.10"
+    network_plugin = "azure"       # Using Azure CNI
+    # docker_bridge_cidr is removed as it's not applicable for Azure CNI
+    service_cidr   = "10.0.0.0/16" # Ensure this doesn't overlap with other networks
+    dns_service_ip = "10.0.0.10"   # Must be within service_cidr
+  }
+
+  # Enable monitoring with Log Analytics
+  oms_agent {
+    log_analytics_workspace_id = azurerm_log_analytics_workspace.workspace.id
   }
 
   tags = {
     environment = "uat"
   }
+
+  depends_on = [
+    azurerm_log_analytics_workspace.workspace # Ensure workspace exists before enabling monitoring
+  ]
 }
 
+# Additional User Node Pool for Data Processing
 resource "azurerm_kubernetes_cluster_node_pool" "datanodes" {
   name                         = "datanodes"
   kubernetes_cluster_id        = azurerm_kubernetes_cluster.aks.id
   vm_size                      = "Standard_D8s_v3"
-  node_count                   = 2
+  node_count                   = 2 # Initial node count
   os_disk_size_gb              = 200
-  proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id
-  availability_zones           = ["1", "2", "3"]
+  proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id # Place data nodes in PPG
+  availability_zones           = ["1", "2", "3"]                          # Match AZs with default pool if region supports it
   enable_auto_scaling          = true
   min_count                    = 1
   max_count                    = 4
-  mode                         = "User"
-  node_taints                  = ["workload=dataprocessing:NoSchedule"]
+  mode                         = "User" # Dedicated node pool for specific workloads
+  node_taints                  = ["workload=dataprocessing:NoSchedule"] # Taint to prevent general pods scheduling here
 
   tags = {
     pool_type = "user"
     workload  = "dataprocessing"
   }
 
-  depends_on = [azurerm_kubernetes_cluster.aks]
+  # No explicit depends_on needed here as kubernetes_cluster_id creates implicit dependency
 }
 
+# Application Insights
 resource "azurerm_application_insights" "insights" {
   name                = var.app_insights_name
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   application_type    = "web"
-  workspace_id        = azurerm_log_analytics_workspace.workspace.id
+  workspace_id        = azurerm_log_analytics_workspace.workspace.id # Link to Log Analytics Workspace
 
   tags = {
     environment = "uat"
   }
+
+  depends_on = [
+    azurerm_log_analytics_workspace.workspace # Ensure workspace exists first
+  ]
 }
 
+# Azure Front Door (Classic) WAF Policy
 resource "azurerm_frontdoor_firewall_policy" "wafpolicy" {
-  name                = "RtSentimentWafPolicy"
-  resource_group_name = azurerm_resource_group.rg.name
-  enabled             = true
-  mode                = "Prevention"
+  name                              = "RtSentimentWafPolicy"
+  resource_group_name               = azurerm_resource_group.rg.name
+  enabled                           = true
+  mode                              = "Prevention" # Use "Detection" to log only, "Prevention" to block
+  redirect_url                      = "https://www.example.com/blocked.html" # Optional: Custom block response page
+  custom_block_response_status_code = 403
+  custom_block_response_body        = "<html><head><title>Blocked</title></head><body>Request blocked by WAF.</body></html>"
 
   managed_rule {
     type    = "DefaultRuleSet"
-    version = "1.0"
+    version = "2.1" # Use a recent Default Rule Set version
+    action  = "Block"
   }
 
   managed_rule {
     type    = "Microsoft_BotManagerRuleSet"
     version = "1.0"
+    action  = "Block"
   }
 
   tags = {
@@ -190,56 +237,68 @@ resource "azurerm_frontdoor_firewall_policy" "wafpolicy" {
   }
 }
 
+# Azure Front Door (Classic) Instance
 resource "azurerm_frontdoor" "frontdoor" {
   name                = var.front_door_name
   resource_group_name = azurerm_resource_group.rg.name
 
+  # Frontend Endpoint where users connect
   frontend_endpoint {
-    name                             = "DefaultEndpoint"
-    host_name                        = "${var.front_door_name}.azurefd.net"
-    session_affinity_enabled         = true
-    session_affinity_ttl_seconds     = 300
+    name                                        = "DefaultFrontendEndpoint" # Can rename if needed
+    host_name                                   = "${var.front_door_name}.azurefd.net" # Default FD domain
+    session_affinity_enabled                    = true
+    session_affinity_ttl_seconds                = 300
     web_application_firewall_policy_link_id = azurerm_frontdoor_firewall_policy.wafpolicy.id
   }
 
+  # Backend Pool pointing to your application (e.g., AKS Ingress Controller Service)
   backend_pool {
     name = "DataAcquisitionBackend"
 
     backend {
-      host_header = "data-acquisition.uat.example.com"
-      address     = "data-acquisition.uat.example.com"
+      # IMPORTANT: Replace address with the actual FQDN or IP of your AKS ingress/service endpoint
+      # This usually requires creating a Kubernetes Service of type LoadBalancer
+      # or using an Ingress Controller like Nginx or Traefik with a public IP.
+      host_header = "data-acquisition.uat.example.com" # Host header sent to backend
+      address     = "20.42.1.123"                      # Placeholder: Replace with Public IP or FQDN of AKS service/ingress
       http_port   = 80
       https_port  = 443
-      weight      = 100
-      priority    = 1
+      weight      = 100 # Relative weight for traffic distribution (if multiple backends)
+      priority    = 1   # Lower number means higher priority (failover)
     }
 
-    load_balancing_name = "LoadBalancingSettings"
-    health_probe_name   = "HealthProbeSettings"
+    load_balancing_name = "DefaultLoadBalancingSettings"
+    health_probe_name   = "DefaultHealthProbeSettings"
   }
 
+  # Load Balancing Settings for the Backend Pool
   backend_pool_load_balancing {
-    name                        = "LoadBalancingSettings"
-    sample_size                 = 4
-    successful_samples_required = 2
+    name                        = "DefaultLoadBalancingSettings"
+    sample_size                 = 4 # Number of samples to consider for health
+    successful_samples_required = 2 # Number of successful samples to mark backend as healthy
+    # latency_sensitivity_in_milliseconds = 0 # Use 0 for fastest available (default)
   }
 
+  # Health Probe Settings for the Backend Pool
   backend_pool_health_probe {
-    name                = "HealthProbeSettings"
-    path                = "/"
-    protocol            = "Https"
-    interval_in_seconds = 30
+    name                = "DefaultHealthProbeSettings"
+    path                = "/healthz" # IMPORTANT: Change to your actual health check endpoint path
+    protocol            = "Https"    # Use Https if your backend service uses TLS
+    probe_method        = "GET"      # Or HEAD
+    interval_in_seconds = 30         # Frequency of health probes
   }
 
+  # Routing Rule to connect Frontend Endpoint to Backend Pool
   routing_rule {
-    name               = "DataAcquisitionRoutingRule"
-    accepted_protocols = ["Http", "Https"]
-    patterns_to_match  = ["/*"]
-    frontend_endpoints = ["DefaultEndpoint"]
+    name               = "DefaultRoutingRule"
+    accepted_protocols = ["Http", "Https"] # Protocols accepted at the frontend
+    patterns_to_match  = ["/*"]            # Route all traffic
+    frontend_endpoints = ["DefaultFrontendEndpoint"] # Name defined in frontend_endpoint block
 
     forwarding_configuration {
-      forwarding_protocol = "HttpsOnly"
-      backend_pool_name   = "DataAcquisitionBackend"
+      forwarding_protocol = "HttpsOnly" # Redirect HTTP to HTTPS, or use "MatchRequest"
+      backend_pool_name   = "DataAcquisitionBackend" # Name defined in backend_pool block
+      # cache_enabled = false # Enable caching if applicable
     }
   }
 
@@ -247,24 +306,31 @@ resource "azurerm_frontdoor" "frontdoor" {
     environment = "uat"
   }
 
+  # Ensure WAF policy exists before creating Front Door that links to it
   depends_on = [azurerm_frontdoor_firewall_policy.wafpolicy]
 }
 
+# Role Assignment: Grant AKS Managed Identity 'AcrPull' role on ACR
 resource "azurerm_role_assignment" "acr_pull" {
+  # Use the principal ID of the AKS cluster's system-assigned managed identity
   principal_id         = azurerm_kubernetes_cluster.aks.identity[0].principal_id
-  role_definition_name = "AcrPull"
-  scope                = azurerm_container_registry.acr.id
+  role_definition_name = "AcrPull" # Allows pulling images from the registry
+  scope                = azurerm_container_registry.acr.id # Assign role at the ACR scope
 
-  depends_on = [
-    azurerm_kubernetes_cluster.aks,
-    azurerm_container_registry.acr
-  ]
+  # Dependencies are implicitly handled by referencing the resources,
+  # but explicit depends_on can be added for clarity if preferred.
+  # depends_on = [
+  #   azurerm_kubernetes_cluster.aks,
+  #   azurerm_container_registry.acr
+  # ]
 }
 
+# --- Outputs ---
+
 output "kube_config_raw" {
-  description = "Raw Kubernetes configuration for the AKS cluster. Handle with care."
+  description = "Raw Kubernetes configuration for the AKS cluster. Handle with care as it contains credentials."
   value       = azurerm_kubernetes_cluster.aks.kube_config_raw
-  sensitive   = true
+  sensitive   = true # Mark as sensitive to prevent exposure in logs
 }
 
 output "acr_login_server" {
@@ -273,12 +339,12 @@ output "acr_login_server" {
 }
 
 output "resource_group_name" {
-  description = "The name of the resource group"
+  description = "The name of the resource group where resources are deployed"
   value       = azurerm_resource_group.rg.name
 }
 
 output "aks_cluster_name" {
-  description = "The name of the AKS cluster"
+  description = "The name of the deployed AKS cluster"
   value       = azurerm_kubernetes_cluster.aks.name
 }
 
@@ -288,12 +354,23 @@ output "ppg_id" {
 }
 
 output "front_door_endpoint" {
-  description = "The default frontend endpoint URL for the Azure Front Door"
+  description = "The default frontend endpoint URL for the Azure Front Door (Classic)"
   value       = "https://${azurerm_frontdoor.frontdoor.frontend_endpoint[0].host_name}"
 }
 
 output "app_insights_instrumentation_key" {
-  description = "The instrumentation key for Application Insights"
+  description = "The instrumentation key for Application Insights (deprecated, use connection_string)"
   value       = azurerm_application_insights.insights.instrumentation_key
   sensitive   = true
+}
+
+output "app_insights_connection_string" {
+  description = "The connection string for Application Insights"
+  value       = azurerm_application_insights.insights.connection_string
+  sensitive   = true
+}
+
+output "aks_identity_principal_id" {
+  description = "The Principal ID of the AKS cluster's system-assigned managed identity"
+  value       = azurerm_kubernetes_cluster.aks.identity[0].principal_id
 }
