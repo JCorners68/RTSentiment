@@ -1,5 +1,10 @@
 provider "azurerm" {
   features {}
+  # Note: It's generally recommended to configure provider credentials
+  # via environment variables (ARM_CLIENT_ID, ARM_CLIENT_SECRET, etc.)
+  # or OIDC in CI/CD, rather than hardcoding subscription/tenant IDs here.
+  # subscription_id = "644936a7-e58a-4ccb-a882-0005f213f5bd" # Example - Prefer environment variables
+  # tenant_id       = "1ced8c49-a03c-439c-9ff1-0c23f5128720" # Example - Prefer environment variables
 }
 
 # --- Variables ---
@@ -136,9 +141,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
     vm_size                      = "Standard_D4s_v3" # More capable VM for better performance
     os_disk_size_gb              = 100
     proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id
-    # **FIXED:** Moved availability_zones here
     availability_zones           = ["1", "2", "3"] # For high availability
-    # **FIXED:** Moved enable_auto_scaling here
     enable_auto_scaling          = true
     min_count                    = 2
     max_count                    = 5
@@ -146,28 +149,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type                         = "VirtualMachineScaleSets" # Default, explicit is fine
     tags = {
       pool_type = "system"
-    }
-  }
-
-  # **FIXED:** Changed 'node_pool' to 'agent_pool_profile' for additional user pools
-  # Add a dedicated node pool for data processing
-  agent_pool_profile {
-    name                         = "datanodes" # User node pool name
-    vm_size                      = "Standard_D8s_v3" # Larger VMs for data processing
-    node_count                   = 2
-    os_disk_size_gb              = 200
-    proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id
-    availability_zones           = ["1", "2", "3"] # Also make user pools HA if needed
-    enable_auto_scaling          = true            # Enable scaling for user pools too
-    min_count                    = 1
-    max_count                    = 4
-    type                         = "VirtualMachineScaleSets"
-
-    # Taints to ensure only specific workloads are scheduled
-    node_taints = ["workload=dataprocessing:NoSchedule"]
-    tags = {
-      pool_type = "user"
-      workload  = "dataprocessing"
     }
   }
 
@@ -182,7 +163,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     network_policy     = "calico" # Or "azure"
     service_cidr       = "10.0.0.0/16"
     dns_service_ip     = "10.0.0.10"
-    # **FIXED:** Moved docker_bridge_cidr here
     docker_bridge_cidr = "172.17.0.1/16"
     # pod_cidr = "10.244.0.0/16" # Often required depending on CNI setup
   }
@@ -201,6 +181,32 @@ resource "azurerm_kubernetes_cluster" "aks" {
   # depends_on = [azurerm_proximity_placement_group.ppg]
 }
 
+# **FIXED:** Define additional node pools using the separate resource type
+# Add a dedicated node pool for data processing
+resource "azurerm_kubernetes_cluster_node_pool" "datanodes" {
+  name                         = "datanodes" # User node pool name
+  kubernetes_cluster_id        = azurerm_kubernetes_cluster.aks.id # Link to the cluster
+  vm_size                      = "Standard_D8s_v3" # Larger VMs for data processing
+  node_count                   = 2
+  os_disk_size_gb              = 200
+  proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id
+  availability_zones           = ["1", "2", "3"] # Also make user pools HA if needed
+  enable_auto_scaling          = true            # Enable scaling for user pools too
+  min_count                    = 1
+  max_count                    = 4
+  mode                         = "User" # Explicitly set mode to User
+
+  # Taints to ensure only specific workloads are scheduled
+  node_taints = ["workload=dataprocessing:NoSchedule"]
+  tags = {
+    pool_type = "user"
+    workload  = "dataprocessing"
+  }
+
+  depends_on = [azurerm_kubernetes_cluster.aks] # Ensure cluster exists first
+}
+
+
 # Create Application Insights
 resource "azurerm_application_insights" "insights" {
   name                = var.app_insights_name
@@ -217,7 +223,6 @@ resource "azurerm_application_insights" "insights" {
 
 # Create Web Application Firewall Policy for Front Door
 resource "azurerm_frontdoor_firewall_policy" "wafpolicy" {
-  # **FIXED:** Removed hyphens from the name
   name                = "RtSentimentWafPolicy"
   resource_group_name = azurerm_resource_group.rg.name
   enabled             = true
@@ -325,7 +330,6 @@ resource "azurerm_frontdoor" "frontdoor" {
 
 # Assign AcrPull role to AKS Managed Identity to allow pulling images from ACR
 resource "azurerm_role_assignment" "acr_pull" {
-  # **FIXED:** Use the AKS managed identity principal_id
   principal_id                           = azurerm_kubernetes_cluster.aks.identity[0].principal_id
   role_definition_name                   = "AcrPull"
   scope                                  = azurerm_container_registry.acr.id
