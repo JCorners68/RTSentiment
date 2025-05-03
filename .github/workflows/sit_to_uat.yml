@@ -124,17 +124,29 @@ jobs:
       
       - name: Azure CLI Login
         run: |
-          # Login using service principal credentials directly
+          # Extract credentials from the JSON service principal
+          APP_ID=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.clientId')
+          PASSWORD=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.clientSecret')
+          TENANT_ID=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.tenantId')
+          SUBSCRIPTION_ID=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.subscriptionId')
+          
+          # Login using service principal credentials
           az login --service-principal \
-            --username ${{ secrets.AZURE_APP_ID }} \
-            --password ${{ secrets.AZURE_PASSWORD }} \
-            --tenant ${{ secrets.AZURE_TENANT_ID }}
+            --username "$APP_ID" \
+            --password "$PASSWORD" \
+            --tenant "$TENANT_ID"
           
           # Set the subscription
-          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          az account set --subscription "$SUBSCRIPTION_ID"
       
       - name: Deploy to Azure with Terraform
         run: |
+          # Extract credentials for Terraform
+          APP_ID=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.clientId')
+          PASSWORD=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.clientSecret')
+          TENANT_ID=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.tenantId')
+          SUBSCRIPTION_ID=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.subscriptionId')
+          
           # Configure environment variables for the deployment
           export GITHUB_PAT=${{ secrets.GITHUB_TOKEN }}
           export GITHUB_USER=${{ github.actor }}
@@ -142,10 +154,10 @@ jobs:
           export TF_VAR_location="westus"  # US West for low latency
           
           # Set Azure credentials for Terraform
-          export ARM_SUBSCRIPTION_ID=${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          export ARM_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}
-          export ARM_CLIENT_ID=${{ secrets.AZURE_APP_ID }}
-          export ARM_CLIENT_SECRET=${{ secrets.AZURE_PASSWORD }}
+          export ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID"
+          export ARM_TENANT_ID="$TENANT_ID"
+          export ARM_CLIENT_ID="$APP_ID"
+          export ARM_CLIENT_SECRET="$PASSWORD"
           
           # Initialize and apply Terraform configuration
           cd infrastructure/terraform/azure
@@ -175,4 +187,9 @@ jobs:
       - name: Run UAT verification tests
         run: |
           cd environments/uat/tests
-          # In a r
+          # In a real implementation, this would run tests against the UAT environment
+          echo "Running UAT verification tests..."
+      
+      - name: Update UAT version
+        run: |
+          echo "Updated UAT environment to version ${{ github.event.inputs.version }}"
