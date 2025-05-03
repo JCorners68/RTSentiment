@@ -133,15 +133,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
   kubernetes_version  = "1.28"                        # Specify a desired Kubernetes version or use data source to get latest
 
   default_node_pool {
-    name                  = "default"
-    vm_size               = "Standard_DS2_v2"
-    node_count            = 1 # Initial node count
-    min_count             = 1 # Minimum nodes for autoscaling
-    max_count             = 3 # Maximum nodes for autoscaling
-    enable_auto_scaling   = true
-    availability_zones    = ["1", "2", "3"]
-    os_disk_size_gb       = 128 # Default OS disk size
-    type                  = "VirtualMachineScaleSets"
+    name                = "default"
+    vm_size             = "Standard_DS2_v2"
+    node_count          = 1 # Initial node count
+    min_count           = 1 # Minimum nodes for autoscaling
+    max_count           = 3 # Maximum nodes for autoscaling
+    enable_auto_scaling = true
+    availability_zones  = ["1", "2", "3"]
+    os_disk_size_gb     = 128 # Default OS disk size
+    type                = "VirtualMachineScaleSets"
     # proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id # Assign PPG if default pool needs low latency
   }
 
