@@ -99,19 +99,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       
-      # Update Azure login to use a clearer credential format
+      # Modified Azure login to use creds directly
       - name: Azure Login
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
       
       - name: Set lowercase repository name
         id: repo-name
         run: |
           REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
           echo "REPO_LC=${REPO_LC}" >> $GITHUB_ENV
+      
+      - name: Install Azure CLI and kubectl
+        run: |
+          # Install kubectl
+          curl -LO "https://dl.k8s.io/release/stable.txt"
+          curl -LO "https://dl.k8s.io/$(cat stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          
+          # Install Terraform
+          sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+          wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt-get update && sudo apt-get install terraform
       
       - name: Deploy to Azure with Terraform
         run: |
@@ -120,9 +132,18 @@ jobs:
           export GITHUB_USER=${{ github.actor }}
           export GITHUB_REPO=${{ env.REPO_LC }}
           export TF_VAR_location="westus"  # US West for low latency
-          export ARM_SUBSCRIPTION_ID="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-          export ARM_TENANT_ID="${{ secrets.AZURE_TENANT_ID }}"
-          export ARM_CLIENT_ID="${{ secrets.AZURE_CLIENT_ID }}"
+          
+          # Extract credentials from the Azure service principal secret
+          # Note: This assumes the AZURE_CREDENTIALS secret is in the format Azure provides
+          ARM_SUBSCRIPTION_ID=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r '.subscriptionId')
+          ARM_TENANT_ID=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r '.tenantId')
+          ARM_CLIENT_ID=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r '.clientId')
+          ARM_CLIENT_SECRET=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r '.clientSecret')
+          
+          export ARM_SUBSCRIPTION_ID
+          export ARM_TENANT_ID
+          export ARM_CLIENT_ID
+          export ARM_CLIENT_SECRET
           
           # Initialize and apply Terraform configuration
           cd infrastructure/terraform/azure
