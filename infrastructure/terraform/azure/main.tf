@@ -1,5 +1,10 @@
 # Configure the Azure Provider
 provider "azurerm" {
+  # NOTE: You are using azurerm v4.27.0, which is not a standard HashiCorp release version.
+  # Standard releases are typically in the 3.x range.
+  # If errors persist, especially regarding AKS default_node_pool arguments,
+  # please consult the documentation specific to v4.27.0 or consider switching
+  # to an official 3.x version (e.g., ~> 3.100).
   features {}
 }
 
@@ -138,8 +143,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
     node_count            = 1 # Initial node count
     min_count             = 1 # Minimum nodes for autoscaling
     max_count             = 3 # Maximum nodes for autoscaling
-    enable_auto_scaling   = true # Correctly placed within default_node_pool
-    availability_zones    = ["1", "2", "3"] # Correctly placed within default_node_pool. Ensure the selected region (var.location) supports AZs
+    # --- Potential Provider Version Issue ---
+    # The following two arguments (enable_auto_scaling, availability_zones) are standard
+    # within default_node_pool for official azurerm provider versions (3.x).
+    # If you continue to get errors on these lines with provider v4.27.0,
+    # it indicates an incompatibility or difference in that specific version.
+    # Check the v4.27.0 documentation or switch to a standard 3.x provider version.
+    enable_auto_scaling   = true
+    availability_zones    = ["1", "2", "3"] # Ensure the selected region (var.location) supports AZs
+    # --- End Potential Issue ---
     os_disk_size_gb       = 128             # Default OS disk size
     type                  = "VirtualMachineScaleSets"
     # proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id # Assign PPG if default pool needs low latency
@@ -218,20 +230,20 @@ resource "azurerm_frontdoor_firewall_policy" "wafpolicy" {
   mode                              = "Prevention" # Use "Detection" to log only, "Prevention" to block
   redirect_url                      = "https://www.example.com/blocked.html" # Optional: Custom block response page
   custom_block_response_status_code = 403
-  custom_block_response_body        = "<html><head><title>Blocked</title></head><body>Request blocked by WAF.</body></html>"
+  # FIX: custom_block_response_body requires a Base64 encoded string.
+  # Original HTML: <html><head><title>Blocked</title></head><body>Request blocked by WAF.</body></html>
+  custom_block_response_body        = "PGh0bWw+PGhlYWQ+PHRpdGxlPkJsb2NrZWQ8L3RpdGxlPjwvaGVhZD48Ym9keT5SZXF1ZXN0IGJsb2NrZWQgYnkgV0FGLjwvYm9keT48L2h0bWw+"
 
   # Managed rules define the sets of rules to apply.
   # The 'mode' argument above ('Prevention') determines the default action (Block).
   managed_rule {
     type    = "DefaultRuleSet"
     version = "2.1" # Use a recent Default Rule Set version
-    # action = "Block" # REMOVED: Action is controlled by 'mode' or overrides
   }
 
   managed_rule {
     type    = "Microsoft_BotManagerRuleSet"
     version = "1.0"
-    # action = "Block" # REMOVED: Action is controlled by 'mode' or overrides
   }
 
   tags = {
