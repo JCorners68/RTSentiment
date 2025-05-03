@@ -131,13 +131,13 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dns_prefix          = "aksdns"
 
   default_node_pool {
-    name                  = "default"
-    node_count            = 1
-    vm_size               = "Standard_DS2_v2"
-    availability_zones    = ["1", "2", "3"]
-    enable_auto_scaling   = true
-    min_count             = 1
-    max_count             = 3
+    name                = "default"
+    vm_size             = "Standard_DS2_v2"
+    node_count          = 1
+    min_count           = 1
+    max_count           = 3
+    enable_auto_scaling = true
+    availability_zones  = ["1", "2", "3"]
   }
 
   identity {
@@ -145,16 +145,17 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   network_profile {
-    network_plugin     = "azure"
-    docker_bridge_cidr = "172.17.0.1/16"
-    service_cidr       = "10.0.0.0/16"
-    dns_service_ip     = "10.0.0.10"
+    network_plugin      = "azure"
+    docker_bridge_cidr  = "172.17.0.1/16"
+    service_cidr        = "10.0.0.0/16"
+    dns_service_ip      = "10.0.0.10"
   }
 
   tags = {
     environment = "uat"
   }
 }
+
 
   # Define dependency on PPG explicitly if needed (usually implicit)
   # depends_on = [azurerm_proximity_placement_group.ppg]
