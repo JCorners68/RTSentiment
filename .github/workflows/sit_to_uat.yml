@@ -40,8 +40,8 @@ jobs:
       - name: Build services
         run: |
           cd infrastructure
-          docker-compose build
-          docker-compose up -d
+          docker compose build
+          docker compose up -d
       
       - name: Wait for services to start
         run: sleep 10
@@ -54,7 +54,7 @@ jobs:
       - name: Stop services
         run: |
           cd infrastructure
-          docker-compose down
+          docker compose down
   
   build_and_push:
     name: Build and Push Docker Images
