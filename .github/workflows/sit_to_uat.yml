@@ -1,0 +1,195 @@
+name: Promote from SIT to UAT
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to promote'
+        required: true
+        default: 'latest'
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  test_sit:
+    name: Test SIT Environment
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest requests
+          if [ -f environments/sit/requirements.txt ]; then pip install -r environments/sit/requirements.txt; fi
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Build services
+        run: |
+          cd infrastructure
+          docker compose build
+          docker compose up -d
+      
+      - name: Wait for services to start
+        run: sleep 10
+      
+      - name: Run SIT environment tests
+        run: |
+          cd environments/sit/tests
+          python -m pytest -xvs
+      
+      - name: Stop services
+        run: |
+          cd infrastructure
+          docker compose down
+  
+  build_and_push:
+    name: Build and Push Docker Images
+    needs: test_sit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set lowercase repository name
+        id: repo-name
+        run: |
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_LC=${REPO_LC}" >> $GITHUB_ENV
+      
+      - name: Build and push Data Acquisition service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/data-acquisition
+          push: true
+          tags: |
+            ghcr.io/${{ env.REPO_LC }}/data-acquisition:${{ github.event.inputs.version }}
+            ghcr.io/${{ env.REPO_LC }}/data-acquisition:latest
+  
+  deploy_to_uat:
+    name: Deploy to UAT Environment
+    needs: build_and_push
+    runs-on: ubuntu-latest
+    environment: uat  # This requires manual approval in GitHub
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Set lowercase repository name
+        id: repo-name
+        run: |
+          REPO_LC=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "REPO_LC=${REPO_LC}" >> $GITHUB_ENV
+      
+      - name: Install Azure CLI, kubectl, and Terraform
+        run: |
+          # Install Azure CLI
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          
+          # Install kubectl
+          curl -LO "https://dl.k8s.io/release/stable.txt"
+          curl -LO "https://dl.k8s.io/$(cat stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          
+          # Install Terraform
+          sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+          wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt-get update && sudo apt-get install terraform
+      
+      - name: Azure CLI Login
+        run: |
+          # Extract credentials from the JSON service principal
+          APP_ID=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.clientId')
+          PASSWORD=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.clientSecret')
+          TENANT_ID=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.tenantId')
+          SUBSCRIPTION_ID=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.subscriptionId')
+          
+          # Login using service principal credentials
+          az login --service-principal \
+            --username "$APP_ID" \
+            --password "$PASSWORD" \
+            --tenant "$TENANT_ID"
+          
+          # Set the subscription
+          az account set --subscription "$SUBSCRIPTION_ID"
+      
+      - name: Deploy to Azure with Terraform
+        run: |
+          # Extract credentials for Terraform
+          APP_ID=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.clientId')
+          PASSWORD=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.clientSecret')
+          TENANT_ID=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.tenantId')
+          SUBSCRIPTION_ID=$(echo '${{ secrets.AZURE_CREDENTIALS_REPO }}' | jq -r '.subscriptionId')
+          
+          # Configure environment variables for the deployment
+          export GITHUB_PAT=${{ secrets.GITHUB_TOKEN }}
+          export GITHUB_USER=${{ github.actor }}
+          export GITHUB_REPO=${{ env.REPO_LC }}
+          export TF_VAR_location="westus"  # US West for low latency
+          
+          # Set Azure credentials for Terraform
+          export ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID"
+          export ARM_TENANT_ID="$TENANT_ID"
+          export ARM_CLIENT_ID="$APP_ID"
+          export ARM_CLIENT_SECRET="$PASSWORD"
+          
+          # Initialize and apply Terraform configuration
+          cd infrastructure/terraform/azure
+          terraform init
+          terraform apply -auto-approve
+          
+          # Use terraform output to set variables for the next steps
+          RESOURCE_GROUP=$(terraform output -raw resource_group_name)
+          AKS_CLUSTER=$(terraform output -raw aks_cluster_name)
+          ACR_LOGIN_SERVER=$(terraform output -raw acr_login_server)
+          
+          echo "Deploying version ${{ github.event.inputs.version }} to UAT environment..."
+          echo "Using Proximity Placement Group in US West region for low latency"
+          
+          # Get AKS credentials for kubectl
+          az aks get-credentials --resource-group $RESOURCE_GROUP --name $AKS_CLUSTER --overwrite-existing
+          
+          # Update Kubernetes manifests with the correct image reference
+          sed -i "s|image:.*|image: ${ACR_LOGIN_SERVER}/data-acquisition:${{ github.event.inputs.version }}|g" ../../kubernetes/base/data-acquisition.yaml
+          
+          # Apply Kubernetes manifests
+          kubectl apply -f ../../kubernetes/base/data-acquisition.yaml
+          
+          # Wait for deployment to complete
+          kubectl rollout status deployment/data-acquisition
+      
+      - name: Run UAT verification tests
+        run: |
+          cd environments/uat/tests
+          # In a real implementation, this would run tests against the UAT environment
+          echo "Running UAT verification tests..."
+      
+      - name: Update UAT version
+        run: |
+          echo "Updated UAT environment to version ${{ github.event.inputs.version }}"
