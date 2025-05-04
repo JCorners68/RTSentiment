@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/home/jonat/real_senti/create_branch_final.sh:*)"
+    ],
+    "deny": []
+  }
+}

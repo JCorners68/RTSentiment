@@ -47,4 +47,7 @@ Thumbs.db
 .docker/
 
 # Claude
-**/.claude/settings.local.json
+**/.claude/settings.local.jsoninfrastructure/terraform/azure/credentials.json
+infrastructure/terraform/azure/terraform.auto.tfvars
+.github/workflows/
+to_delete/rt-sentiment/.github/workflows/
