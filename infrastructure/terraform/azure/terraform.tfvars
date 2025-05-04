@@ -4,6 +4,8 @@
 # Core Azure Configuration
 subscription_id = "644936a7-e58a-4ccb-a882-0005f213f5bd"
 tenant_id       = "1ced8c49-a03c-439c-9ff1-0c23f5128720"
+client_id       = "00000000-0000-0000-0000-000000000000" # Placeholder for testing only
+client_secret   = "dummy-secret-for-testing-only"        # Placeholder for testing only
 
 # Resource Group
 resource_group_name = "rt-sentiment-uat"

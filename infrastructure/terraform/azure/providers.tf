@@ -6,13 +6,11 @@ provider "azurerm" {
   
   subscription_id = var.subscription_id
   tenant_id       = var.tenant_id
+  client_id       = var.client_id
+  client_secret   = var.client_secret
   
-  # For running in CI/CD pipeline with Service Principal
-  # client_id       = var.client_id
-  # client_secret   = var.client_secret
-  
-  # For local development, use Azure CLI authentication
-  resource_provider_registrations = "selective"
+  # Use resource_provider_registrations to manage provider registration
+  resource_provider_registrations = "core"
 }
 
 # Kubernetes Provider Configuration
