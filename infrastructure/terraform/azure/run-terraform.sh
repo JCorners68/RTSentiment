@@ -163,14 +163,50 @@ echo "subscription_id = \"$SUBSCRIPTION_ID\"" >> terraform.auto.tfvars
 
 # Run Terraform with Docker
 echo "Running terraform $COMMAND with provided credentials..."
-docker run --rm \
-  -v $(pwd):/workspace \
-  -w /workspace \
-  -e ARM_CLIENT_ID="$CLIENT_ID" \
-  -e ARM_CLIENT_SECRET="$CLIENT_SECRET" \
-  -e ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID" \
-  -e ARM_TENANT_ID="$TENANT_ID" \
-  hashicorp/terraform:latest $COMMAND "$@"
+# Add -it flag for interactive commands that need input
+if [ "$COMMAND" = "apply" ] || [ "$COMMAND" = "destroy" ]; then
+  # Check if -auto-approve is in the remaining arguments
+  auto_approve=false
+  for arg in "$@"; do
+    if [ "$arg" = "-auto-approve" ]; then
+      auto_approve=true
+      break
+    fi
+  done
+  
+  # If -auto-approve is not specified and this is an interactive terminal, use -it
+  if [ "$auto_approve" = "false" ] && [ -t 0 ]; then
+    echo "Interactive mode: you will be prompted to confirm the action"
+    docker run --rm -it \
+      -v $(pwd):/workspace \
+      -w /workspace \
+      -e ARM_CLIENT_ID="$CLIENT_ID" \
+      -e ARM_CLIENT_SECRET="$CLIENT_SECRET" \
+      -e ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID" \
+      -e ARM_TENANT_ID="$TENANT_ID" \
+      hashicorp/terraform:latest $COMMAND "$@"
+  else
+    # Either -auto-approve is set or we're not in an interactive terminal
+    docker run --rm \
+      -v $(pwd):/workspace \
+      -w /workspace \
+      -e ARM_CLIENT_ID="$CLIENT_ID" \
+      -e ARM_CLIENT_SECRET="$CLIENT_SECRET" \
+      -e ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID" \
+      -e ARM_TENANT_ID="$TENANT_ID" \
+      hashicorp/terraform:latest $COMMAND "$@"
+  fi
+else
+  # For non-interactive commands like plan, validate, etc.
+  docker run --rm \
+    -v $(pwd):/workspace \
+    -w /workspace \
+    -e ARM_CLIENT_ID="$CLIENT_ID" \
+    -e ARM_CLIENT_SECRET="$CLIENT_SECRET" \
+    -e ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID" \
+    -e ARM_TENANT_ID="$TENANT_ID" \
+    hashicorp/terraform:latest $COMMAND "$@"
+fi
 
 exit_code=$?
 
