@@ -20,8 +20,12 @@ The RT Sentiment Analysis system consists of the following main components:
 
 ### Data Tier Service
 - Manages data storage and retrieval
-- Implements Iceberg for table management
-- Uses Dremio for query execution
+- Implements dual-database architecture:
+  - PostgreSQL for development and testing
+  - Apache Iceberg for production
+- Provides abstraction layer for transparent database access
+- Features repository pattern for clean separation between domain logic and data access
+- Includes schema synchronization between PostgreSQL and Iceberg
 
 ### API Service
 - Provides REST and WebSocket endpoints
@@ -35,7 +39,16 @@ The RT Sentiment Analysis system consists of the following main components:
 
 ## Component Interactions
 
-[Diagram to be added]
+![Component Interactions Diagram](arch.html)
+
+![Data Tier Architecture Diagram](data_tier_architecture.html)
+
+The components interact through well-defined interfaces:
+
+1. **Repository Interfaces**: Define the contract for data access operations
+2. **Service Layer**: Coordinates between business logic and repositories
+3. **Factory Pattern**: Dynamically selects appropriate database implementation
+4. **Feature Flags**: Controls which database backend is used based on environment
 
 ## Data Flow
 
@@ -47,27 +60,50 @@ The RT Sentiment Analysis system consists of the following main components:
 
 ## Deployment Architecture
 
-The system is deployed in the following environments:
+The system is deployed in three distinct environments, each with its own database configuration:
 
-### SIT Environment (WSL)
+### Development Environment (WSL)
 - Local development and testing
 - Docker Compose for service orchestration
-- Local data storage
+- PostgreSQL for data storage
+- Feature flags set to use PostgreSQL backend
+
+### SIT Environment (Azure)
+- System Integration Testing environment
+- Azure Container Apps for services
+- PostgreSQL Flexible Server for database
+- Initial testing of Iceberg implementation with feature flags
+- Terraform-based deployment with Azure Storage for state
 
 ### UAT Environment (Azure)
-- Cloud-based testing environment
-- Azure managed services
-- Terraform-based deployment
+- User Acceptance Testing environment
+- Azure Kubernetes Service (AKS) for container orchestration
+- Full Iceberg implementation on Azure Data Lake Storage
+- Feature flags set to use Iceberg backend by default
+- Terraform-based deployment with proximate resource placement
 
 ## Technology Stack
 
-- Python FastAPI for backend services
-- Flutter for client applications
-- PostgreSQL for relational data
-- Apache Iceberg for data lake management
-- Dremio for data virtualization
-- Docker for containerization
-- Azure for cloud infrastructure
+- **Backend Services:**
+  - Python FastAPI for API implementations
+  - Repository pattern for data access abstraction
+  - Factory pattern for implementation selection
+
+- **Database Technologies:**
+  - PostgreSQL for development and testing environments
+  - Apache Iceberg for production data lake management
+  - Azure Data Lake Storage Gen2 for Iceberg tables
+  - Schema synchronization tools for maintaining compatibility
+
+- **Client Applications:**
+  - Flutter for cross-platform mobile and web interfaces
+
+- **Infrastructure:**
+  - Docker for containerization and local development
+  - Azure Container Apps for SIT environment
+  - Azure Kubernetes Service (AKS) for UAT environment
+  - Terraform for infrastructure as code
+  - Feature flags for controlling database backend selection
 
 ## Security Architecture
 
@@ -75,4 +111,23 @@ The system is deployed in the following environments:
 
 ## Performance Considerations
 
-[To be completed]
+The dual-database architecture balances development agility with production performance:
+
+### PostgreSQL (Development/Testing)
+- Faster development iterations with familiar SQL queries
+- Standard ACID transaction support
+- Simplified local development with Docker containers
+- Lower operational complexity for testing environments
+
+### Apache Iceberg (Production)
+- Optimized for analytical workloads with partition pruning
+- Schema evolution without table rebuilds
+- Time travel capabilities for historical data access
+- Integration with big data processing engines
+- Efficient storage utilization through file-level operations
+
+### Implementation Considerations
+- Repository abstraction adds minimal overhead (~1-2ms per operation)
+- Feature flags allow gradual migration between backends
+- Both backends implement optimized query patterns for common operations
+- Schema synchronization ensures consistency across environments
