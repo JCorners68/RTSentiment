@@ -92,9 +92,14 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     *)
-      echo "Unknown option: $1"
-      show_help
-      exit 1
+      # Keep remaining arguments for passing to Terraform
+      TERRAFORM_ARGS=("$1")
+      shift
+      while [[ $# -gt 0 ]]; do
+        TERRAFORM_ARGS+=("$1")
+        shift
+      done
+      break
       ;;
   esac
 done
@@ -104,6 +109,11 @@ if [ -z "$COMMAND" ]; then
   echo "Error: No Terraform command specified."
   show_help
   exit 1
+fi
+
+# Initialize TERRAFORM_ARGS if not already set
+if [ -z "${TERRAFORM_ARGS+x}" ]; then
+  TERRAFORM_ARGS=()
 fi
 
 # Check if we need to extract credentials from JSON
@@ -184,7 +194,7 @@ if [ "$COMMAND" = "apply" ] || [ "$COMMAND" = "destroy" ]; then
       -e ARM_CLIENT_SECRET="$CLIENT_SECRET" \
       -e ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID" \
       -e ARM_TENANT_ID="$TENANT_ID" \
-      hashicorp/terraform:latest $COMMAND "$@"
+      hashicorp/terraform:latest $COMMAND "${TERRAFORM_ARGS[@]}"
   else
     # Either -auto-approve is set or we're not in an interactive terminal
     docker run --rm \
@@ -194,7 +204,7 @@ if [ "$COMMAND" = "apply" ] || [ "$COMMAND" = "destroy" ]; then
       -e ARM_CLIENT_SECRET="$CLIENT_SECRET" \
       -e ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID" \
       -e ARM_TENANT_ID="$TENANT_ID" \
-      hashicorp/terraform:latest $COMMAND "$@"
+      hashicorp/terraform:latest $COMMAND "${TERRAFORM_ARGS[@]}"
   fi
 else
   # For non-interactive commands like plan, validate, etc.
@@ -205,7 +215,7 @@ else
     -e ARM_CLIENT_SECRET="$CLIENT_SECRET" \
     -e ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID" \
     -e ARM_TENANT_ID="$TENANT_ID" \
-    hashicorp/terraform:latest $COMMAND "$@"
+    hashicorp/terraform:latest $COMMAND "${TERRAFORM_ARGS[@]-}"
 fi
 
 exit_code=$?
