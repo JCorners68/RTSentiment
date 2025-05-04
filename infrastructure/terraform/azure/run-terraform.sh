@@ -154,6 +154,13 @@ echo "Client Secret: ********"
 echo "Tenant ID: ${TENANT_ID:0:8}...${TENANT_ID:(-8)}"
 echo "Subscription ID: ${SUBSCRIPTION_ID:0:8}...${SUBSCRIPTION_ID:(-8)}"
 
+# Create a temporary terraform.auto.tfvars file to override the values in terraform.tfvars
+echo "# Temporary auto vars file created by run-terraform.sh" > terraform.auto.tfvars
+echo "client_id = \"$CLIENT_ID\"" >> terraform.auto.tfvars
+echo "client_secret = \"$CLIENT_SECRET\"" >> terraform.auto.tfvars
+echo "tenant_id = \"$TENANT_ID\"" >> terraform.auto.tfvars
+echo "subscription_id = \"$SUBSCRIPTION_ID\"" >> terraform.auto.tfvars
+
 # Run Terraform with Docker
 echo "Running terraform $COMMAND with provided credentials..."
 docker run --rm \
@@ -166,6 +173,10 @@ docker run --rm \
   hashicorp/terraform:latest $COMMAND "$@"
 
 exit_code=$?
+
+# Clean up temporary tfvars file
+rm -f terraform.auto.tfvars
+
 if [ $exit_code -eq 0 ]; then
   echo "Terraform $COMMAND completed successfully."
   
