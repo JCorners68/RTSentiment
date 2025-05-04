@@ -40,8 +40,8 @@ variable "location" {
 # Configure the Azure Provider
 provider "azurerm" {
   features {}
-  # Note: resource_provider_registrations = "none" is retained to avoid timeout issues
-  # Ensure required providers (Microsoft.Monitor, Microsoft.Authorization) are registered
+  # Use "none" option to avoid timeout issues when required providers
+  # (Microsoft.Monitor, Microsoft.Authorization) are already registered
   resource_provider_registrations = "none"
 }
 
