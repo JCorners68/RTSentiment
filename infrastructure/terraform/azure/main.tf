@@ -1,4 +1,5 @@
-# Azure Cost Management Terraform Configuration - main.tf
+# Simplified Azure Cost Management with Built-in Policies
+# This version uses only built-in policies and individual VM auto-shutdown settings
 
 # Configure the Azure Provider with disabled resource provider registration
 provider "azurerm" {
@@ -30,340 +31,111 @@ resource "azurerm_monitor_action_group" "cost_alerts" {
   }
 }
 
-# 2. Policy to Enforce VM Auto-Shutdown 
-resource "azurerm_policy_definition" "enforce_vm_shutdown" {
-  name         = "enforce-vm-shutdown"
-  policy_type  = "Custom"
-  mode         = "All"
-  display_name = "Enforce VM Shutdown Schedule"
-  
-  metadata = <<METADATA
-    {
-      "category": "Cost Management"
-    }
-  METADATA
-  
-  policy_rule = <<POLICY_RULE
-{
-  "if": {
-    "field": "type",
-    "equals": "Microsoft.Compute/virtualMachines"
-  },
-  "then": {
-    "effect": "deployIfNotExists",
-    "details": {
-      "type": "Microsoft.DevTestLab/schedules",
-      "name": "[concat('shutdown-computevm-', field('name'))]",
-      "evaluationDelay": "AfterProvisioning",
-      "existenceCondition": {
-        "field": "name",
-        "like": "[concat('shutdown-computevm-', field('name'))]"
-      },
-      "roleDefinitionIds": [
-        "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
-      ],
-      "deployment": {
-        "properties": {
-          "mode": "incremental",
-          "template": {
-            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-            "contentVersion": "1.0.0.0",
-            "parameters": {},
-            "resources": [
-              {
-                "type": "Microsoft.DevTestLab/schedules",
-                "apiVersion": "2018-09-15",
-                "name": "[concat('shutdown-computevm-', field('name'))]",
-                "location": "[field('location')]",
-                "properties": {
-                  "status": "Enabled",
-                  "taskType": "ComputeVmShutdownTask",
-                  "dailyRecurrence": {
-                    "time": "2000"
-                  },
-                  "timeZoneId": "UTC",
-                  "targetResourceId": "[field('id')]",
-                  "notificationSettings": {
-                    "status": "Enabled",
-                    "timeInMinutes": 30,
-                    "emailRecipient": "jonathan.corners@gmail.com",
-                    "notificationLocale": "en"
-                  }
-                }
-              }
-            ]
-          }
-        }
-      }
-    }
-  }
-}
-POLICY_RULE
-}
+# 2. Built-in Policy Assignment for VM Auto-Shutdown
+# NOTE: We'll individually configure VM shutdown through the Azure Portal instead
+# of using a policy to avoid permission issues
 
-# 3. Policy to Allow NCv3 VMs but Restrict Other VM Sizes
-resource "azurerm_policy_definition" "restrict_vm_sizes" {
-  name         = "restrict-vm-sizes-allow-ncsv3"
-  policy_type  = "Custom"
-  mode         = "Indexed"
-  display_name = "Restrict VM Sizes but Allow NCv3 for ML"
-  
-  metadata = <<METADATA
-    {
-      "category": "Cost Management"
-    }
-  METADATA
-  
-  policy_rule = <<POLICY_RULE
-{
-  "if": {
-    "allOf": [
-      {
-        "field": "type",
-        "equals": "Microsoft.Compute/virtualMachines"
-      },
-      {
-        "not": {
-          "anyOf": [
-            {
-              "field": "Microsoft.Compute/virtualMachines/sku.name",
-              "in": [
-                "Standard_B1s",
-                "Standard_B1ms",
-                "Standard_B2s", 
-                "Standard_B2ms",
-                "Standard_B1ls",
-                "Standard_NC6s_v3",
-                "Standard_NC12s_v3",
-                "Standard_NC24s_v3",
-                "Standard_NC24rs_v3"
-              ]
-            }
-          ]
-        }
-      }
-    ]
-  },
-  "then": {
-    "effect": "deny"
-  }
-}
-POLICY_RULE
-}
-
-# 4. Policy to Prevent Expensive Resources (Except NCv3)
-resource "azurerm_policy_definition" "prevent_expensive_resources" {
-  name         = "prevent-expensive-resources"
-  policy_type  = "Custom"
-  mode         = "All"
-  display_name = "Prevent Creation of Expensive Resources"
-  
-  metadata = <<METADATA
-    {
-      "category": "Cost Management"
-    }
-  METADATA
-  
-  policy_rule = <<POLICY_RULE
-{
-  "if": {
-    "anyOf": [
-      {
-        "field": "type",
-        "equals": "Microsoft.Network/applicationGateways"
-      },
-      {
-        "field": "type",
-        "equals": "Microsoft.Network/azureFirewalls"
-      },
-      {
-        "field": "type",
-        "equals": "Microsoft.Sql/managedInstances"
-      },
-      {
-        "field": "type",
-        "equals": "Microsoft.AVS/privateClouds"
-      }
-    ]
-  },
-  "then": {
-    "effect": "deny"
-  }
-}
-POLICY_RULE
-}
-
-# 5. Policy to Enforce Resource Tagging for Cost Tracking
-resource "azurerm_policy_definition" "require_cost_center_tag" {
-  name         = "require-cost-center-tag"
-  policy_type  = "Custom"
-  mode         = "Indexed"
-  display_name = "Require Cost Center Tag for Resources"
-  
-  metadata = <<METADATA
-    {
-      "category": "Cost Management"
-    }
-  METADATA
-  
-  policy_rule = <<POLICY_RULE
-{
-  "if": {
-    "field": "tags['CostCenter']",
-    "exists": "false"
-  },
-  "then": {
-    "effect": "deny"
-  }
-}
-POLICY_RULE
-}
-
-# 6. Policy to Enforce Maximum Storage Account Size
-resource "azurerm_policy_definition" "restrict_storage_sku" {
-  name         = "restrict-storage-sku"
-  policy_type  = "Custom"
-  mode         = "Indexed"
-  display_name = "Restrict Storage Account to Standard SKUs"
-  
-  metadata = <<METADATA
-    {
-      "category": "Cost Management"
-    }
-  METADATA
-  
-  policy_rule = <<POLICY_RULE
-{
-  "if": {
-    "allOf": [
-      {
-        "field": "type",
-        "equals": "Microsoft.Storage/storageAccounts"
-      },
-      {
-        "not": {
-          "field": "Microsoft.Storage/storageAccounts/sku.name",
-          "in": [
-            "Standard_LRS",
-            "Standard_GRS",
-            "Standard_ZRS"
-          ]
-        }
-      }
-    ]
-  },
-  "then": {
-    "effect": "deny"
-  }
-}
-POLICY_RULE
-}
-
-# 7. Policy to Limit NCv3 VM Usage to 6 Cores Total
-resource "azurerm_policy_definition" "limit_ncsv3_cores" {
-  name         = "limit-ncsv3-cores"
-  policy_type  = "Custom"
-  mode         = "All"
-  display_name = "Limit NCv3 VM Usage to 6 Cores Total"
-  
-  metadata = <<METADATA
-    {
-      "category": "Cost Management"
-    }
-  METADATA
-  
-  # This policy is for informational purposes only - enforcing core quotas
-  # is handled by Azure subscription quotas, not by policy
-  description = "This policy is informational to remind users of the 6-core NCv3 quota limit"
-  
-  policy_rule = <<POLICY_RULE
-{
-  "if": {
-    "allOf": [
-      {
-        "field": "type",
-        "equals": "Microsoft.Compute/virtualMachines"
-      },
-      {
-        "field": "Microsoft.Compute/virtualMachines/sku.name",
-        "like": "Standard_NC*_v3"
-      }
-    ]
-  },
-  "then": {
-    "effect": "audit"
-  }
-}
-POLICY_RULE
-}
-
-# Assign the Policies to the Subscription
-resource "azurerm_subscription_policy_assignment" "assign_enforce_vm_shutdown" {
-  name                 = "enforce-vm-shutdown"
-  policy_definition_id = azurerm_policy_definition.enforce_vm_shutdown.id
+# 3. Built-in Policy Assignment - Allowed VM SKUs
+resource "azurerm_subscription_policy_assignment" "allowed_vm_skus" {
+  name                 = "allowed-vm-skus"
+  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/cccc23c7-8427-4f53-ad12-b6a63eb452b3" # Built-in policy for allowed VM SKUs
   subscription_id      = data.azurerm_subscription.current.id
-  display_name         = "Enforce VM Auto-Shutdown"
-  description          = "Automatically applies shutdown schedules to all VMs"
+  description          = "Allows only cost-effective VM SKUs and NCv3 for ML"
+  display_name         = "Allowed VM SKUs"
   location             = "westus"
+  
+  parameters = <<PARAMETERS
+  {
+    "listOfAllowedSKUs": {
+      "value": [
+        "Standard_B1s",
+        "Standard_B1ms",
+        "Standard_B2s", 
+        "Standard_B2ms",
+        "Standard_B1ls",
+        "Standard_NC6s_v3",
+        "Standard_NC12s_v3",
+        "Standard_NC24s_v3",
+        "Standard_NC24rs_v3"
+      ]
+    }
+  }
+PARAMETERS
 }
 
-resource "azurerm_subscription_policy_assignment" "assign_require_cost_center" {
-  name                 = "cost-center-tag-policy"
-  policy_definition_id = azurerm_policy_definition.require_cost_center_tag.id
+# 4. Built-in Policy Assignment - Require tag on resource groups
+resource "azurerm_subscription_policy_assignment" "require_cost_center_tag" {
+  name                 = "require-cost-center-tag"
+  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/96670d01-0a4d-4649-9c89-2d3abc0a5025" # Built-in policy for requiring a tag on resource groups
   subscription_id      = data.azurerm_subscription.current.id
-  display_name         = "Require Cost Center Tags"
-  description          = "Policy to enforce cost center tags on all resources"
+  description          = "Requires all resource groups to have a CostCenter tag"
+  display_name         = "Require CostCenter tag on resource groups"
   location             = "westus"
+  
+  parameters = <<PARAMETERS
+  {
+    "tagName": {
+      "value": "CostCenter"
+    }
+  }
+PARAMETERS
 }
 
-resource "azurerm_subscription_policy_assignment" "assign_restrict_vm_sizes" {
-  name                 = "vm-size-restriction-policy"
-  policy_definition_id = azurerm_policy_definition.restrict_vm_sizes.id
+# 5. Built-in Policy Assignment - Restrict Storage Account SKUs
+resource "azurerm_subscription_policy_assignment" "allowed_storage_skus" {
+  name                 = "allowed-storage-skus"
+  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/7433c107-6db4-4ad1-b57a-a76dce0154a1" # Built-in policy for allowed storage account SKUs
   subscription_id      = data.azurerm_subscription.current.id
-  display_name         = "Restrict VM Sizes"
-  description          = "Policy to limit VM sizes to cost-effective options and NCv3 for ML"
+  description          = "Limits storage accounts to standard SKUs"
+  display_name         = "Allowed Storage Account SKUs"
   location             = "westus"
+  
+  parameters = <<PARAMETERS
+  {
+    "listOfAllowedSKUs": {
+      "value": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_ZRS"
+      ]
+    }
+  }
+PARAMETERS
 }
 
-resource "azurerm_subscription_policy_assignment" "assign_restrict_storage_sku" {
-  name                 = "storage-sku-restriction-policy"
-  policy_definition_id = azurerm_policy_definition.restrict_storage_sku.id
+# 6. Built-in Policy Assignment - Not allowed resource types
+resource "azurerm_subscription_policy_assignment" "not_allowed_resource_types" {
+  name                 = "not-allowed-resource-types"
+  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/6c112d4e-5bc7-47ae-a041-ea2d9dccd749" # Built-in policy for not allowed resource types
   subscription_id      = data.azurerm_subscription.current.id
-  display_name         = "Restrict Storage SKUs"
-  description          = "Policy to limit storage accounts to standard SKUs"
+  description          = "Prevents creation of expensive resource types"
+  display_name         = "Not allowed resource types"
   location             = "westus"
+  
+  parameters = <<PARAMETERS
+  {
+    "listOfResourceTypesNotAllowed": {
+      "value": [
+        "Microsoft.Network/applicationGateways",
+        "Microsoft.Network/azureFirewalls",
+        "Microsoft.Sql/managedInstances",
+        "Microsoft.AVS/privateClouds"
+      ]
+    }
+  }
+PARAMETERS
 }
 
-resource "azurerm_subscription_policy_assignment" "assign_limit_ncsv3_cores" {
-  name                 = "limit-ncsv3-cores-policy"
-  policy_definition_id = azurerm_policy_definition.limit_ncsv3_cores.id
-  subscription_id      = data.azurerm_subscription.current.id
-  display_name         = "Audit NCv3 VM Usage"
-  description          = "Policy to audit NCv3 VM usage to stay within 6-core quota"
-  location             = "westus"
-}
-
-# Uncomment this if you want to prevent expensive resources entirely 
-# resource "azurerm_subscription_policy_assignment" "assign_prevent_expensive_resources" {
-#   name                 = "prevent-expensive-resources"
-#   policy_definition_id = azurerm_policy_definition.prevent_expensive_resources.id
-#   subscription_id      = data.azurerm_subscription.current.id
-#   display_name         = "Prevent Expensive Resources"
-#   description          = "Policy to prevent creation of expensive resource types"
-#   location             = "westus"
-# }
-
-# 8. Output the subscription ID and policy assignment IDs for reference
+# 7. Output the subscription ID and policy assignment IDs for reference
 output "subscription_id" {
   value = data.azurerm_subscription.current.id
 }
 
 output "policy_assignment_ids" {
   value = {
-    vm_shutdown     = azurerm_subscription_policy_assignment.assign_enforce_vm_shutdown.id
-    cost_tags       = azurerm_subscription_policy_assignment.assign_require_cost_center.id
-    vm_sizes        = azurerm_subscription_policy_assignment.assign_restrict_vm_sizes.id
-    storage_skus    = azurerm_subscription_policy_assignment.assign_restrict_storage_sku.id
-    ncsv3_core_limit = azurerm_subscription_policy_assignment.assign_limit_ncsv3_cores.id
+    vm_skus        = azurerm_subscription_policy_assignment.allowed_vm_skus.id
+    cost_tags      = azurerm_subscription_policy_assignment.require_cost_center_tag.id
+    storage_skus   = azurerm_subscription_policy_assignment.allowed_storage_skus.id
+    resource_types = azurerm_subscription_policy_assignment.not_allowed_resource_types.id
   }
 }
