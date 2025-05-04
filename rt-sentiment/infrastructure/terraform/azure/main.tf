@@ -1,49 +1,5 @@
-provider "azurerm" {
-  features {}
-  subscription_id = "644936a7-e58a-4ccb-a882-0005f213f5bd"
-  tenant_id       = "1ced8c49-a03c-439c-9ff1-0c23f5128720"
-}
-
-# Define variables
-variable "resource_group_name" {
-  description = "Name of the resource group"
-  default     = "rt-sentiment-uat"
-}
-
-variable "location" {
-  description = "Azure region"
-  default     = "westus"  # Changed to US West region for low latency
-}
-
-variable "aks_cluster_name" {
-  description = "Name of the AKS cluster"
-  default     = "rt-sentiment-aks"
-}
-
-variable "acr_name" {
-  description = "Name of the Azure Container Registry"
-  default     = "rtsentiregistry"
-}
-
-variable "ppg_name" {
-  description = "Name of the Proximity Placement Group"
-  default     = "rt-sentiment-ppg"
-}
-
-variable "storage_account_name" {
-  description = "Name of the Storage Account"
-  default     = "rtsentistorage"
-}
-
-variable "front_door_name" {
-  description = "Name of Azure Front Door"
-  default     = "rt-sentiment-fd"
-}
-
-variable "app_insights_name" {
-  description = "Name of Application Insights"
-  default     = "rt-sentiment-insights"
-}
+# RT Sentiment Analysis - Azure Terraform Configuration
+# Main infrastructure file for the UAT environment
 
 # Create a resource group
 resource "azurerm_resource_group" "rg" {
@@ -111,26 +67,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
     vm_size                      = "Standard_D4s_v3"  # More capable VM for better performance
     os_disk_size_gb              = 100
     proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id
-    availability_zones           = ["1", "2", "3"]  # For high availability
+    zones                        = [1, 2, 3]  # For high availability
     only_critical_addons_enabled = false
-    
-    # Enable auto-scaling
-    enable_auto_scaling = true
-    min_count           = 2
-    max_count           = 5
   }
 
-  # Add a dedicated node pool for data processing
-  node_pool {
-    name                         = "datanodes"
-    vm_size                      = "Standard_D8s_v3"  # Larger VMs for data processing
-    node_count                   = 2
-    os_disk_size_gb              = 200
-    proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id
-    
-    # Taints to ensure only specific workloads are scheduled
-    node_taints = ["workload=dataprocessing:NoSchedule"]
-  }
+  # Instead of using node_pool block which is deprecated,
+# create a separate node pool resource for data processing
 
   # Use managed identity
   identity {
@@ -139,11 +81,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   # Network profile
   network_profile {
-    network_plugin     = "azure"
-    network_policy     = "calico"
-    service_cidr       = "10.0.0.0/16"
-    dns_service_ip     = "10.0.0.10"
-    docker_bridge_cidr = "172.17.0.1/16"
+    network_plugin = "azure"
+    network_policy = "calico"
+    service_cidr   = "10.0.0.0/16"
+    dns_service_ip = "10.0.0.10"
   }
 
   # Enable monitoring
@@ -242,7 +183,7 @@ resource "azurerm_frontdoor" "frontdoor" {
 
 # Create Web Application Firewall Policy for Front Door
 resource "azurerm_frontdoor_firewall_policy" "wafpolicy" {
-  name                = "rt-sentiment-waf-policy"
+  name                = "rtsentimentwafpolicy"
   resource_group_name = azurerm_resource_group.rg.name
   enabled             = true
   mode                = "Prevention"
@@ -266,39 +207,4 @@ resource "azurerm_role_assignment" "acr_pull" {
   skip_service_principal_aad_check = true
 }
 
-# Output AKS cluster credentials
-output "kube_config" {
-  value     = azurerm_kubernetes_cluster.aks.kube_config_raw
-  sensitive = true
-}
-
-# Output ACR login server
-output "acr_login_server" {
-  value = azurerm_container_registry.acr.login_server
-}
-
-# Output resource group name
-output "resource_group_name" {
-  value = azurerm_resource_group.rg.name
-}
-
-# Output AKS cluster name
-output "aks_cluster_name" {
-  value = azurerm_kubernetes_cluster.aks.name
-}
-
-# Output Proximity Placement Group ID
-output "ppg_id" {
-  value = azurerm_proximity_placement_group.ppg.id
-}
-
-# Output Front Door endpoint
-output "front_door_endpoint" {
-  value = "https://${var.front_door_name}.azurefd.net"
-}
-
-# Output Application Insights Instrumentation Key
-output "app_insights_instrumentation_key" {
-  value     = azurerm_application_insights.insights.instrumentation_key
-  sensitive = true
-}
+# Outputs moved to outputs.tf file
