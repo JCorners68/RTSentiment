@@ -1,375 +1,369 @@
-# Configure the Azure Provider
+# Azure Cost Management Terraform Configuration - main.tf
+
+# Configure the Azure Provider with disabled resource provider registration
 provider "azurerm" {
   features {}
+  
+  # Disable automatic resource provider registration to avoid the timeout error
+  resource_provider_registrations = "none"
 }
 
-# --- Variables ---
+# Get current subscription data
+data "azurerm_subscription" "current" {}
 
-variable "resource_group_name" {
-  description = "Name of the resource group"
-  type        = string
-  default     = "rt-sentiment-uat"
+# Create Resource Group for cost management resources
+resource "azurerm_resource_group" "cost_management" {
+  name     = "cost-management-resources"
+  location = "westus"
 }
 
-variable "location" {
-  description = "Azure region"
-  type        = string
-  default     = "westus" # Consider using a region that supports Availability Zones if needed for production.
-}
+# 1. Cost Alert Action Group
+resource "azurerm_monitor_action_group" "cost_alerts" {
+  name                = "cost-management-alerts"
+  resource_group_name = azurerm_resource_group.cost_management.name
+  short_name          = "costAlerts"
 
-variable "aks_cluster_name" {
-  description = "Name of the AKS cluster"
-  type        = string
-  default     = "rt-sentiment-aks"
-}
-
-variable "acr_name" {
-  description = "Name of the Azure Container Registry"
-  type        = string
-  default     = "rtsentiregistry" # Ensure this name is globally unique
-}
-
-variable "ppg_name" {
-  description = "Name of the Proximity Placement Group"
-  type        = string
-  default     = "rt-sentiment-ppg"
-}
-
-variable "storage_account_name" {
-  description = "Name of the Storage Account"
-  type        = string
-  default     = "rtsentistorage" # Ensure this name is globally unique
-}
-
-variable "front_door_name" {
-  description = "Name of Azure Front Door (Classic)"
-  type        = string
-  default     = "rt-sentiment-fd" # Ensure this name is globally unique
-}
-
-variable "app_insights_name" {
-  description = "Name of Application Insights"
-  type        = string
-  default     = "rt-sentiment-insights"
-}
-
-variable "log_analytics_workspace_name" {
-  description = "Name of the Log Analytics Workspace"
-  type        = string
-  default     = "rt-sentiment-logs"
-}
-
-# --- Resources ---
-
-# Resource Group
-resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
-  location = var.location
-
-  tags = {
-    environment = "uat"
-    purpose     = "realtime-sentiment-analysis"
+  email_receiver {
+    name                    = "primary-contact"
+    email_address           = "jonathan.corners@gmail.com"
+    use_common_alert_schema = true
   }
 }
 
-# Proximity Placement Group
-resource "azurerm_proximity_placement_group" "ppg" {
-  name                = var.ppg_name
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-
-  tags = {
-    environment = "uat"
-    purpose     = "low-latency-compute"
-  }
-}
-
-# Azure Container Registry
-resource "azurerm_container_registry" "acr" {
-  name                = var.acr_name
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  sku                 = "Premium" # Premium SKU allows for features like private endpoints, geo-replication
-  admin_enabled       = true      # Set to false if using service principals or managed identities for auth
-
-  tags = {
-    environment = "uat"
-  }
-}
-
-# Storage Account
-resource "azurerm_storage_account" "storage" {
-  name                     = var.storage_account_name
-  resource_group_name      = azurerm_resource_group.rg.name
-  location                 = azurerm_resource_group.rg.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS" # Locally-redundant storage. Choose GRS, ZRS, etc. based on requirements.
-  account_kind             = "StorageV2"
-
-  tags = {
-    environment = "uat"
-  }
-}
-
-# Log Analytics Workspace
-resource "azurerm_log_analytics_workspace" "workspace" {
-  name                = var.log_analytics_workspace_name
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-
-  tags = {
-    environment = "uat"
-  }
-}
-
-# Azure Kubernetes Service (AKS) Cluster
-resource "azurerm_kubernetes_cluster" "aks" {
-  name                = var.aks_cluster_name
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  dns_prefix          = "${var.aks_cluster_name}-dns" # Make DNS prefix unique
-  kubernetes_version  = "1.28"                        # Specify a desired Kubernetes version or use data source to get latest
-
-  default_node_pool {
-    name                = "default"
-    vm_size             = "Standard_DS2_v2"
-    node_count          = 1
-    min_count           = 1
-    max_count           = 3
-    os_disk_size_gb     = 128
-    type                = "VirtualMachineScaleSets"
-    # proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id # Assign PPG if default pool needs low latency
-  }
-
-  auto_scaler_profile {
-    balance_similar_node_groups      = true
-    expander                         = "random"
-    max_graceful_termination_sec     = 600
-    max_node_provisioning_time       = "15m"
-    max_unready_nodes                = 3
-    max_unready_percentage           = 45
-    new_pod_scale_up_delay           = "10s"
-    scale_down_delay_after_add       = "10m"
-    scale_down_delay_after_delete    = "10s"
-    scale_down_delay_after_failure   = "3m"
-    scan_interval                    = "10s"
-    scale_down_unneeded              = "10m"
-    scale_down_unready               = "20m"
-    scale_down_utilization_threshold = 0.5
-  }
-
-  identity {
-    type = "SystemAssigned"
-  }
-
-  network_profile {
-    network_plugin = "azure"       # Using Azure CNI
-    service_cidr   = "10.0.0.0/16" # Ensure this doesn't overlap with other networks
-    dns_service_ip = "10.0.0.10"   # Must be within service_cidr
-  }
-
-  # Enable monitoring with Log Analytics
-  oms_agent {
-    log_analytics_workspace_id = azurerm_log_analytics_workspace.workspace.id
-  }
-
-  tags = {
-    environment = "uat"
-  }
-
-  depends_on = [
-    azurerm_log_analytics_workspace.workspace # Ensure workspace exists before enabling monitoring
-  ]
-}
-
-# Additional User Node Pool for Data Processing
-resource "azurerm_kubernetes_cluster_node_pool" "datanodes" {
-  name                         = "datanodes"
-  kubernetes_cluster_id        = azurerm_kubernetes_cluster.aks.id
-  vm_size                      = "Standard_D8s_v3"
-  node_count                   = 2 # Initial node count
-  os_disk_size_gb              = 200
-  proximity_placement_group_id = azurerm_proximity_placement_group.ppg.id # Place data nodes in PPG
-  mode                         = "User" # Dedicated node pool for specific workloads
-  node_taints                  = ["workload=dataprocessing:NoSchedule"] # Taint to prevent general pods scheduling here
-
-  tags = {
-    pool_type = "user"
-    workload  = "dataprocessing"
-  }
-
-  # No explicit depends_on needed here as kubernetes_cluster_id creates implicit dependency
-}
-
-# Application Insights
-resource "azurerm_application_insights" "insights" {
-  name                = var.app_insights_name
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  application_type    = "web"
-  workspace_id        = azurerm_log_analytics_workspace.workspace.id # Link to Log Analytics Workspace
-
-  tags = {
-    environment = "uat"
-  }
-
-  depends_on = [
-    azurerm_log_analytics_workspace.workspace # Ensure workspace exists first
-  ]
-}
-
-# Azure Front Door (Classic) WAF Policy
-resource "azurerm_frontdoor_firewall_policy" "wafpolicy" {
-  name                              = "RtSentimentWafPolicy"
-  resource_group_name               = azurerm_resource_group.rg.name
-  enabled                           = true
-  mode                              = "Prevention" # Use "Detection" to log only, "Prevention" to block
-  redirect_url                      = "https://www.example.com/blocked.html" # Optional: Custom block response page
-  custom_block_response_status_code = 403
-  custom_block_response_body        = "PGh0bWw+PGhlYWQ+PHRpdGxlPkJsb2NrZWQ8L3RpdGxlPjwvaGVhZD48Ym9keT5SZXF1ZXN0IGJsb2NrZWQgYnkgV0FGLjwvYm9keT48L2h0bWw+" # Base64 encoded HTML
-
-  # Managed rules define the sets of rules to apply.
-  managed_rule {
-    type    = "DefaultRuleSet"
-    version = "2.1" # Use a recent Default Rule Set version
-  }
-
-  managed_rule {
-    type    = "Microsoft_BotManagerRuleSet"
-    version = "1.0"
-  }
-
-  tags = {
-    environment = "uat"
-  }
-}
-
-# Azure Front Door (Classic) Instance
-resource "azurerm_frontdoor" "frontdoor" {
-  name                = var.front_door_name
-  resource_group_name = azurerm_resource_group.rg.name
-
-  # Frontend Endpoint where users connect
-  frontend_endpoint {
-    name                              = "DefaultFrontendEndpoint" # Can rename if needed
-    host_name                         = "${var.front_door_name}.azurefd.net" # Default FD domain
-    session_affinity_enabled          = true
-    session_affinity_ttl_seconds      = 300
-    web_application_firewall_policy_link_id = azurerm_frontdoor_firewall_policy.wafpolicy.id
-  }
-
-  # Backend Pool pointing to your application (e.g., AKS Ingress Controller Service)
-  backend_pool {
-    name = "DataAcquisitionBackend"
-
-    backend {
-      # IMPORTANT: Replace address with the actual FQDN or IP of your AKS ingress/service endpoint
-      # This usually requires creating a Kubernetes Service of type LoadBalancer
-      # or using an Ingress Controller like Nginx or Traefik with a public IP.
-      host_header = "data-acquisition.uat.example.com" # Host header sent to backend
-      address     = "20.42.1.123"                      # Placeholder: Replace with Public IP or FQDN of AKS service/ingress
-      http_port   = 80
-      https_port  = 443
-      weight      = 100 # Relative weight for traffic distribution (if multiple backends)
-      priority    = 1   # Lower number means higher priority (failover)
+# 2. Policy to Enforce VM Auto-Shutdown 
+resource "azurerm_policy_definition" "enforce_vm_shutdown" {
+  name         = "enforce-vm-shutdown"
+  policy_type  = "Custom"
+  mode         = "All"
+  display_name = "Enforce VM Shutdown Schedule"
+  
+  metadata = <<METADATA
+    {
+      "category": "Cost Management"
     }
-
-    load_balancing_name = "DefaultLoadBalancingSettings"
-    health_probe_name   = "DefaultHealthProbeSettings"
-  }
-
-  # Load Balancing Settings for the Backend Pool
-  backend_pool_load_balancing {
-    name                        = "DefaultLoadBalancingSettings"
-    sample_size                 = 4 # Number of samples to consider for health
-    successful_samples_required = 2 # Number of successful samples to mark backend as healthy
-  }
-
-  # Health Probe Settings for the Backend Pool
-  backend_pool_health_probe {
-    name                = "DefaultHealthProbeSettings"
-    path                = "/healthz" # IMPORTANT: Change to your actual health check endpoint path
-    protocol            = "Https"    # Use Https if your backend service uses TLS
-    probe_method        = "GET"      # Or HEAD
-    interval_in_seconds = 30         # Frequency of health probes
-  }
-
-  # Routing Rule to connect Frontend Endpoint to Backend Pool
-  routing_rule {
-    name               = "DefaultRoutingRule"
-    accepted_protocols = ["Http", "Https"] # Protocols accepted at the frontend
-    patterns_to_match  = ["/*"]            # Route all traffic
-    frontend_endpoints = ["DefaultFrontendEndpoint"] # Name defined in frontend_endpoint block
-
-    forwarding_configuration {
-      forwarding_protocol = "HttpsOnly" # Redirect HTTP to HTTPS, or use "MatchRequest"
-      backend_pool_name   = "DataAcquisitionBackend" # Name defined in backend_pool block
+  METADATA
+  
+  policy_rule = <<POLICY_RULE
+{
+  "if": {
+    "field": "type",
+    "equals": "Microsoft.Compute/virtualMachines"
+  },
+  "then": {
+    "effect": "deployIfNotExists",
+    "details": {
+      "type": "Microsoft.DevTestLab/schedules",
+      "name": "[concat('shutdown-computevm-', field('name'))]",
+      "evaluationDelay": "AfterProvisioning",
+      "existenceCondition": {
+        "field": "name",
+        "like": "[concat('shutdown-computevm-', field('name'))]"
+      },
+      "roleDefinitionIds": [
+        "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+      ],
+      "deployment": {
+        "properties": {
+          "mode": "incremental",
+          "template": {
+            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+            "contentVersion": "1.0.0.0",
+            "parameters": {},
+            "resources": [
+              {
+                "type": "Microsoft.DevTestLab/schedules",
+                "apiVersion": "2018-09-15",
+                "name": "[concat('shutdown-computevm-', field('name'))]",
+                "location": "[field('location')]",
+                "properties": {
+                  "status": "Enabled",
+                  "taskType": "ComputeVmShutdownTask",
+                  "dailyRecurrence": {
+                    "time": "2000"
+                  },
+                  "timeZoneId": "UTC",
+                  "targetResourceId": "[field('id')]",
+                  "notificationSettings": {
+                    "status": "Enabled",
+                    "timeInMinutes": 30,
+                    "emailRecipient": "jonathan.corners@gmail.com",
+                    "notificationLocale": "en"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
     }
   }
+}
+POLICY_RULE
+}
 
-  tags = {
-    environment = "uat"
+# 3. Policy to Allow NCv3 VMs but Restrict Other VM Sizes
+resource "azurerm_policy_definition" "restrict_vm_sizes" {
+  name         = "restrict-vm-sizes-allow-ncsv3"
+  policy_type  = "Custom"
+  mode         = "Indexed"
+  display_name = "Restrict VM Sizes but Allow NCv3 for ML"
+  
+  metadata = <<METADATA
+    {
+      "category": "Cost Management"
+    }
+  METADATA
+  
+  policy_rule = <<POLICY_RULE
+{
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Compute/virtualMachines"
+      },
+      {
+        "not": {
+          "anyOf": [
+            {
+              "field": "Microsoft.Compute/virtualMachines/sku.name",
+              "in": [
+                "Standard_B1s",
+                "Standard_B1ms",
+                "Standard_B2s", 
+                "Standard_B2ms",
+                "Standard_B1ls",
+                "Standard_NC6s_v3",
+                "Standard_NC12s_v3",
+                "Standard_NC24s_v3",
+                "Standard_NC24rs_v3"
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "then": {
+    "effect": "deny"
   }
-
-  # Ensure WAF policy exists before creating Front Door that links to it
-  depends_on = [azurerm_frontdoor_firewall_policy.wafpolicy]
+}
+POLICY_RULE
 }
 
-# Role Assignment: Grant AKS Managed Identity 'AcrPull' role on ACR
-resource "azurerm_role_assignment" "acr_pull" {
-  principal_id         = azurerm_kubernetes_cluster.aks.identity[0].principal_id
-  role_definition_name = "AcrPull" # Allows pulling images from the registry
-  scope                = azurerm_container_registry.acr.id # Assign role at the ACR scope
+# 4. Policy to Prevent Expensive Resources (Except NCv3)
+resource "azurerm_policy_definition" "prevent_expensive_resources" {
+  name         = "prevent-expensive-resources"
+  policy_type  = "Custom"
+  mode         = "All"
+  display_name = "Prevent Creation of Expensive Resources"
+  
+  metadata = <<METADATA
+    {
+      "category": "Cost Management"
+    }
+  METADATA
+  
+  policy_rule = <<POLICY_RULE
+{
+  "if": {
+    "anyOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Network/applicationGateways"
+      },
+      {
+        "field": "type",
+        "equals": "Microsoft.Network/azureFirewalls"
+      },
+      {
+        "field": "type",
+        "equals": "Microsoft.Sql/managedInstances"
+      },
+      {
+        "field": "type",
+        "equals": "Microsoft.AVS/privateClouds"
+      }
+    ]
+  },
+  "then": {
+    "effect": "deny"
+  }
+}
+POLICY_RULE
 }
 
-# --- Outputs ---
-
-output "kube_config_raw" {
-  description = "Raw Kubernetes configuration for the AKS cluster. Handle with care as it contains credentials."
-  value       = azurerm_kubernetes_cluster.aks.kube_config_raw
-  sensitive   = true # Mark as sensitive to prevent exposure in logs
+# 5. Policy to Enforce Resource Tagging for Cost Tracking
+resource "azurerm_policy_definition" "require_cost_center_tag" {
+  name         = "require-cost-center-tag"
+  policy_type  = "Custom"
+  mode         = "Indexed"
+  display_name = "Require Cost Center Tag for Resources"
+  
+  metadata = <<METADATA
+    {
+      "category": "Cost Management"
+    }
+  METADATA
+  
+  policy_rule = <<POLICY_RULE
+{
+  "if": {
+    "field": "tags['CostCenter']",
+    "exists": "false"
+  },
+  "then": {
+    "effect": "deny"
+  }
+}
+POLICY_RULE
 }
 
-output "acr_login_server" {
-  description = "The login server hostname of the Azure Container Registry"
-  value       = azurerm_container_registry.acr.login_server
+# 6. Policy to Enforce Maximum Storage Account Size
+resource "azurerm_policy_definition" "restrict_storage_sku" {
+  name         = "restrict-storage-sku"
+  policy_type  = "Custom"
+  mode         = "Indexed"
+  display_name = "Restrict Storage Account to Standard SKUs"
+  
+  metadata = <<METADATA
+    {
+      "category": "Cost Management"
+    }
+  METADATA
+  
+  policy_rule = <<POLICY_RULE
+{
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Storage/storageAccounts"
+      },
+      {
+        "not": {
+          "field": "Microsoft.Storage/storageAccounts/sku.name",
+          "in": [
+            "Standard_LRS",
+            "Standard_GRS",
+            "Standard_ZRS"
+          ]
+        }
+      }
+    ]
+  },
+  "then": {
+    "effect": "deny"
+  }
+}
+POLICY_RULE
 }
 
-output "resource_group_name" {
-  description = "The name of the resource group where resources are deployed"
-  value       = azurerm_resource_group.rg.name
+# 7. Policy to Limit NCv3 VM Usage to 6 Cores Total
+resource "azurerm_policy_definition" "limit_ncsv3_cores" {
+  name         = "limit-ncsv3-cores"
+  policy_type  = "Custom"
+  mode         = "All"
+  display_name = "Limit NCv3 VM Usage to 6 Cores Total"
+  
+  metadata = <<METADATA
+    {
+      "category": "Cost Management"
+    }
+  METADATA
+  
+  # This policy is for informational purposes only - enforcing core quotas
+  # is handled by Azure subscription quotas, not by policy
+  description = "This policy is informational to remind users of the 6-core NCv3 quota limit"
+  
+  policy_rule = <<POLICY_RULE
+{
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Compute/virtualMachines"
+      },
+      {
+        "field": "Microsoft.Compute/virtualMachines/sku.name",
+        "like": "Standard_NC*_v3"
+      }
+    ]
+  },
+  "then": {
+    "effect": "audit"
+  }
+}
+POLICY_RULE
 }
 
-output "aks_cluster_name" {
-  description = "The name of the deployed AKS cluster"
-  value       = azurerm_kubernetes_cluster.aks.name
+# Assign the Policies to the Subscription
+resource "azurerm_subscription_policy_assignment" "assign_enforce_vm_shutdown" {
+  name                 = "enforce-vm-shutdown"
+  policy_definition_id = azurerm_policy_definition.enforce_vm_shutdown.id
+  subscription_id      = data.azurerm_subscription.current.id
+  display_name         = "Enforce VM Auto-Shutdown"
+  description          = "Automatically applies shutdown schedules to all VMs"
+  location             = "westus"
 }
 
-output "ppg_id" {
-  description = "The resource ID of the Proximity Placement Group"
-  value       = azurerm_proximity_placement_group.ppg.id
+resource "azurerm_subscription_policy_assignment" "assign_require_cost_center" {
+  name                 = "cost-center-tag-policy"
+  policy_definition_id = azurerm_policy_definition.require_cost_center_tag.id
+  subscription_id      = data.azurerm_subscription.current.id
+  display_name         = "Require Cost Center Tags"
+  description          = "Policy to enforce cost center tags on all resources"
+  location             = "westus"
 }
 
-output "front_door_endpoint" {
-  description = "The default frontend endpoint URL for the Azure Front Door (Classic)"
-  value       = "https://${azurerm_frontdoor.frontdoor.frontend_endpoint[0].host_name}"
+resource "azurerm_subscription_policy_assignment" "assign_restrict_vm_sizes" {
+  name                 = "vm-size-restriction-policy"
+  policy_definition_id = azurerm_policy_definition.restrict_vm_sizes.id
+  subscription_id      = data.azurerm_subscription.current.id
+  display_name         = "Restrict VM Sizes"
+  description          = "Policy to limit VM sizes to cost-effective options and NCv3 for ML"
+  location             = "westus"
 }
 
-output "app_insights_instrumentation_key" {
-  description = "The instrumentation key for Application Insights (deprecated, use connection_string)"
-  value       = azurerm_application_insights.insights.instrumentation_key
-  sensitive   = true
+resource "azurerm_subscription_policy_assignment" "assign_restrict_storage_sku" {
+  name                 = "storage-sku-restriction-policy"
+  policy_definition_id = azurerm_policy_definition.restrict_storage_sku.id
+  subscription_id      = data.azurerm_subscription.current.id
+  display_name         = "Restrict Storage SKUs"
+  description          = "Policy to limit storage accounts to standard SKUs"
+  location             = "westus"
 }
 
-output "app_insights_connection_string" {
-  description = "The connection string for Application Insights"
-  value       = azurerm_application_insights.insights.connection_string
-  sensitive   = true
+resource "azurerm_subscription_policy_assignment" "assign_limit_ncsv3_cores" {
+  name                 = "limit-ncsv3-cores-policy"
+  policy_definition_id = azurerm_policy_definition.limit_ncsv3_cores.id
+  subscription_id      = data.azurerm_subscription.current.id
+  display_name         = "Audit NCv3 VM Usage"
+  description          = "Policy to audit NCv3 VM usage to stay within 6-core quota"
+  location             = "westus"
 }
 
-output "aks_identity_principal_id" {
-  description = "The Principal ID of the AKS cluster's system-assigned managed identity"
-  value       = azurerm_kubernetes_cluster.aks.identity[0].principal_id
+# Uncomment this if you want to prevent expensive resources entirely 
+# resource "azurerm_subscription_policy_assignment" "assign_prevent_expensive_resources" {
+#   name                 = "prevent-expensive-resources"
+#   policy_definition_id = azurerm_policy_definition.prevent_expensive_resources.id
+#   subscription_id      = data.azurerm_subscription.current.id
+#   display_name         = "Prevent Expensive Resources"
+#   description          = "Policy to prevent creation of expensive resource types"
+#   location             = "westus"
+# }
+
+# 8. Output the subscription ID and policy assignment IDs for reference
+output "subscription_id" {
+  value = data.azurerm_subscription.current.id
+}
+
+output "policy_assignment_ids" {
+  value = {
+    vm_shutdown     = azurerm_subscription_policy_assignment.assign_enforce_vm_shutdown.id
+    cost_tags       = azurerm_subscription_policy_assignment.assign_require_cost_center.id
+    vm_sizes        = azurerm_subscription_policy_assignment.assign_restrict_vm_sizes.id
+    storage_skus    = azurerm_subscription_policy_assignment.assign_restrict_storage_sku.id
+    ncsv3_core_limit = azurerm_subscription_policy_assignment.assign_limit_ncsv3_cores.id
+  }
 }
