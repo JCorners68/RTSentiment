@@ -1,0 +1,232 @@
+Unable to find image 'kubesec/kubesec:v2' locally
+v2: Pulling from kubesec/kubesec
+da9db072f522: Pulling fs layer
+ea029f6b6c7a: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+2cb9ea52b32d: Pulling fs layer
+fd531c4fd41c: Pulling fs layer
+8241a2b18af1: Pulling fs layer
+4f4fb700ef54: Already exists
+ea029f6b6c7a: Download complete
+8241a2b18af1: Download complete
+2cb9ea52b32d: Download complete
+da9db072f522: Download complete
+da9db072f522: Pull complete
+4f4fb700ef54: Pull complete
+8241a2b18af1: Pull complete
+fd531c4fd41c: Download complete
+ea029f6b6c7a: Pull complete
+2cb9ea52b32d: Pull complete
+fd531c4fd41c: Pull complete
+Digest: sha256:025a365d9f1881be51df17c323109ecf3c24b60c0d296143ea05c15479d0695e
+Status: Downloaded newer image for kubesec/kubesec:v2
+[
+  {
+    "object": "PodDisruptionBudget/api.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for PodDisruptionBudget",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "PodDisruptionBudget/auth.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for PodDisruptionBudget",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "PodDisruptionBudget/data-acquisition.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for PodDisruptionBudget",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "PodDisruptionBudget/data-migration-service-pdb.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for PodDisruptionBudget",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "PodDisruptionBudget/data-tier-pdb.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for PodDisruptionBudget",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "PodDisruptionBudget/sentiment-analysis.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for PodDisruptionBudget",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "ConfigMap/data-migration-config.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for ConfigMap",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "ConfigMap/data-tier-config.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for ConfigMap",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Role/data-migration-role.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for Role",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Role/data-tier-role.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for Role",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "RoleBinding/data-migration-service-role-binding.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for RoleBinding",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "RoleBinding/data-tier-role-binding.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for RoleBinding",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Service/api.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for Service",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Service/auth.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for Service",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Service/data-acquisition.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for Service",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Service/data-migration-service.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for Service",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Service/data-tier.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for Service",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Service/sentiment-analysis.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for Service",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Deployment/api.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "problem validating schema. Check JSON formatting: jsonschema: '/spec/template/spec/securityContext' does not validate with file:///schemas/master-standalone-strict/deployment-apps-v1.json#/properties/spec/properties/template/properties/spec/properties/securityContext/additionalProperties: additionalProperties 'capabilities', 'readOnlyRootFilesystem', 'allowPrivilegeEscalation' not allowed\n",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Deployment/auth.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "problem validating schema. Check JSON formatting: jsonschema: '/spec/template/spec/securityContext' does not validate with file:///schemas/master-standalone-strict/deployment-apps-v1.json#/properties/spec/properties/template/properties/spec/properties/securityContext/additionalProperties: additionalProperties 'allowPrivilegeEscalation', 'capabilities', 'readOnlyRootFilesystem' not allowed\n",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Deployment/data-acquisition.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "problem validating schema. Check JSON formatting: jsonschema: '/spec/template/spec/securityContext' does not validate with file:///schemas/master-standalone-strict/deployment-apps-v1.json#/properties/spec/properties/template/properties/spec/properties/securityContext/additionalProperties: additionalProperties 'allowPrivilegeEscalation', 'capabilities', 'readOnlyRootFilesystem' not allowed\n",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Deployment/data-migration-service.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "problem validating schema. Check JSON formatting: jsonschema: '/spec/template/spec/securityContext' does not validate with file:///schemas/master-standalone-strict/deployment-apps-v1.json#/properties/spec/properties/template/properties/spec/properties/securityContext/additionalProperties: additionalProperties 'allowPrivilegeEscalation', 'capabilities', 'readOnlyRootFilesystem' not allowed\n",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Deployment/data-tier.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "problem validating schema. Check JSON formatting: jsonschema: '/spec/template/spec/securityContext' does not validate with file:///schemas/master-standalone-strict/deployment-apps-v1.json#/properties/spec/properties/template/properties/spec/properties/securityContext/additionalProperties: additionalProperties 'readOnlyRootFilesystem', 'allowPrivilegeEscalation', 'capabilities' not allowed\n",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Deployment/sentiment-analysis.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "problem validating schema. Check JSON formatting: jsonschema: '/spec/template/spec/securityContext' does not validate with file:///schemas/master-standalone-strict/deployment-apps-v1.json#/properties/spec/properties/template/properties/spec/properties/securityContext/additionalProperties: additionalProperties 'allowPrivilegeEscalation', 'capabilities', 'readOnlyRootFilesystem' not allowed\n",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "CronJob/data-migration-service-scheduler.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for CronJob",
+    "score": 0,
+    "scoring": {}
+  },
+  {
+    "object": "Ingress/api-ingress.default",
+    "valid": false,
+    "fileName": "/tmp/template.yaml",
+    "message": "could not find schema for Ingress",
+    "score": 0,
+    "scoring": {}
+  }
+]

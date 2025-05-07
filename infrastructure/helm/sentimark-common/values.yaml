@@ -1,0 +1,42 @@
+# Default values for sentimark-common library chart
+# This chart is a library chart, so it doesn't deploy any resources by itself.
+
+# Enable the chart as a dependency
+enabled: true
+
+# Common configurable settings that might be used by charts that depend on this one
+common:
+  # Environment settings
+  environment: sit
+  
+  # Image settings
+  image:
+    pullPolicy: Always
+  
+  # Reusable spot instance configuration
+  spotInstances:
+    enabled: true
+    tolerations:
+      - key: "kubernetes.azure.com/scalesetpriority"
+        operator: "Equal"
+        value: "spot"
+        effect: "NoSchedule"
+  
+  # Default security context for all services
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+    
+  # Default ingress settings
+  ingress:
+    enabled: false
+    className: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"

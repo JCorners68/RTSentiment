@@ -35,6 +35,9 @@ app_insights_name = "rt-sentiment-insights"
 # Log Analytics
 log_analytics_name = "rt-sentiment-logs"
 
+# Alerts and Notifications
+alert_email = "jonathan.corners@gmail.com"
+
 # Tags
 tags = {
   environment = "uat"

@@ -1,0 +1,43 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your release is named {{ .Release.Name }}.
+
+{{- if and .Values.global.spotInstances.enabled (or (and .Values.dataAcquisition.enabled .Values.dataAcquisition.spotInstance.enabled) (and .Values.dataMigration.enabled .Values.dataMigration.spotInstance.enabled)) }}
+This deployment is using Azure Spot Instances for cost optimization.
+{{- end }}
+
+{{- if .Values.dataAcquisition.enabled }}
+To access the Data Acquisition service:
+
+{{- if .Values.dataAcquisition.ingress.enabled }}
+  {{- range $host := .Values.dataAcquisition.ingress.hosts }}
+  {{- range .paths }}
+  http{{ if $.Values.dataAcquisition.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+  {{- end }}
+{{- else }}
+  kubectl port-forward svc/{{ .Values.dataAcquisition.name }} {{ .Values.dataAcquisition.service.port }}:{{ .Values.dataAcquisition.service.port }}
+
+  Then access: http://localhost:{{ .Values.dataAcquisition.service.port }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.dataMigration.enabled }}
+To access the Data Migration service:
+
+  kubectl port-forward svc/{{ .Values.dataMigration.name }} {{ .Values.dataMigration.service.port }}:{{ .Values.dataMigration.service.port }}
+
+  Then access: http://localhost:{{ .Values.dataMigration.service.port }}
+
+{{- if .Values.dataMigration.cronJob.enabled }}
+The migration job is scheduled to run: {{ .Values.dataMigration.cronJob.schedule }}
+{{- end }}
+{{- end }}
+
+IMPORTANT NOTES ABOUT PRIVATE AKS CLUSTER:
+------------------------------------------
+If you're experiencing DNS resolution errors with the private AKS endpoint, try:
+
+1. Use Azure Cloud Shell for direct private network access
+2. Run the VPN setup script: ./environments/sit/setup_vpn_access.sh
+3. Check DNS configuration of your client machine

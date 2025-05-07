@@ -19,6 +19,18 @@ The infrastructure is optimized for low latency with the following components:
 - Service Principal with appropriate permissions
 - Docker installed locally (for running Terraform)
 
+## Authentication
+
+This project uses **Service Principal Authentication exclusively**. No Azure CLI fallbacks are used. Authentication is performed using:
+
+1. Service Principal credentials from command line parameters
+2. Service Principal credentials stored in `providers.tf`
+3. Service Principal credentials from environment variables (for different environments)
+
+For security:
+- Azure CLI authentication is explicitly disabled
+- Managed Service Identity (MSI) authentication is explicitly disabled
+
 ## Directory Structure
 
 - `main.tf` - Core infrastructure components
@@ -28,6 +40,11 @@ The infrastructure is optimized for low latency with the following components:
 - `terraform.tfvars` - Variable values
 - `outputs.tf` - Output values
 - `cost_management/` - Cost management policies and controls
+- `modules/` - Reusable infrastructure modules:
+  - `app-config` - Azure App Configuration service
+  - `iceberg` - Apache Iceberg data lake configuration
+  - `monitoring` - Monitoring and logging services
+- `data_tier_prod.tf` - Production data tier configuration
 
 ## Usage
 
@@ -47,7 +64,12 @@ We provide a convenient script to run Terraform commands with proper authenticat
 
 # Apply configuration
 ./run-terraform.sh --client-id=YOUR_CLIENT_ID --client-secret=YOUR_CLIENT_SECRET apply
+
+# Apply only cost management module
+./run-terraform.sh --client-id=YOUR_CLIENT_ID --client-secret=YOUR_CLIENT_SECRET cost-apply
 ```
+
+The script can also use credentials from providers.tf if no credentials are provided via command line.
 
 ### Manual Execution with Docker
 
@@ -59,18 +81,23 @@ export ARM_CLIENT_ID="your-client-id"
 export ARM_CLIENT_SECRET="your-client-secret"
 export ARM_SUBSCRIPTION_ID="your-subscription-id"
 export ARM_TENANT_ID="your-tenant-id"
+export ARM_USE_CLI=false
+export ARM_USE_MSI=false
 
 # Run Terraform commands
 docker run --rm -v $(pwd):/workspace -w /workspace \
   -e ARM_CLIENT_ID -e ARM_CLIENT_SECRET -e ARM_SUBSCRIPTION_ID -e ARM_TENANT_ID \
+  -e ARM_USE_CLI=false -e ARM_USE_MSI=false \
   hashicorp/terraform:latest init
 
 docker run --rm -v $(pwd):/workspace -w /workspace \
   -e ARM_CLIENT_ID -e ARM_CLIENT_SECRET -e ARM_SUBSCRIPTION_ID -e ARM_TENANT_ID \
+  -e ARM_USE_CLI=false -e ARM_USE_MSI=false \
   hashicorp/terraform:latest plan
 
 docker run --rm -v $(pwd):/workspace -w /workspace \
   -e ARM_CLIENT_ID -e ARM_CLIENT_SECRET -e ARM_SUBSCRIPTION_ID -e ARM_TENANT_ID \
+  -e ARM_USE_CLI=false -e ARM_USE_MSI=false \
   hashicorp/terraform:latest apply
 ```
 
@@ -97,3 +124,22 @@ Edit the `terraform.tfvars` file to customize:
 - VM sizes and node counts
 - Region selection
 - Other environment-specific settings
+
+For different environments:
+- SIT: Use `terraform.sit.tfvars`
+- UAT/Production: Create specific tfvars files
+
+## Cost Management
+
+The cost management module provides:
+
+1. Budget alerts (thresholds at 70%, 90%, 100%)
+2. Resource restrictions via Azure Policy
+3. Auto-shutdown for dev/test environments
+4. Tag-based cost tracking
+
+Apply only the cost management module with:
+
+```bash
+./run-terraform.sh cost-apply
+```

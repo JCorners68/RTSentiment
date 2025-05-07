@@ -72,8 +72,8 @@ output "storage_account_primary_key" {
 
 # Front Door
 output "front_door_endpoint" {
-  value = "https://${var.front_door_name}.azurefd.net"
-  description = "The endpoint for Azure Front Door"
+  value = var.enable_cdn_frontdoor ? "https://${azurerm_cdn_frontdoor_endpoint.default[0].host_name}" : "Front Door not enabled"
+  description = "The endpoint for Azure CDN Front Door"
 }
 
 # Application Insights

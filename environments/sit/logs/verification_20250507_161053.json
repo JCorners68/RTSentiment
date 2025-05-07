@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-05-07T16:11:09-07:00",
+  "status": "failed",
+  "error": "No deployments found for release 'sentimark'",
+  "resource_group": "sentimark-sit-rg",
+  "cluster_name": "sentimark-sit-aks",
+  "namespace": "sit",
+  "release_name": "sentimark"
+}

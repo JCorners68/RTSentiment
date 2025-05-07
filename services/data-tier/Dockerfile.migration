@@ -1,0 +1,44 @@
+# Dockerfile for Data Migration Service
+# Used for Phase 5 migration between PostgreSQL and Iceberg
+
+# Build stage
+FROM maven:3.8.6-openjdk-17-slim AS build
+
+WORKDIR /app
+
+# Copy pom.xml first to leverage Docker cache
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
+# Copy source code
+COPY src/ /app/src/
+
+# Build the application
+RUN mvn clean package -DskipTests -Pprod,migration
+
+# Runtime stage
+FROM eclipse-temurin:17-jre-focal
+
+WORKDIR /app
+
+# Install required packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl jq && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy application
+COPY --from=build /app/target/data-tier-service.jar /app/data-migration-service.jar
+
+# Create config directory
+RUN mkdir -p /app/config
+
+# Set healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+# Set entry point
+ENTRYPOINT ["java", "-jar", "/app/data-migration-service.jar", "--spring.config.location=file:/app/config/application.properties"]
+
+# Default profile
+CMD ["--spring.profiles.active=prod,migration"]

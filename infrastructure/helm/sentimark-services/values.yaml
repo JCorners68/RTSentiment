@@ -1,0 +1,1026 @@
+# Default values for sentimark-services
+# This is a YAML-formatted file.
+
+# Dependencies configuration
+sentimark-common:
+  enabled: true
+
+# Global values shared across all services
+global:
+  # Environment configuration
+  environment: sit
+  # Registry configuration
+  registry:
+    server: rtsentiregistry.azurecr.io
+    # Secret containing credentials for private registry
+    # pullSecretsName: regcred
+  # Network configuration
+  network:
+    domain: sentimark.com
+  # Common labels to be applied to all resources
+  labels:
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: helm
+  # Annotations applied to all resources
+  annotations: {}
+  # Spot instance configuration
+  spotInstances:
+    enabled: true
+    # Tolerations for spot instances
+    tolerations:
+      - key: "kubernetes.azure.com/scalesetpriority"
+        operator: "Equal"
+        value: "spot"
+        effect: "NoSchedule"
+  # Common node selector
+  nodeSelector: {}
+  # Common affinity rules
+  affinity: {}
+
+# Service-specific configuration for data-acquisition
+dataAcquisition:
+  enabled: true
+  name: data-acquisition
+  
+  # Container image configuration
+  image:
+    repository: rtsentiregistry.azurecr.io/data-acquisition
+    tag: latest
+    pullPolicy: Always
+  
+  # Replica count
+  replicaCount: 3
+  
+  # Spot instance configuration
+  spotInstance:
+    enabled: true
+    nodeSelector:
+      agentpool: dataspots
+    # Add specific toleration for data processing workload
+    extraTolerations:
+      - key: "workload"
+        operator: "Equal"
+        value: "dataprocessing"
+        effect: "NoSchedule"
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+  
+  # Resource requests and limits
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8002
+  
+  # Pod disruption budget for high availability
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  
+  # Horizontal Pod Autoscaler
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+  
+  # Environment variables
+  env:
+    - name: ENVIRONMENT
+      value: sit
+    - name: PORT
+      value: "8002"
+    - name: OPTIMIZE_FOR_LATENCY
+      value: "true"
+    # Secret references for credentials
+    - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+      valueFrom:
+        secretKeyRef:
+          name: app-insights
+          key: connectionString
+  
+  # Probes configuration
+  probes:
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 8002
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    readinessProbe:
+      httpGet:
+        path: /
+        port: 8002
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 2
+    startupProbe:
+      httpGet:
+        path: /
+        port: 8002
+      failureThreshold: 30
+      periodSeconds: 10
+  
+  # Lifecycle hooks for graceful termination (important for spot instances)
+  lifecycle:
+    preStop:
+      exec:
+        command: 
+          - "/bin/sh"
+          - "-c"
+          - "sleep 10; /app/shutdown.sh || true"
+  
+  # Ingress configuration
+  ingress:
+    enabled: false
+    className: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hosts:
+      - host: data-acquisition.sit.sentimark.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: data-acquisition-tls
+        hosts:
+          - data-acquisition.sit.sentimark.com
+  
+  # Additional annotations specifically for this service
+  annotations: {}
+  # Additional labels specifically for this service
+  labels: {}
+
+# Service-specific configuration for data-migration
+dataMigration:
+  enabled: true
+  name: data-migration-service
+  
+  # Container image configuration
+  image:
+    repository: "${global.registry.server}/data-migration-service"
+    tag: latest
+    pullPolicy: Always
+  
+  # Replica count
+  replicaCount: 1
+  
+  # Spot instance configuration
+  spotInstance:
+    enabled: true
+    nodeSelector:
+      agentpool: dataspots
+    # Add specific toleration for data processing workload
+    extraTolerations:
+      - key: "workload"
+        operator: "Equal"
+        value: "dataprocessing"
+        effect: "NoSchedule"
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+  
+  # Resource requests and limits
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+  
+  # Pod disruption budget for high availability
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  
+  # Config map for application properties
+  configMap:
+    name: data-migration-config
+    data:
+      "application.properties": |
+        # Data migration service configuration
+        spring.application.name=data-migration-service
+        
+        # Feature flags configuration
+        feature.flags.provider=azure-app-configuration
+        azure.app.configuration.endpoint=${APP_CONFIG_ENDPOINT}
+        
+        # Monitor configuration
+        azure.application-insights.connection-string=${APP_INSIGHTS_CONNECTION_STRING}
+        
+        # Database configurations
+        # PostgreSQL
+        spring.datasource.postgres.url=${POSTGRES_URL}
+        spring.datasource.postgres.username=${POSTGRES_USERNAME}
+        spring.datasource.postgres.password=${POSTGRES_PASSWORD}
+        spring.datasource.postgres.driver-class-name=org.postgresql.Driver
+        
+        # Iceberg
+        iceberg.catalog-type=rest
+        iceberg.catalog.url=${ICEBERG_REST_CATALOG_URL}
+        iceberg.warehouse=${ICEBERG_WAREHOUSE}
+        iceberg.storage.account=${ICEBERG_STORAGE_ACCOUNT}
+        iceberg.storage.access-key=${ICEBERG_STORAGE_ACCESS_KEY}
+        
+        # Migration settings
+        migration.batch-size=100
+        migration.parallel-threads=4
+        migration.validation-enabled=true
+        migration.auto-retry-count=3
+        migration.error-tolerance-percentage=1.0
+  
+  # Environment variables
+  env:
+    - name: APP_CONFIG_ENDPOINT
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: app-config-endpoint
+    - name: APP_INSIGHTS_CONNECTION_STRING
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: app-insights-connection-string
+    - name: POSTGRES_URL
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: postgres-url
+    - name: POSTGRES_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: postgres-username
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: postgres-password
+    - name: ICEBERG_REST_CATALOG_URL
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: iceberg-rest-catalog-url
+    - name: ICEBERG_WAREHOUSE
+      value: "s3a://warehouse"
+    - name: ICEBERG_STORAGE_ACCOUNT
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: iceberg-storage-account
+    - name: ICEBERG_STORAGE_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: iceberg-storage-access-key
+  
+  # Volume mounts
+  volumeMounts:
+    - name: config-volume
+      mountPath: /app/config
+  
+  # Volumes
+  volumes:
+    - name: config-volume
+      configMap:
+        name: data-migration-config
+  
+  # Probes configuration
+  probes:
+    livenessProbe:
+      httpGet:
+        path: /actuator/health/liveness
+        port: 8080
+      initialDelaySeconds: 60
+      periodSeconds: 10
+    readinessProbe:
+      httpGet:
+        path: /actuator/health/readiness
+        port: 8080
+      initialDelaySeconds: 30
+      periodSeconds: 10
+  
+  # Lifecycle hooks for graceful shutdown
+  lifecycle:
+    preStop:
+      exec:
+        command:
+          - "/bin/sh"
+          - "-c"
+          - "sleep 5; curl -X POST http://localhost:8080/actuator/shutdown || true"
+  
+  # Cronjob configuration for scheduled migrations
+  cronJob:
+    enabled: true
+    schedule: "0 0 * * *"
+    failedJobsHistoryLimit: 3
+    successfulJobsHistoryLimit: 3
+    concurrencyPolicy: Forbid
+    restartPolicy: OnFailure
+    command:
+      - "java"
+      - "-jar"
+      - "/app/data-migration-service.jar"
+      - "--spring.profiles.active=migration-job"
+  
+  # RBAC configuration
+  rbac:
+    enabled: true
+    roleName: data-migration-role
+    rules:
+      - apiGroups: [""]
+        resources: ["configmaps", "secrets"]
+        verbs: ["get", "list", "watch"]
+  
+  # Additional annotations specifically for this service
+  annotations: {}
+  # Additional labels specifically for this service
+  labels: {}
+
+# Service-specific configuration for data-tier
+dataTier:
+  enabled: true
+  name: data-tier
+  
+  # Container image configuration
+  image:
+    repository: "${global.registry.server}/data-tier"
+    tag: latest
+    pullPolicy: Always
+  
+  # Replica count
+  replicaCount: 2
+  
+  # Spot instance configuration
+  spotInstance:
+    enabled: true
+    nodeSelector:
+      agentpool: dataspots
+    extraTolerations:
+      - key: "workload"
+        operator: "Equal"
+        value: "dataprocessing"
+        effect: "NoSchedule"
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+  
+  # Resource requests and limits
+  resources:
+    limits:
+      cpu: 1500m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8004
+  
+  # Pod disruption budget for high availability
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  
+  # Config map for application properties
+  configMap:
+    name: data-tier-config
+    data:
+      "application.properties": |
+        # Data tier service configuration
+        spring.application.name=data-tier-service
+        
+        # Feature flags configuration
+        feature.flags.provider=azure-app-configuration
+        azure.app.configuration.endpoint=${APP_CONFIG_ENDPOINT}
+        
+        # Monitor configuration
+        azure.application-insights.connection-string=${APP_INSIGHTS_CONNECTION_STRING}
+        
+        # Database configurations
+        # PostgreSQL
+        spring.datasource.postgres.url=${POSTGRES_URL}
+        spring.datasource.postgres.username=${POSTGRES_USERNAME}
+        spring.datasource.postgres.password=${POSTGRES_PASSWORD}
+        spring.datasource.postgres.driver-class-name=org.postgresql.Driver
+        
+        # Iceberg
+        iceberg.catalog-type=rest
+        iceberg.catalog.url=${ICEBERG_REST_CATALOG_URL}
+        iceberg.warehouse=${ICEBERG_WAREHOUSE}
+        iceberg.storage.account=${ICEBERG_STORAGE_ACCOUNT}
+        iceberg.storage.access-key=${ICEBERG_STORAGE_ACCESS_KEY}
+        
+        # Query settings
+        query.timeout.seconds=30
+        query.batch-size=50
+        query.cache-enabled=true
+        query.cache-ttl-seconds=300
+  
+  # Environment variables
+  env:
+    - name: APP_CONFIG_ENDPOINT
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: app-config-endpoint
+    - name: APP_INSIGHTS_CONNECTION_STRING
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: app-insights-connection-string
+    - name: POSTGRES_URL
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: postgres-url
+    - name: POSTGRES_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: postgres-username
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: postgres-password
+    - name: ICEBERG_REST_CATALOG_URL
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: iceberg-rest-catalog-url
+    - name: ICEBERG_WAREHOUSE
+      value: "s3a://warehouse"
+    - name: ICEBERG_STORAGE_ACCOUNT
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: iceberg-storage-account
+    - name: ICEBERG_STORAGE_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: data-tier-secrets
+          key: iceberg-storage-access-key
+    - name: PORT
+      value: "8004"
+  
+  # Volume mounts
+  volumeMounts:
+    - name: config-volume
+      mountPath: /app/config
+  
+  # Volumes
+  volumes:
+    - name: config-volume
+      configMap:
+        name: data-tier-config
+  
+  # Probes configuration
+  probes:
+    livenessProbe:
+      httpGet:
+        path: /actuator/health/liveness
+        port: 8004
+      initialDelaySeconds: 60
+      periodSeconds: 10
+    readinessProbe:
+      httpGet:
+        path: /actuator/health/readiness
+        port: 8004
+      initialDelaySeconds: 30
+      periodSeconds: 10
+  
+  # Lifecycle hooks for graceful shutdown
+  lifecycle:
+    preStop:
+      exec:
+        command:
+          - "/bin/sh"
+          - "-c"
+          - "sleep 15; curl -X POST http://localhost:8004/actuator/shutdown || true"
+  
+  # RBAC configuration
+  rbac:
+    enabled: true
+    roleName: data-tier-role
+    rules:
+      - apiGroups: [""]
+        resources: ["configmaps", "secrets"]
+        verbs: ["get", "list", "watch"]
+  
+  # Ingress configuration
+  ingress:
+    enabled: false
+    className: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hosts:
+      - host: data-tier.sit.sentimark.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: data-tier-tls
+        hosts:
+          - data-tier.sit.sentimark.com
+  
+  # Additional annotations specifically for this service
+  annotations: {}
+  # Additional labels specifically for this service
+  labels: {}
+
+# Service-specific configuration for api
+api:
+  enabled: true
+  name: api
+  
+  # Container image configuration
+  image:
+    repository: "${global.registry.server}/api"
+    tag: latest
+    pullPolicy: Always
+  
+  # Replica count
+  replicaCount: 3
+  
+  # Spot instance configuration
+  spotInstance:
+    enabled: true
+    nodeSelector:
+      agentpool: apispots
+    extraTolerations:
+      - key: "workload"
+        operator: "Equal"
+        value: "apiworkload"
+        effect: "NoSchedule"
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+  
+  # Resource requests and limits
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8001
+  
+  # Pod disruption budget for high availability
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  
+  # Horizontal Pod Autoscaler
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+  
+  # Environment variables
+  env:
+    - name: ENVIRONMENT
+      value: sit
+    - name: PORT
+      value: "8001"
+    - name: AUTH_SERVICE_URL
+      value: "http://auth/auth"
+    - name: SENTIMENT_ANALYSIS_SERVICE_URL
+      value: "http://sentiment-analysis/analyze"
+    - name: DATA_TIER_SERVICE_URL
+      value: "http://data-tier/data"
+    - name: API_LOG_LEVEL
+      value: "INFO"
+    - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+      valueFrom:
+        secretKeyRef:
+          name: app-insights
+          key: connectionString
+  
+  # Probes configuration
+  probes:
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8001
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 8001
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 2
+    startupProbe:
+      httpGet:
+        path: /health
+        port: 8001
+      failureThreshold: 30
+      periodSeconds: 10
+  
+  # Lifecycle hooks for graceful termination
+  lifecycle:
+    preStop:
+      exec:
+        command: 
+          - "/bin/sh"
+          - "-c"
+          - "sleep 10; /app/shutdown.sh || true"
+  
+  # Ingress configuration
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
+    hosts:
+      - host: api.sit.sentimark.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: api-tls
+        hosts:
+          - api.sit.sentimark.com
+  
+  # Additional annotations specifically for this service
+  annotations: {}
+  # Additional labels specifically for this service
+  labels: {}
+
+# Service-specific configuration for auth
+auth:
+  enabled: true
+  name: auth
+  
+  # Container image configuration
+  image:
+    repository: "${global.registry.server}/auth"
+    tag: latest
+    pullPolicy: Always
+  
+  # Replica count
+  replicaCount: 2
+  
+  # Spot instance configuration
+  spotInstance:
+    enabled: true
+    nodeSelector:
+      agentpool: apispots
+    extraTolerations:
+      - key: "workload"
+        operator: "Equal"
+        value: "apiworkload"
+        effect: "NoSchedule"
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+  
+  # Resource requests and limits
+  resources:
+    limits:
+      cpu: 800m
+      memory: 1Gi
+    requests:
+      cpu: 300m
+      memory: 512Mi
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8003
+  
+  # Pod disruption budget for high availability
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  
+  # Horizontal Pod Autoscaler
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+  
+  # Environment variables
+  env:
+    - name: ENVIRONMENT
+      value: sit
+    - name: PORT
+      value: "8003"
+    - name: AUTH_LOG_LEVEL
+      value: "INFO"
+    - name: JWT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: auth-secrets
+          key: jwt-secret
+    - name: JWT_EXPIRATION_SECONDS
+      value: "3600"
+    - name: AUTH_ADMIN_EMAIL
+      valueFrom:
+        secretKeyRef:
+          name: auth-secrets
+          key: admin-email
+    - name: AUTH_ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: auth-secrets
+          key: admin-password
+    - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+      valueFrom:
+        secretKeyRef:
+          name: app-insights
+          key: connectionString
+  
+  # Probes configuration
+  probes:
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8003
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 8003
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 2
+    startupProbe:
+      httpGet:
+        path: /health
+        port: 8003
+      failureThreshold: 30
+      periodSeconds: 10
+  
+  # Lifecycle hooks for graceful termination
+  lifecycle:
+    preStop:
+      exec:
+        command: 
+          - "/bin/sh"
+          - "-c"
+          - "sleep 10; /app/shutdown.sh || true"
+  
+  # Ingress configuration
+  ingress:
+    enabled: false
+    className: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hosts:
+      - host: auth.sit.sentimark.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: auth-tls
+        hosts:
+          - auth.sit.sentimark.com
+  
+  # Additional annotations specifically for this service
+  annotations: {}
+  # Additional labels specifically for this service
+  labels: {}
+
+# Service-specific configuration for sentiment-analysis
+sentimentAnalysis:
+  enabled: true
+  name: sentiment-analysis
+  
+  # Container image configuration
+  image:
+    repository: "${global.registry.server}/sentiment-analysis"
+    tag: latest
+    pullPolicy: Always
+  
+  # Replica count
+  replicaCount: 3
+  
+  # Spot instance configuration
+  spotInstance:
+    enabled: true
+    nodeSelector:
+      agentpool: mlspots
+    extraTolerations:
+      - key: "workload"
+        operator: "Equal"
+        value: "mlworkload"
+        effect: "NoSchedule"
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+  
+  # Resource requests and limits
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8000
+  
+  # Pod disruption budget for high availability
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  
+  # Horizontal Pod Autoscaler
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 75
+  
+  # Environment variables
+  env:
+    - name: ENVIRONMENT
+      value: sit
+    - name: PORT
+      value: "8000"
+    - name: MODEL_PATH
+      value: "/app/models/finbert"
+    - name: BATCH_SIZE
+      value: "32"
+    - name: USE_GPU
+      value: "true"
+    - name: MAX_SEQUENCE_LENGTH
+      value: "256"
+    - name: CACHE_ENABLED
+      value: "true"
+    - name: CACHE_TTL_SECONDS
+      value: "3600"
+    - name: LOG_LEVEL
+      value: "INFO"
+    - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+      valueFrom:
+        secretKeyRef:
+          name: app-insights
+          key: connectionString
+  
+  # Volume mounts
+  volumeMounts:
+    - name: model-volume
+      mountPath: /app/models
+  
+  # Volumes
+  volumes:
+    - name: model-volume
+      persistentVolumeClaim:
+        claimName: finbert-model-pvc
+  
+  # Probes configuration
+  probes:
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8000
+      initialDelaySeconds: 120
+      periodSeconds: 30
+      timeoutSeconds: 10
+      failureThreshold: 3
+    readinessProbe:
+      httpGet:
+        path: /health
+        port: 8000
+      initialDelaySeconds: 60
+      periodSeconds: 15
+      timeoutSeconds: 5
+      failureThreshold: 3
+    startupProbe:
+      httpGet:
+        path: /health
+        port: 8000
+      failureThreshold: 60
+      periodSeconds: 10
+  
+  # Lifecycle hooks for graceful termination
+  lifecycle:
+    preStop:
+      exec:
+        command: 
+          - "/bin/sh"
+          - "-c"
+          - "sleep 30; /app/shutdown.sh || true"
+  
+  # Ingress configuration
+  ingress:
+    enabled: false
+    className: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hosts:
+      - host: sentiment.sit.sentimark.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: sentiment-tls
+        hosts:
+          - sentiment.sit.sentimark.com
+  
+  # Additional annotations specifically for this service
+  annotations: {}
+  # Additional labels specifically for this service
+  labels: {}

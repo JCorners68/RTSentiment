@@ -56,6 +56,12 @@ variable "autoshutdown_time" {
   default     = "1900" # 7 PM UTC
 }
 
+variable "enable_policy_assignments" {
+  description = "Whether to enable policy assignments that require special permissions"
+  type        = bool
+  default     = true
+}
+
 # Configure the Azure Provider
 provider "azurerm" {
   features {}
@@ -154,6 +160,7 @@ resource "azurerm_consumption_budget_subscription" "monthly_budget" {
 
 # 2.1 VM SKU Restrictions
 resource "azurerm_subscription_policy_assignment" "allowed_vm_skus" {
+  count                = var.enable_policy_assignments ? 1 : 0
   name                 = "allowed-vm-skus"
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/cccc23c7-8427-4f53-ad12-b6a63eb452b3" # Built-in policy for allowed VM SKUs
   subscription_id      = data.azurerm_subscription.current.id
@@ -180,6 +187,7 @@ resource "azurerm_subscription_policy_assignment" "allowed_vm_skus" {
 
 # 2.2 Storage Account SKU Restrictions
 resource "azurerm_subscription_policy_assignment" "allowed_storage_skus" {
+  count                = var.enable_policy_assignments ? 1 : 0
   name                 = "allowed-storage-skus"
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/7433c107-6db4-4ad1-b57a-a76dce0154a1" # Built-in policy for allowed storage account SKUs
   subscription_id      = data.azurerm_subscription.current.id
@@ -200,6 +208,7 @@ resource "azurerm_subscription_policy_assignment" "allowed_storage_skus" {
 
 # 2.3 Prohibited Resource Types
 resource "azurerm_subscription_policy_assignment" "not_allowed_resource_types" {
+  count                = var.enable_policy_assignments ? 1 : 0
   name                 = "not-allowed-resource-types"
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/6c112d4e-5bc7-47ae-a041-ea2d9dccd749" # Built-in policy for not allowed resource types
   subscription_id      = data.azurerm_subscription.current.id
@@ -329,6 +338,7 @@ POLICY_RULE
 
 # 3.2 Auto-shutdown Policy Assignment
 resource "azurerm_subscription_policy_assignment" "auto_shutdown" {
+  count                = var.enable_policy_assignments ? 1 : 0
   name                 = "auto-shutdown-vms"
   policy_definition_id = azurerm_policy_definition.auto_shutdown.id
   subscription_id      = data.azurerm_subscription.current.id
@@ -379,6 +389,7 @@ data "azurerm_resources" "development_vms" {
 
 # 4.1 Require Cost Center Tag on Resource Groups
 resource "azurerm_subscription_policy_assignment" "require_cost_center_tag" {
+  count                = var.enable_policy_assignments ? 1 : 0
   name                 = "require-cost-center-tag"
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/96670d01-0a4d-4649-9c89-2d3abc0a5025" # Built-in policy for requiring a tag on resource groups
   subscription_id      = data.azurerm_subscription.current.id
@@ -395,6 +406,7 @@ resource "azurerm_subscription_policy_assignment" "require_cost_center_tag" {
 
 # 4.2 Require Environment Tag on Resources
 resource "azurerm_subscription_policy_assignment" "require_environment_tag" {
+  count                = var.enable_policy_assignments ? 1 : 0
   name                 = "require-environment-tag"
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/871b6d14-10aa-478d-b590-94f262ecfa99" # Built-in policy for requiring a tag on resources
   subscription_id      = data.azurerm_subscription.current.id
@@ -411,6 +423,7 @@ resource "azurerm_subscription_policy_assignment" "require_environment_tag" {
 
 # 4.3 Inherit CostCenter Tag from Resource Group
 resource "azurerm_subscription_policy_assignment" "inherit_cost_center_tag" {
+  count                = var.enable_policy_assignments ? 1 : 0
   name                 = "inherit-cost-center-tag"
   policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/ea3f2387-9b95-492a-a190-fcdc54f7b070" # Built-in policy for inheriting a tag from resource group
   subscription_id      = data.azurerm_subscription.current.id
@@ -434,14 +447,16 @@ output "subscription_id" {
 }
 
 output "policy_assignment_ids" {
-  value = {
-    vm_skus             = azurerm_subscription_policy_assignment.allowed_vm_skus.id
-    cost_tags           = azurerm_subscription_policy_assignment.require_cost_center_tag.id
-    storage_skus        = azurerm_subscription_policy_assignment.allowed_storage_skus.id
-    resource_types      = azurerm_subscription_policy_assignment.not_allowed_resource_types.id
-    auto_shutdown       = azurerm_subscription_policy_assignment.auto_shutdown.id
-    environment_tag     = azurerm_subscription_policy_assignment.require_environment_tag.id
-    inherit_cost_center = azurerm_subscription_policy_assignment.inherit_cost_center_tag.id
+  value = var.enable_policy_assignments ? {
+    vm_skus             = azurerm_subscription_policy_assignment.allowed_vm_skus[0].id
+    cost_tags           = azurerm_subscription_policy_assignment.require_cost_center_tag[0].id
+    storage_skus        = azurerm_subscription_policy_assignment.allowed_storage_skus[0].id
+    resource_types      = azurerm_subscription_policy_assignment.not_allowed_resource_types[0].id
+    auto_shutdown       = azurerm_subscription_policy_assignment.auto_shutdown[0].id
+    environment_tag     = azurerm_subscription_policy_assignment.require_environment_tag[0].id
+    inherit_cost_center = azurerm_subscription_policy_assignment.inherit_cost_center_tag[0].id
+  } : {
+    status = "Policy assignments disabled for this environment"
   }
 }
 

@@ -1,0 +1,25 @@
+apiVersion: v2
+name: sentimark-services
+description: Helm chart for Sentimark services with spot instance support
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - sentimark
+  - sentiment
+  - financial
+  - data
+home: https://github.com/jonat/real_senti
+sources:
+  - https://github.com/jonat/real_senti
+maintainers:
+  - name: Jonathan
+    email: jonat@example.com
+dependencies:
+  - name: sentimark-common
+    version: 0.1.0
+    repository: "file://../sentimark-common"
+    # Make the dependency optional so it doesn't fail if not needed
+    condition: sentimark-common.enabled
+    tags:
+      - sentimark-common

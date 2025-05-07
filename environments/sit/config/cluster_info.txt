@@ -1,0 +1,9 @@
+AKS Cluster Name: sentimark-sit-aks
+Resource Group: sentimark-sit-rg
+Environment: SIT
+Location: westus
+Deployed on: 2025-05-06 18:15:30
+Subscription ID: 644936a7-e58a-4ccb-a882-0005f213f5bd
+Tenant ID: 1ced8c49-a03c-439c-9ff1-0c23f5128720
+Storage Account: sentimarksitstorage
+Deployment Status: Pending Redeployment to westus

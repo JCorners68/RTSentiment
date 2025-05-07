@@ -1,0 +1,16 @@
+apiVersion: v2
+name: sentimark-common
+description: Common Helm components for Sentimark services
+type: library
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - sentimark
+  - common
+  - library
+home: https://github.com/jonat/real_senti
+sources:
+  - https://github.com/jonat/real_senti
+maintainers:
+  - name: Jonathan
+    email: jonat@example.com

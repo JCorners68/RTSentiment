@@ -1,0 +1,6 @@
+dependencies:
+- name: sentimark-common
+  repository: file://../sentimark-common
+  version: 0.1.0
+digest: sha256:dfbb7cd7c0175ef52db9e13e293d0e731ed71b59fdfa6cd851203013348cc25d
+generated: "2025-05-07T14:56:31.986507431-07:00"

@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-05-07T14:06:20-07:00",
+  "resource_group": "sentimark-sit-rg",
+  "cluster_name": "sentimark-sit-aks",
+  "namespace": "sit",
+  "release_name": "sentimark",
+  "duration_seconds": 66,
+  "status": "completed",
+  "location": "westus",
+  "chart_dir": "/home/jonat/real_senti/infrastructure/helm/sentimark-services",
+  "deployment_method": "helm_direct"
+}

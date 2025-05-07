@@ -1,0 +1,231 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-migration-config
+data:
+  application.properties: |
+    # Data migration service configuration
+    spring.application.name=data-migration-service
+    
+    # Feature flags configuration
+    feature.flags.provider=azure-app-configuration
+    azure.app.configuration.endpoint=${APP_CONFIG_ENDPOINT}
+    
+    # Monitor configuration
+    azure.application-insights.connection-string=${APP_INSIGHTS_CONNECTION_STRING}
+    
+    # Database configurations
+    # PostgreSQL
+    spring.datasource.postgres.url=${POSTGRES_URL}
+    spring.datasource.postgres.username=${POSTGRES_USERNAME}
+    spring.datasource.postgres.password=${POSTGRES_PASSWORD}
+    spring.datasource.postgres.driver-class-name=org.postgresql.Driver
+    
+    # Iceberg
+    iceberg.catalog-type=rest
+    iceberg.catalog.url=${ICEBERG_REST_CATALOG_URL}
+    iceberg.warehouse=${ICEBERG_WAREHOUSE}
+    iceberg.storage.account=${ICEBERG_STORAGE_ACCOUNT}
+    iceberg.storage.access-key=${ICEBERG_STORAGE_ACCESS_KEY}
+    
+    # Migration settings
+    migration.batch-size=100
+    migration.parallel-threads=4
+    migration.validation-enabled=true
+    migration.auto-retry-count=3
+    migration.error-tolerance-percentage=1.0
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-migration-service
+  labels:
+    app: data-migration-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-migration-service
+  template:
+    metadata:
+      labels:
+        app: data-migration-service
+    spec:
+      containers:
+      - name: data-migration
+        image: ${ACR_LOGIN_SERVER}/data-migration-service:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "2"
+            memory: "2Gi"
+        env:
+        - name: APP_CONFIG_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: data-tier-secrets
+              key: app-config-endpoint
+        - name: APP_INSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: data-tier-secrets
+              key: app-insights-connection-string
+        - name: POSTGRES_URL
+          valueFrom:
+            secretKeyRef:
+              name: data-tier-secrets
+              key: postgres-url
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: data-tier-secrets
+              key: postgres-username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: data-tier-secrets
+              key: postgres-password
+        - name: ICEBERG_REST_CATALOG_URL
+          valueFrom:
+            secretKeyRef:
+              name: data-tier-secrets
+              key: iceberg-rest-catalog-url
+        - name: ICEBERG_WAREHOUSE
+          value: "s3a://warehouse"
+        - name: ICEBERG_STORAGE_ACCOUNT
+          valueFrom:
+            secretKeyRef:
+              name: data-tier-secrets
+              key: iceberg-storage-account
+        - name: ICEBERG_STORAGE_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: data-tier-secrets
+              key: iceberg-storage-access-key
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+      volumes:
+      - name: config-volume
+        configMap:
+          name: data-migration-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-migration-service
+spec:
+  selector:
+    app: data-migration-service
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: data-migration-scheduler
+spec:
+  schedule: "0 0 * * *"  # Run daily at midnight
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: migration-job
+            image: ${ACR_LOGIN_SERVER}/data-migration-service:latest
+            imagePullPolicy: Always
+            args:
+            - "java"
+            - "-jar"
+            - "/app/data-migration-service.jar"
+            - "--spring.profiles.active=migration-job"
+            env:
+            - name: APP_CONFIG_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: data-tier-secrets
+                  key: app-config-endpoint
+            - name: APP_INSIGHTS_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: data-tier-secrets
+                  key: app-insights-connection-string
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: data-tier-secrets
+                  key: postgres-url
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: data-tier-secrets
+                  key: postgres-username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: data-tier-secrets
+                  key: postgres-password
+            - name: ICEBERG_REST_CATALOG_URL
+              valueFrom:
+                secretKeyRef:
+                  name: data-tier-secrets
+                  key: iceberg-rest-catalog-url
+            - name: ICEBERG_WAREHOUSE
+              value: "s3a://warehouse"
+            - name: ICEBERG_STORAGE_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  name: data-tier-secrets
+                  key: iceberg-storage-account
+            - name: ICEBERG_STORAGE_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: data-tier-secrets
+                  key: iceberg-storage-access-key
+            volumeMounts:
+            - name: config-volume
+              mountPath: /app/config
+          volumes:
+          - name: config-volume
+            configMap:
+              name: data-migration-config
+          restartPolicy: OnFailure
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: data-migration-role
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: data-migration-role-binding
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
+roleRef:
+  kind: Role
+  name: data-migration-role
+  apiGroup: rbac.authorization.k8s.io

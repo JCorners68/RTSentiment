@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-05-06T17:36:10.846533",
+  "tests": [
+    {
+      "name": "Cluster Info Check",
+      "status": "passed",
+      "message": "Cluster info file found at /home/jonat/real_senti/environments/sit/config/cluster_info.txt"
+    },
+    {
+      "name": "Storage Connection Check",
+      "status": "passed",
+      "message": "Storage connection file found at /home/jonat/real_senti/environments/sit/config/storage_connection.txt"
+    },
+    {
+      "name": "Kubernetes Config Check",
+      "status": "passed",
+      "message": "Kubernetes config file found at /home/jonat/real_senti/environments/sit/config/kubeconfig"
+    },
+    {
+      "name": "Deployment Logs Check",
+      "status": "passed",
+      "message": "Latest deployment log shows completed status at /home/jonat/real_senti/environments/sit/logs/deployment_20250506_173253.json"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0
+  }
+}

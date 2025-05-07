@@ -1,0 +1,212 @@
+{{- if .Values.dataMigration.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.dataMigration.configMap.name }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-migration" "service" .Values.dataMigration "releaseName" .Release.Name "component" "migration") | nindent 4 }}
+data:
+  {{- with .Values.dataMigration.configMap.data }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.dataMigration.name }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-migration" "service" .Values.dataMigration "releaseName" .Release.Name "component" "migration") | nindent 4 }}
+  {{- with .Values.dataMigration.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.dataMigration.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "data-migration" "service" .Values.dataMigration "releaseName" .Release.Name) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-migration" "service" .Values.dataMigration "releaseName" .Release.Name "component" "migration") | nindent 8 }}
+      {{- with .Values.dataMigration.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.dataMigration.securityContext | nindent 8 }}
+      {{- if and .Values.global.spotInstances.enabled .Values.dataMigration.spotInstance.enabled }}
+      # Node selector for spot instances
+      nodeSelector:
+        {{- toYaml .Values.dataMigration.spotInstance.nodeSelector | nindent 8 }}
+      # Tolerations for spot instances
+      tolerations:
+        {{- include "sentimark.spotTolerations" (dict "root" . "service" .Values.dataMigration) | nindent 8 }}
+      {{- else }}
+      {{- with .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: data-migration
+        image: "{{ .Values.dataMigration.image.repository }}:{{ .Values.dataMigration.image.tag | default "latest" }}"
+        imagePullPolicy: {{ .Values.dataMigration.image.pullPolicy }}
+        resources:
+          {{- toYaml .Values.dataMigration.resources | nindent 12 }}
+        env:
+        {{- range .Values.dataMigration.env }}
+        - name: {{ .name }}
+          {{- if .value }}
+          value: {{ .value | quote }}
+          {{- else if .valueFrom }}
+          valueFrom:
+            {{- toYaml .valueFrom | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        {{- with .Values.dataMigration.volumeMounts }}
+        volumeMounts:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.dataMigration.probes.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.dataMigration.probes.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.dataMigration.lifecycle }}
+        lifecycle:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- with .Values.dataMigration.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.dataMigration.name }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-migration" "service" .Values.dataMigration "releaseName" .Release.Name "component" "migration") | nindent 4 }}
+spec:
+  type: {{ .Values.dataMigration.service.type }}
+  ports:
+    - port: {{ .Values.dataMigration.service.port }}
+      targetPort: {{ .Values.dataMigration.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "data-migration" "service" .Values.dataMigration "releaseName" .Release.Name) | nindent 4 }}
+{{- if .Values.dataMigration.podDisruptionBudget.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.dataMigration.name }}-pdb
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-migration" "service" .Values.dataMigration "releaseName" .Release.Name "component" "migration") | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.dataMigration.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "data-migration" "service" .Values.dataMigration "releaseName" .Release.Name) | nindent 6 }}
+{{- end }}
+{{- if .Values.dataMigration.cronJob.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.dataMigration.name }}-scheduler
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-migration" "service" .Values.dataMigration "releaseName" .Release.Name "component" "migration-cron") | nindent 4 }}
+spec:
+  schedule: {{ .Values.dataMigration.cronJob.schedule | quote }}
+  failedJobsHistoryLimit: {{ .Values.dataMigration.cronJob.failedJobsHistoryLimit }}
+  successfulJobsHistoryLimit: {{ .Values.dataMigration.cronJob.successfulJobsHistoryLimit }}
+  concurrencyPolicy: {{ .Values.dataMigration.cronJob.concurrencyPolicy }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-migration" "service" .Values.dataMigration "releaseName" .Release.Name "component" "migration-job") | nindent 12 }}
+        spec:
+          {{- if and .Values.global.spotInstances.enabled .Values.dataMigration.spotInstance.enabled }}
+          # Node selector for spot instances
+          nodeSelector:
+            {{- toYaml .Values.dataMigration.spotInstance.nodeSelector | nindent 12 }}
+          # Tolerations for spot instances
+          tolerations:
+            {{- include "sentimark.spotTolerations" (dict "root" . "service" .Values.dataMigration) | nindent 12 }}
+          {{- else }}
+          {{- with .Values.global.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+          containers:
+          - name: migration-job
+            image: "{{ .Values.dataMigration.image.repository }}:{{ .Values.dataMigration.image.tag | default "latest" }}"
+            imagePullPolicy: {{ .Values.dataMigration.image.pullPolicy }}
+            args:
+            {{- range .Values.dataMigration.cronJob.command }}
+            - {{ . | quote }}
+            {{- end }}
+            env:
+            {{- range .Values.dataMigration.env }}
+            - name: {{ .name }}
+              {{- if .value }}
+              value: {{ .value | quote }}
+              {{- else if .valueFrom }}
+              valueFrom:
+                {{- toYaml .valueFrom | nindent 16 }}
+              {{- end }}
+            {{- end }}
+            {{- with .Values.dataMigration.volumeMounts }}
+            volumeMounts:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+          {{- with .Values.dataMigration.volumes }}
+          volumes:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          restartPolicy: {{ .Values.dataMigration.cronJob.restartPolicy }}
+{{- end }}
+{{- if .Values.dataMigration.rbac.enabled }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Values.dataMigration.rbac.roleName }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-migration" "service" .Values.dataMigration "releaseName" .Release.Name "component" "migration") | nindent 4 }}
+rules:
+{{- with .Values.dataMigration.rbac.rules }}
+{{ toYaml . }}
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Values.dataMigration.name }}-role-binding
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-migration" "service" .Values.dataMigration "releaseName" .Release.Name "component" "migration") | nindent 4 }}
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ .Values.dataMigration.rbac.roleName }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- end }}

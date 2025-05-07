@@ -1,0 +1,15 @@
+import http.client
+
+conn = http.client.HTTPSConnection("insightsentry.p.rapidapi.com")
+
+headers = {
+    'x-rapidapi-key': "5a93d8129fmsh02ecf3a9cfd5f60p118242jsn2315ed9e2d5c",
+    'x-rapidapi-host': "insightsentry.p.rapidapi.com"
+}
+
+conn.request("GET", "/v2/symbols/NASDAQ:AAPL/financials", headers=headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))

@@ -1,0 +1,320 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "global": {
+      "type": "object",
+      "properties": {
+        "environment": {
+          "type": "string",
+          "enum": ["sit", "uat", "prod"],
+          "description": "Deployment environment"
+        },
+        "registry": {
+          "type": "object",
+          "properties": {
+            "server": {
+              "type": "string",
+              "description": "Container registry server"
+            },
+            "pullSecretsName": {
+              "type": "string",
+              "description": "Name of the imagePullSecrets"
+            }
+          },
+          "required": ["server"]
+        },
+        "network": {
+          "type": "object",
+          "properties": {
+            "domain": {
+              "type": "string",
+              "description": "Base domain for ingress hosts"
+            }
+          }
+        },
+        "labels": {
+          "type": "object",
+          "description": "Common labels to be applied to all resources"
+        },
+        "annotations": {
+          "type": "object",
+          "description": "Common annotations to be applied to all resources"
+        },
+        "spotInstances": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether to use spot instances"
+            },
+            "tolerations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": { "type": "string" },
+                  "operator": { "type": "string", "enum": ["Equal", "Exists"] },
+                  "value": { "type": "string" },
+                  "effect": { "type": "string", "enum": ["NoSchedule", "PreferNoSchedule", "NoExecute"] }
+                },
+                "required": ["key", "effect"]
+              }
+            }
+          }
+        },
+        "nodeSelector": {
+          "type": "object",
+          "description": "Common node selector for all pods"
+        },
+        "affinity": {
+          "type": "object",
+          "description": "Common affinity rules for all pods"
+        }
+      },
+      "required": ["environment"]
+    },
+    "dataAcquisition": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether to deploy the data acquisition service"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the data acquisition service"
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Image repository"
+            },
+            "tag": {
+              "type": "string",
+              "description": "Image tag"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "enum": ["Always", "IfNotPresent", "Never"],
+              "description": "Image pull policy"
+            }
+          },
+          "required": ["repository"]
+        },
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of replicas"
+        },
+        "spotInstance": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether to deploy on spot instances"
+            },
+            "nodeSelector": {
+              "type": "object",
+              "description": "Node selector for spot instances"
+            },
+            "extraTolerations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "key": { "type": "string" },
+                  "operator": { "type": "string", "enum": ["Equal", "Exists"] },
+                  "value": { "type": "string" },
+                  "effect": { "type": "string", "enum": ["NoSchedule", "PreferNoSchedule", "NoExecute"] }
+                },
+                "required": ["key", "effect"]
+              }
+            }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string" },
+                "memory": { "type": "string" }
+              }
+            },
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": { "type": "string" },
+                "memory": { "type": "string" }
+              }
+            }
+          }
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+              "description": "Kubernetes service type"
+            },
+            "port": {
+              "type": "integer",
+              "description": "Service port"
+            },
+            "targetPort": {
+              "type": "integer",
+              "description": "Target port in the container"
+            }
+          },
+          "required": ["type", "port"]
+        },
+        "ingress": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether to create an ingress resource"
+            },
+            "className": {
+              "type": "string",
+              "description": "Ingress class name"
+            },
+            "annotations": {
+              "type": "object",
+              "description": "Additional annotations for the ingress"
+            },
+            "hosts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "host": { "type": "string" },
+                  "paths": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "path": { "type": "string" },
+                        "pathType": { "type": "string", "enum": ["Prefix", "Exact", "ImplementationSpecific"] }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "tls": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "secretName": { "type": "string" },
+                  "hosts": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": ["enabled", "name", "image"]
+    },
+    "dataMigration": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether to deploy the data migration service"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the data migration service"
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Image repository"
+            },
+            "tag": {
+              "type": "string",
+              "description": "Image tag"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "enum": ["Always", "IfNotPresent", "Never"],
+              "description": "Image pull policy"
+            }
+          },
+          "required": ["repository"]
+        },
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of replicas"
+        },
+        "configMap": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "data": { "type": "object" }
+          },
+          "required": ["name", "data"]
+        },
+        "cronJob": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "schedule": { "type": "string" },
+            "failedJobsHistoryLimit": { "type": "integer" },
+            "successfulJobsHistoryLimit": { "type": "integer" },
+            "concurrencyPolicy": { "type": "string", "enum": ["Allow", "Forbid", "Replace"] },
+            "restartPolicy": { "type": "string", "enum": ["OnFailure", "Never"] },
+            "command": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "required": ["enabled", "schedule"]
+        },
+        "rbac": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "roleName": { "type": "string" },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "apiGroups": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  },
+                  "resources": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  },
+                  "verbs": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "required": ["enabled"]
+        }
+      },
+      "required": ["enabled", "name", "image"]
+    }
+  },
+  "required": ["global"]
+}

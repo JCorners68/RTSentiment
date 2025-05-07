@@ -1,0 +1,497 @@
+name: Sentiment Analysis CI/CD Pipeline
+
+# Trigger workflow on pushes to main branch or PRs targeting main
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+env:
+  # Azure environment settings
+  AZURE_RESOURCE_GROUP: sentimark-sit-rg
+  AKS_CLUSTER_NAME: sentimark-sit-aks
+  ACR_NAME: sentimarkacr
+  
+  # Deployment configuration
+  NAMESPACE: sit
+  HELM_RELEASE_NAME: sentimark
+  
+  # Component image names
+  API_IMAGE: sentimark-api
+  AUTH_IMAGE: sentimark-auth
+  DATA_TIER_IMAGE: sentimark-data-tier
+  DATA_ACQUISITION_IMAGE: sentimark-data-acquisition
+  ANALYZER_IMAGE: sentimark-analyzer
+
+jobs:
+  # ------------------- TESTS -------------------
+  unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+        
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+          # Install service-specific dependencies
+          cd services/api && pip install -r requirements.txt
+          cd ../auth && pip install -r requirements.txt
+          cd ../data-tier && pip install -r requirements.txt
+          cd ../data-acquisition && pip install -r requirements.txt
+          cd ../sentiment-analysis && pip install -r requirements.txt
+      
+      # Run unit tests for each service with coverage reporting
+      - name: Run API unit tests
+        run: cd services/api && python -m pytest tests/unit --cov=. --cov-report=xml -v
+      
+      - name: Run Auth unit tests
+        run: cd services/auth && python -m pytest tests/unit --cov=. --cov-report=xml -v
+      
+      - name: Run Data-tier unit tests
+        run: cd services/data-tier && python -m pytest tests/unit --cov=. --cov-report=xml -v
+      
+      - name: Run Data-acquisition unit tests
+        run: cd services/data-acquisition && python -m pytest tests/unit --cov=. --cov-report=xml -v
+      
+      - name: Run Sentiment Analyzer unit tests
+        run: cd services/sentiment-analysis && python -m pytest tests/unit --cov=. --cov-report=xml -v
+      
+      # Upload test coverage for tracking
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            services/api/coverage.xml
+            services/auth/coverage.xml
+            services/data-tier/coverage.xml
+            services/data-acquisition/coverage.xml
+            services/sentiment-analysis/coverage.xml
+
+  integration-tests:
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    services:
+      # Use containerized database for integration testing
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: sentimark_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+        
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+          # Install dependencies for all components
+          cd services/api && pip install -r requirements.txt
+          cd ../auth && pip install -r requirements.txt
+          cd ../data-tier && pip install -r requirements.txt
+          cd ../data-acquisition && pip install -r requirements.txt
+          cd ../sentiment-analysis && pip install -r requirements.txt
+      
+      # Run integration tests that verify interactions between components
+      - name: Run API-Auth integration tests
+        run: cd services/api && python -m pytest tests/integration/test_auth_integration.py -v
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sentimark_test
+      
+      - name: Run API-Data integration tests
+        run: cd services/api && python -m pytest tests/integration/test_data_integration.py -v
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sentimark_test
+      
+      - name: Run API-Analyzer integration tests
+        run: cd services/api && python -m pytest tests/integration/test_analyzer_integration.py -v
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sentimark_test
+
+  # ------------------- SECURITY SCANS -------------------
+  security-scans:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # Scan dependencies for vulnerabilities
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install safety
+        run: pip install safety
+      
+      # Run security scan on dependencies for each service
+      - name: Scan API dependencies
+        run: cd services/api && safety check -r requirements.txt
+      
+      - name: Scan Auth dependencies
+        run: cd services/auth && safety check -r requirements.txt
+      
+      - name: Scan Data-tier dependencies
+        run: cd services/data-tier && safety check -r requirements.txt
+      
+      - name: Scan Data-acquisition dependencies
+        run: cd services/data-acquisition && safety check -r requirements.txt
+      
+      - name: Scan Sentiment Analyzer dependencies
+        run: cd services/sentiment-analysis && safety check -r requirements.txt
+      
+      # Scan Dockerfiles for best practices
+      - name: Hadolint Action
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: services/api/Dockerfile,services/auth/Dockerfile,services/data-tier/Dockerfile,services/data-acquisition/Dockerfile,services/sentiment-analysis/Dockerfile
+      
+      # Additional security scanning for Helm charts
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+      
+      - name: Scan Helm charts
+        run: helm lint ./infrastructure/helm/sentimark-services
+
+  # ------------------- BUILD IMAGES -------------------
+  build-images:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    needs: [integration-tests, security-scans]
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # Configure BuildKit for efficient builds
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      # Login to Azure Container Registry
+      - name: Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.ACR_NAME }}.azurecr.io
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+      
+      # Generate semantic version tags
+      - name: Generate version info
+        id: version
+        run: |
+          # For PRs, use PR number in tag
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "VERSION=pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+            echo "LATEST_TAG=false" >> $GITHUB_OUTPUT
+          else
+            # For pushes to main, use semantic versioning based on git
+            # Use short commit SHA if VERSION file doesn't exist
+            if [ -f "VERSION" ]; then
+              VERSION=$(cat VERSION)
+            else
+              VERSION="0.1.0-$(git rev-parse --short HEAD)"
+            fi
+            echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+            echo "LATEST_TAG=true" >> $GITHUB_OUTPUT
+          fi
+      
+      # Build and push API service
+      - name: Build and push API image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/api
+          push: true
+          tags: |
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.API_IMAGE }}:${{ steps.version.outputs.VERSION }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.API_IMAGE }}:${{ github.sha }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.API_IMAGE }}:latest
+          build-args: |
+            APP_VERSION=${{ steps.version.outputs.VERSION }}
+          cache-from: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.API_IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.API_IMAGE }}:buildcache,mode=max
+      
+      # Build and push Auth service
+      - name: Build and push Auth image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/auth
+          push: true
+          tags: |
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.AUTH_IMAGE }}:${{ steps.version.outputs.VERSION }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.AUTH_IMAGE }}:${{ github.sha }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.AUTH_IMAGE }}:latest
+          build-args: |
+            APP_VERSION=${{ steps.version.outputs.VERSION }}
+          cache-from: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.AUTH_IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.AUTH_IMAGE }}:buildcache,mode=max
+      
+      # Build and push Data-tier service
+      - name: Build and push Data-tier image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/data-tier
+          push: true
+          tags: |
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.DATA_TIER_IMAGE }}:${{ steps.version.outputs.VERSION }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.DATA_TIER_IMAGE }}:${{ github.sha }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.DATA_TIER_IMAGE }}:latest
+          build-args: |
+            APP_VERSION=${{ steps.version.outputs.VERSION }}
+          cache-from: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.DATA_TIER_IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.DATA_TIER_IMAGE }}:buildcache,mode=max
+      
+      # Build and push Data-acquisition service
+      - name: Build and push Data-acquisition image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/data-acquisition
+          push: true
+          tags: |
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.DATA_ACQUISITION_IMAGE }}:${{ steps.version.outputs.VERSION }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.DATA_ACQUISITION_IMAGE }}:${{ github.sha }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.DATA_ACQUISITION_IMAGE }}:latest
+          build-args: |
+            APP_VERSION=${{ steps.version.outputs.VERSION }}
+          cache-from: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.DATA_ACQUISITION_IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.DATA_ACQUISITION_IMAGE }}:buildcache,mode=max
+      
+      # Build and push Sentiment Analyzer service
+      - name: Build and push Sentiment Analyzer image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/sentiment-analysis
+          push: true
+          tags: |
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.ANALYZER_IMAGE }}:${{ steps.version.outputs.VERSION }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.ANALYZER_IMAGE }}:${{ github.sha }}
+            ${{ env.ACR_NAME }}.azurecr.io/${{ env.ANALYZER_IMAGE }}:latest
+          build-args: |
+            APP_VERSION=${{ steps.version.outputs.VERSION }}
+          cache-from: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.ANALYZER_IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.ACR_NAME }}.azurecr.io/${{ env.ANALYZER_IMAGE }}:buildcache,mode=max
+      
+      # Scan for vulnerabilities in built images
+      - name: Scan Docker images for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ env.ACR_NAME }}.azurecr.io/${{ env.API_IMAGE }}:${{ steps.version.outputs.VERSION }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+  # ------------------- DEPLOY TO AKS -------------------
+  deploy-to-aks:
+    name: Deploy to AKS
+    runs-on: ubuntu-latest
+    needs: build-images
+    # Only deploy for push events to main (not PRs)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # Set up Azure credentials
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      # Get version info generated during build
+      - name: Get version info
+        id: version
+        run: |
+          # For main branch, get version from VERSION file or generate one
+          if [ -f "VERSION" ]; then
+            VERSION=$(cat VERSION)
+          else
+            VERSION="0.1.0-$(git rev-parse --short HEAD)"
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+      
+      # Execute the improved Helm deployment script
+      - name: Deploy to AKS using enhanced helm_deploy script
+        run: |
+          # Ensure script is executable
+          chmod +x ./environments/sit/helm_deploy_fixed.sh
+          
+          # Create namespace if it doesn't exist
+          az aks command invoke \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name ${{ env.AKS_CLUSTER_NAME }} \
+            --command "kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -"
+          
+          # Run enhanced deployment script with necessary parameters for image tags and secrets
+          ./environments/sit/helm_deploy_fixed.sh \
+            --release-name ${{ env.HELM_RELEASE_NAME }} \
+            --namespace ${{ env.NAMESPACE }} \
+            --chart-dir ./infrastructure/helm/sentimark-services
+        env:
+          # These environment variables will be used by the script to create a values override file
+          API_IMAGE_REPOSITORY: ${{ env.ACR_NAME }}.azurecr.io/${{ env.API_IMAGE }}
+          API_IMAGE_TAG: ${{ steps.version.outputs.VERSION }}
+          AUTH_IMAGE_REPOSITORY: ${{ env.ACR_NAME }}.azurecr.io/${{ env.AUTH_IMAGE }}
+          AUTH_IMAGE_TAG: ${{ steps.version.outputs.VERSION }}
+          DATA_TIER_IMAGE_REPOSITORY: ${{ env.ACR_NAME }}.azurecr.io/${{ env.DATA_TIER_IMAGE }}
+          DATA_TIER_IMAGE_TAG: ${{ steps.version.outputs.VERSION }}
+          DATA_ACQUISITION_IMAGE_REPOSITORY: ${{ env.ACR_NAME }}.azurecr.io/${{ env.DATA_ACQUISITION_IMAGE }}
+          DATA_ACQUISITION_IMAGE_TAG: ${{ steps.version.outputs.VERSION }}
+          ANALYZER_IMAGE_REPOSITORY: ${{ env.ACR_NAME }}.azurecr.io/${{ env.ANALYZER_IMAGE }}
+          ANALYZER_IMAGE_TAG: ${{ steps.version.outputs.VERSION }}
+          ENVIRONMENT: production
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          API_TOKEN: ${{ secrets.API_TOKEN }}
+
+  # ------------------- POST-DEPLOYMENT VERIFICATION -------------------
+  post-deploy-verification:
+    name: Post-Deployment Verification
+    runs-on: ubuntu-latest
+    needs: deploy-to-aks
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # Set up Azure credentials
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      # Run verification script
+      - name: Run deployment verification
+        run: |
+          chmod +x ./environments/sit/verify_deployment.sh
+          ./environments/sit/verify_deployment.sh
+      
+      # Smoke test: Check that services are operational
+      - name: Run advanced health checks
+        run: |
+          # Get services status
+          SERVICE_STATUS=$(az aks command invoke \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name ${{ env.AKS_CLUSTER_NAME }} \
+            --command "kubectl get services -n ${{ env.NAMESPACE }} -o json")
+          
+          # Get API service endpoint
+          API_IP=$(echo $SERVICE_STATUS | jq -r '.stdout | fromjson | .items[] | select(.metadata.name=="${{ env.HELM_RELEASE_NAME }}-api") | .status.loadBalancer.ingress[0].ip')
+          API_PORT=$(echo $SERVICE_STATUS | jq -r '.stdout | fromjson | .items[] | select(.metadata.name=="${{ env.HELM_RELEASE_NAME }}-api") | .spec.ports[0].port')
+          
+          # Wait for services to become accessible
+          echo "Waiting for services to become fully available..."
+          sleep 60
+          
+          # Check health endpoints through API
+          echo "Testing API health endpoint..."
+          API_HEALTH=$(az aks command invoke \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name ${{ env.AKS_CLUSTER_NAME }} \
+            --command "curl -s http://${API_IP}:${API_PORT}/api/health")
+          
+          if [[ $API_HEALTH != *"healthy"* ]]; then
+            echo "API health check failed!"
+            exit 1
+          fi
+          
+          echo "All services are healthy!"
+      
+      # Performance check: Basic load test
+      - name: Run basic load test
+        run: |
+          # Check if services can handle basic load
+          LOAD_TEST=$(az aks command invoke \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name ${{ env.AKS_CLUSTER_NAME }} \
+            --command "
+              # Create a simple load test using a basic for loop
+              TARGET=\$(kubectl get svc ${{ env.HELM_RELEASE_NAME }}-api -n ${{ env.NAMESPACE }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}:{.spec.ports[0].port}/api/health')
+              
+              # Run 20 sequential requests
+              echo 'Running basic load test...'
+              
+              SUCCESS=0
+              for i in {1..20}; do
+                curl -s -o /dev/null -w '%{http_code}' http://\${TARGET} | grep -q 200 && ((SUCCESS++))
+                sleep 0.5
+              done
+              
+              # Calculate success rate
+              SUCCESS_RATE=\$((SUCCESS * 5))
+              echo \"Success rate: \${SUCCESS_RATE}%\"
+              
+              # Test passes if success rate is at least 80%
+              [ \$SUCCESS_RATE -ge 80 ] && echo 'Load test passed!' || (echo 'Load test failed!'; exit 1)
+            ")
+          
+          # Check result
+          echo $LOAD_TEST
+          if [[ $LOAD_TEST != *"Load test passed"* ]]; then
+            echo "Load test failed!"
+            exit 1
+          fi
+
+  # ------------------- CLEANUP -------------------
+  cleanup:
+    name: Cleanup
+    runs-on: ubuntu-latest
+    needs: [post-deploy-verification, deploy-to-aks]
+    if: always() && (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    steps:
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      # Cleanup old Docker images to prevent storage issues
+      - name: Purge old images from ACR
+        run: |
+          # List images older than 30 days
+          OLD_IMAGES=$(az acr repository list --name ${{ env.ACR_NAME }} --output tsv)
+          
+          # For each repository, delete old images
+          for REPO in $OLD_IMAGES; do
+            # Keep latest 5 images, delete others older than 30 days
+            az acr repository show-manifests --name ${{ env.ACR_NAME }} --repository $REPO \
+              --orderby time_asc --query "[?timeSinceCreation>='P30D'].[digest]" -o tsv \
+              | head -n -5 \
+              | xargs -I% az acr repository delete --name ${{ env.ACR_NAME }} --image $REPO@% --yes || true
+          done
+          
+          echo "ACR cleanup completed!"

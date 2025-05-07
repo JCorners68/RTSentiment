@@ -1,14 +1,58 @@
 # CLAUDE.md
-## Preferences
-- progress in slow incremental steps with progress verified at each step.
-- be clear about synthetic data.  it should be stored in a completely separte file system and not comingled with other data.
-- user must see at console or in a test file evidence of success that includes verifable data.
-- update pip to the latest version to minimize dependency problems.
-- keep documentation in sync after successful completion of a phase.
-- be clear about verification procedure so that user can verify easily.
-- iterate until errors are resolved.
-- files referenced or created should use entire path so I can find them. 
-- do not store files in the root directory of the project.
+how can ## Preferences
+### Development Approach
+- Progress in small, incremental steps with verification at each stage
+- Provide clear success criteria for each development phase
+- Iterate until all errors are resolved, with explicit error handling strategies
+- Include comprehensive logging for debugging purposes
+- Follow test-driven development principles where appropriate
+- Dont forget to make scripts executable
+- Avoid CRLF line endings in scripts
+
+### Data Management
+- Store synthetic data in completely separate file systems, never comingled with production data
+- Use clear naming conventions for all data files and directories
+- Document data schemas and relationships
+- Implement proper data validation at input/output boundaries
+
+### Verification and Testing
+- Provide console output or test file evidence with verifiable data after each stage
+- Create automated test cases for all major functionality
+- Include both unit tests and integration tests as appropriate
+- Document verification procedures clearly so user can easily validate
+- Test edge cases and failure scenarios explicitly
+
+### Environment and Dependencies
+- Update pip to latest version before installing dependencies
+- Use virtual environments for isolation
+- Document all dependencies in requirements.txt or equivalent
+- Specify version pinning for critical dependencies
+- Consider containerization when appropriate
+
+### Documentation
+- Keep documentation in sync after successful phase completion
+- Include inline comments for complex logic
+- Provide README with setup and usage instructions
+- Document API endpoints with example requests/responses
+- Update documentation with any error handling processes
+- Organize documentation in a clear, logical structure under /docs/
+
+### File Management
+- Use absolute paths for all files referenced or created
+- Never store files in project root directory
+- Implement consistent directory structure
+- Use configuration files for path management
+- Handle file permissions appropriately
+
+### Definition of Done
+- Verify code works without errors in CLI
+- Test all backend processes for errors with CLI
+- Ensure all tests pass
+- Confirm documentation is current
+- Validate against original requirements
+- Review for security best practices
+- Optimize for performance where needed
+- It is not acceptable to have manual steps in a CI/CD pipeline
 
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.

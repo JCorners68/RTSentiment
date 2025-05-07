@@ -1,5 +1,10 @@
 #!/bin/bash
-# Script to run Terraform commands with proper credentials
+# Script to run Terraform commands with service principal authentication only
+
+# Load bash aliases for credentials if available (silently)
+if [ -f ~/.bash_aliases ]; then
+    source ~/.bash_aliases >/dev/null 2>&1
+fi
 
 # Function to display help
 show_help() {
@@ -21,6 +26,12 @@ show_help() {
   echo "  plan        Create a Terraform execution plan"
   echo "  apply       Apply the Terraform execution plan"
   echo "  destroy     Destroy the Terraform-managed infrastructure"
+  echo "  cost-plan   Create a plan for cost management only"
+  echo "  cost-apply  Apply the cost management module only"
+  echo "  state       Manage Terraform state (list, show, rm, etc.)"
+  echo "  import      Import existing resources into Terraform"
+  echo "  output      Display Terraform outputs"
+  echo "  force-unlock Forcibly unlock the state file"
   echo ""
   echo "Examples:"
   echo "  ./run-terraform.sh --client-id=00000000-0000-0000-0000-000000000000 \\"
@@ -30,6 +41,8 @@ show_help() {
   echo "                      plan"
   echo ""
   echo "  ./run-terraform.sh --json-creds=credentials.json apply"
+  echo ""
+  echo "  ./run-terraform.sh cost-apply  # Apply only cost management module"
 }
 
 # Default values
@@ -87,7 +100,7 @@ while [[ $# -gt 0 ]]; do
       show_help
       exit 0
       ;;
-    init|validate|plan|apply|destroy)
+    init|validate|plan|apply|destroy|cost-plan|cost-apply|state|import|output|force-unlock)
       COMMAND="$1"
       shift
       ;;
@@ -116,6 +129,11 @@ if [ -z "${TERRAFORM_ARGS+x}" ]; then
   TERRAFORM_ARGS=()
 fi
 
+# Convert TERRAFORM_ARGS to a proper array if it's not empty
+if [ ${#TERRAFORM_ARGS[@]} -eq 0 ] && [ -n "$TERRAFORM_ARGS" ]; then
+  TERRAFORM_ARGS=("$TERRAFORM_ARGS")
+fi
+
 # Check if we need to extract credentials from JSON
 if [ -n "$JSON_CREDS" ]; then
   if [ ! -f "$JSON_CREDS" ]; then
@@ -135,44 +153,108 @@ if [ -n "$JSON_CREDS" ]; then
   fi
 fi
 
-# Try to read from tfvars if tenant/subscription not provided
+# Check for environment-specific credentials silently (no messages)
+if [[ "$*" == *"terraform.sit.tfvars"* ]] && [ ! -z "${SIT_CLIENT_ID+x}" ]; then
+  CLIENT_ID="${SIT_CLIENT_ID}"
+  CLIENT_SECRET="${SIT_CLIENT_SECRET}"
+  TENANT_ID="${SIT_TENANT_ID}"
+  SUBSCRIPTION_ID="${SIT_SUBSCRIPTION_ID}"
+elif [[ "$*" == *"terraform.uat.tfvars"* ]] && [ ! -z "${UAT_CLIENT_ID+x}" ]; then
+  CLIENT_ID="${UAT_CLIENT_ID}"
+  CLIENT_SECRET="${UAT_CLIENT_SECRET}"
+  TENANT_ID="${UAT_TENANT_ID}"
+  SUBSCRIPTION_ID="${UAT_SUBSCRIPTION_ID}"
+elif [[ "$*" == *"terraform.prod.tfvars"* ]] && [ ! -z "${PROD_CLIENT_ID+x}" ]; then
+  CLIENT_ID="${PROD_CLIENT_ID}"
+  CLIENT_SECRET="${PROD_CLIENT_SECRET}"
+  TENANT_ID="${PROD_TENANT_ID}"
+  SUBSCRIPTION_ID="${PROD_SUBSCRIPTION_ID}"
+elif [ -z "$CLIENT_ID" ] && [ ! -z "${SIT_CLIENT_ID+x}" ]; then
+  CLIENT_ID="${SIT_CLIENT_ID}"
+  CLIENT_SECRET="${SIT_CLIENT_SECRET}"
+  TENANT_ID="${SIT_TENANT_ID}"
+  SUBSCRIPTION_ID="${SIT_SUBSCRIPTION_ID}"
+elif [ -z "$CLIENT_ID" ] && [ ! -z "${UAT_CLIENT_ID+x}" ]; then
+  CLIENT_ID="${UAT_CLIENT_ID}"
+  CLIENT_SECRET="${UAT_CLIENT_SECRET}"
+  TENANT_ID="${UAT_TENANT_ID}"
+  SUBSCRIPTION_ID="${UAT_SUBSCRIPTION_ID}"
+fi
+
+# Read from tfvars if needed (silently)
 if [ -z "$TENANT_ID" ] && [ -f "terraform.tfvars" ]; then
   TENANT_ID=$(grep tenant_id terraform.tfvars | cut -d "=" -f2 | tr -d " \"")
-  echo "Using tenant ID from terraform.tfvars: ${TENANT_ID:0:8}...${TENANT_ID:(-8)}"
 fi
 
 if [ -z "$SUBSCRIPTION_ID" ] && [ -f "terraform.tfvars" ]; then
   SUBSCRIPTION_ID=$(grep subscription_id terraform.tfvars | cut -d "=" -f2 | tr -d " \"")
-  echo "Using subscription ID from terraform.tfvars: ${SUBSCRIPTION_ID:0:8}...${SUBSCRIPTION_ID:(-8)}"
 fi
 
-# Validate that we have all required credentials
+# Default to providers.tf if credentials still not found
 if [ -z "$CLIENT_ID" ] || [ -z "$CLIENT_SECRET" ] || [ -z "$TENANT_ID" ] || [ -z "$SUBSCRIPTION_ID" ]; then
-  echo "Error: Missing required Azure credentials"
-  echo "Please provide either:"
-  echo "  1. Individual credentials (client-id, client-secret, tenant-id, subscription-id)"
-  echo "  2. A JSON credentials file with --json-creds"
-  echo "  3. Ensure tenant_id and subscription_id are defined in terraform.tfvars"
-  show_help
-  exit 1
+  # Read credentials from providers.tf if not specified via command line
+  if [ -f "providers.tf" ]; then    
+    # Extract credentials silently
+    if [ -z "$CLIENT_ID" ]; then
+      CLIENT_ID=$(grep -o 'client_id[[:space:]]*=[[:space:]]*"[^"]*"' providers.tf | cut -d'"' -f2)
+    fi
+    
+    if [ -z "$CLIENT_SECRET" ]; then
+      CLIENT_SECRET=$(grep -o 'client_secret[[:space:]]*=[[:space:]]*"[^"]*"' providers.tf | cut -d'"' -f2)
+    fi
+    
+    if [ -z "$TENANT_ID" ]; then
+      TENANT_ID=$(grep -o 'tenant_id[[:space:]]*=[[:space:]]*"[^"]*"' providers.tf | cut -d'"' -f2)
+    fi
+    
+    if [ -z "$SUBSCRIPTION_ID" ]; then
+      SUBSCRIPTION_ID=$(grep -o 'subscription_id[[:space:]]*=[[:space:]]*"[^"]*"' providers.tf | cut -d'"' -f2)
+    fi
+  else
+    echo "Error: Missing required Azure credentials and providers.tf not found"
+    echo "Please provide credentials via command line arguments"
+    show_help
+    exit 1
+  fi
 fi
 
-# Display obscured credentials for verification
-echo "Using Azure credentials:"
-echo "Client ID: ${CLIENT_ID:0:8}...${CLIENT_ID:(-8)}"
-echo "Client Secret: ********"
-echo "Tenant ID: ${TENANT_ID:0:8}...${TENANT_ID:(-8)}"
-echo "Subscription ID: ${SUBSCRIPTION_ID:0:8}...${SUBSCRIPTION_ID:(-8)}"
-
-# Create a temporary terraform.auto.tfvars file to override the values in terraform.tfvars
+# Create a temporary terraform.auto.tfvars file for service principal authentication
 echo "# Temporary auto vars file created by run-terraform.sh" > terraform.auto.tfvars
 echo "client_id = \"$CLIENT_ID\"" >> terraform.auto.tfvars
 echo "client_secret = \"$CLIENT_SECRET\"" >> terraform.auto.tfvars
 echo "tenant_id = \"$TENANT_ID\"" >> terraform.auto.tfvars
 echo "subscription_id = \"$SUBSCRIPTION_ID\"" >> terraform.auto.tfvars
 
+# Explicitly disable CLI and MSI auth
+echo "use_cli = false" >> terraform.auto.tfvars
+echo "use_msi = false" >> terraform.auto.tfvars
+
 # Run Terraform with Docker
-echo "Running terraform $COMMAND with provided credentials..."
+
+# Handle cost management specific commands
+COST_MANAGEMENT_ARGS=""
+if [[ "$COMMAND" == "cost-plan" ]]; then
+  COST_MANAGEMENT_ARGS="-target=module.cost_management"
+  COMMAND="plan"
+  echo "Planning cost management module only..."
+elif [[ "$COMMAND" == "cost-apply" ]]; then
+  COST_MANAGEMENT_ARGS="-target=module.cost_management"
+  COMMAND="apply"
+  echo "Applying cost management module only..."
+fi
+
+# Define environment variables for docker runs (service principal only)
+ENV_VARS=(
+  "-e" "ARM_USE_CLI=false"
+  "-e" "ARM_USE_MSI=false"
+  "-e" "ARM_CLIENT_ID=$CLIENT_ID" 
+  "-e" "ARM_CLIENT_SECRET=$CLIENT_SECRET"
+  "-e" "ARM_TENANT_ID=$TENANT_ID"
+  "-e" "ARM_SUBSCRIPTION_ID=$SUBSCRIPTION_ID"
+  "-e" "TF_VAR_use_cli=false"
+  "-e" "TF_VAR_use_msi=false"
+)
+
 # Add -it flag for interactive commands that need input
 if [ "$COMMAND" = "apply" ] || [ "$COMMAND" = "destroy" ]; then
   # Check if -auto-approve is in the remaining arguments
@@ -186,36 +268,26 @@ if [ "$COMMAND" = "apply" ] || [ "$COMMAND" = "destroy" ]; then
   
   # If -auto-approve is not specified and this is an interactive terminal, use -it
   if [ "$auto_approve" = "false" ] && [ -t 0 ]; then
-    echo "Interactive mode: you will be prompted to confirm the action"
     docker run --rm -it \
       -v $(pwd):/workspace \
       -w /workspace \
-      -e ARM_CLIENT_ID="$CLIENT_ID" \
-      -e ARM_CLIENT_SECRET="$CLIENT_SECRET" \
-      -e ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID" \
-      -e ARM_TENANT_ID="$TENANT_ID" \
-      hashicorp/terraform:latest $COMMAND "${TERRAFORM_ARGS[@]}"
+      "${ENV_VARS[@]}" \
+      hashicorp/terraform:latest $COMMAND $COST_MANAGEMENT_ARGS ${TERRAFORM_ARGS:+${TERRAFORM_ARGS[@]}}
   else
     # Either -auto-approve is set or we're not in an interactive terminal
     docker run --rm \
       -v $(pwd):/workspace \
       -w /workspace \
-      -e ARM_CLIENT_ID="$CLIENT_ID" \
-      -e ARM_CLIENT_SECRET="$CLIENT_SECRET" \
-      -e ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID" \
-      -e ARM_TENANT_ID="$TENANT_ID" \
-      hashicorp/terraform:latest $COMMAND "${TERRAFORM_ARGS[@]}"
+      "${ENV_VARS[@]}" \
+      hashicorp/terraform:latest $COMMAND $COST_MANAGEMENT_ARGS ${TERRAFORM_ARGS:+${TERRAFORM_ARGS[@]}}
   fi
 else
   # For non-interactive commands like plan, validate, etc.
   docker run --rm \
     -v $(pwd):/workspace \
     -w /workspace \
-    -e ARM_CLIENT_ID="$CLIENT_ID" \
-    -e ARM_CLIENT_SECRET="$CLIENT_SECRET" \
-    -e ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID" \
-    -e ARM_TENANT_ID="$TENANT_ID" \
-    hashicorp/terraform:latest $COMMAND "${TERRAFORM_ARGS[@]-}"
+    "${ENV_VARS[@]}" \
+    hashicorp/terraform:latest $COMMAND $COST_MANAGEMENT_ARGS ${TERRAFORM_ARGS:+${TERRAFORM_ARGS[@]}}
 fi
 
 exit_code=$?
@@ -224,33 +296,23 @@ exit_code=$?
 rm -f terraform.auto.tfvars
 
 if [ $exit_code -eq 0 ]; then
-  echo "Terraform $COMMAND completed successfully."
-  
   # If this was a successful apply, display the outputs
   if [ "$COMMAND" = "apply" ]; then
-    echo "Terraform outputs:"
     docker run --rm \
       -v $(pwd):/workspace \
       -w /workspace \
-      -e ARM_CLIENT_ID="$CLIENT_ID" \
-      -e ARM_CLIENT_SECRET="$CLIENT_SECRET" \
-      -e ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID" \
-      -e ARM_TENANT_ID="$TENANT_ID" \
+      "${ENV_VARS[@]}" \
       hashicorp/terraform:latest output
       
-    echo ""
-    echo "Front Door endpoint:"
-    docker run --rm \
-      -v $(pwd):/workspace \
-      -w /workspace \
-      -e ARM_CLIENT_ID="$CLIENT_ID" \
-      -e ARM_CLIENT_SECRET="$CLIENT_SECRET" \
-      -e ARM_SUBSCRIPTION_ID="$SUBSCRIPTION_ID" \
-      -e ARM_TENANT_ID="$TENANT_ID" \
-      hashicorp/terraform:latest output -raw front_door_endpoint
+    # Display front door endpoint if available
+    if docker run --rm -v $(pwd):/workspace -w /workspace "${ENV_VARS[@]}" hashicorp/terraform:latest output -json 2>/dev/null | grep -q "front_door_endpoint"; then
+      docker run --rm \
+        -v $(pwd):/workspace \
+        -w /workspace \
+        "${ENV_VARS[@]}" \
+        hashicorp/terraform:latest output -raw front_door_endpoint
+    fi
   fi
-else
-  echo "Terraform $COMMAND failed with exit code $exit_code."
 fi
 
 exit $exit_code

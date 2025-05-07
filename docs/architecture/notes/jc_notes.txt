@@ -1,0 +1,56 @@
+  impl: iceburg tables, built complete SIT env including kubernetes based execute in Azure. Implemented helm charts, Implemented a robust CICD.● 
+  
+  Here's a simple one-liner to test each script and see the output immediately:
+
+  # Test the chart security scanner with simple output
+  ./scripts/chart_security_scan.sh --chart-dir ./infrastructure/helm/sentimark-services
+
+  # Test values override generator with dummy values
+  API_IMAGE_TAG=test ./scripts/create_values_override.sh --verbose
+
+  # Run a simplified verification (won't attempt to connect to cluster)
+  RESOURCE_GROUP=test CLUSTER_NAME=test ./environments/sit/verify_deployment_advanced.sh
+
+  
+  
+  1. Test the Helm Deployment Security Scanner:
+  ./scripts/chart_security_scan.sh --chart-dir ./infrastructure/helm/sentimark-services --verbose
+  1. This will scan your Helm chart for security issues and best practices, generating a report in the scan-results directory.
+  2. Test the Values Override Generator:
+  # Set some test environment variables
+  export API_IMAGE_REPOSITORY=myrepo/api
+  export API_IMAGE_TAG=v1.0
+  export ANALYZER_RESOURCES_MEMORY=2Gi
+  # Run the script
+  ./scripts/create_values_override.sh --verbose
+  2. This will generate a values.override.yaml file that you can inspect.
+  3. Test the Advanced Verification Script:
+  ./environments/sit/verify_deployment_advanced.sh
+  3. This will verify your current deployment (requires an existing deployment).
+  4. Test the CI/CD Workflow Locally (using act):
+  # Install act if you don't have it
+  curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+
+  # Run the workflow locally (unit tests only)
+  act -j unit-tests -s ACR_USERNAME=test -s ACR_PASSWORD=test
+  5. Manual testing of the entire pipeline:
+  # Create the .github directory if it doesn't exist
+  mkdir -p .github
+
+  # Create a new branch for testing
+  git checkout -b test-cicd
+
+  # Add the files
+  git add .github/workflows/sentiment-cicd.yml scripts/ environments/sit/verify_deployment_advanced.sh
+
+  # Commit and push
+  git commit -m "Add CI/CD enhancements for testing"
+  git push origin test-cicd
+
+  # Create a PR to trigger the workflow
+
+  For a simpler test without pushing to GitHub, you can also confirm all scripts execute without errors by running them with the --help flag:
+
+  ./scripts/chart_security_scan.sh --help
+  ./scripts/create_values_override.sh --help
+  ./environments/sit/verify_deployment_advanced.sh --help

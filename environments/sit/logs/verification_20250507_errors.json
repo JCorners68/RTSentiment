@@ -1,0 +1,41 @@
+{
+  "timestamp": "2025-05-07T00:20:45",
+  "deployment_errors": [
+    {
+      "resource": "azurerm_kubernetes_cluster.aks",
+      "error": "AvailabilityZoneNotSupported: The zone(s) '2' for resource 'default' is not supported. The supported zones for location 'westus' are ''",
+      "fix": "Remove availability zones or change the region"
+    },
+    {
+      "resource": "azurerm_frontdoor.frontdoor",
+      "error": "Creation of new Frontdoors are not allowed as the resource has been deprecated",
+      "fix": "Use the new Front Door Standard/Premium resource type instead"
+    },
+    {
+      "resource": "module.app_config.azurerm_app_configuration_key",
+      "error": "waiting for App Configuration Key read permission to be propagated: context canceled",
+      "fix": "Add explicit wait or sleep between app config creation and key creation"
+    },
+    {
+      "resource": "module.cost_management.azurerm_subscription_policy_assignment",
+      "error": "AuthorizationFailed: The client does not have authorization to perform action 'Microsoft.Authorization/policyAssignments/write'",
+      "fix": "Assign proper RBAC roles or disable policy assignments in this phase"
+    },
+    {
+      "resource": "module.app_config.azurerm_monitor_activity_log_alert",
+      "error": "LocationNotAvailableForResourceType: The provided location 'westus' is not available for resource type 'microsoft.insights/activityLogAlerts'",
+      "fix": "Use 'global' location for this resource type"
+    },
+    {
+      "resource": "module.iceberg.azurerm_storage_data_lake_gen2_filesystem",
+      "error": "This request is not authorized to perform this operation",
+      "fix": "Ensure service principal has proper permissions or assign Storage Blob Data Contributor role"
+    },
+    {
+      "resource": "module.iceberg.azurerm_container_group",
+      "error": "SubnetMissingRequiredDelegation: Subnet missing required delegation 'Microsoft.ContainerInstance'",
+      "fix": "Add Microsoft.ContainerInstance delegation to the subnet"
+    }
+  ],
+  "summary": "Multiple critical errors detected in Terraform deployment. The most serious issues are related to resource availability in westus region, deprecated resources, and authorization problems. Fixing these will require updating the Terraform configuration."
+}

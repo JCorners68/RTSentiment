@@ -1,0 +1,74 @@
+{
+  "timestamp": "2025-05-07T00:00:54.309374",
+  "region": "westus",
+  "environment": "SIT",
+  "checks": [
+    {
+      "name": "Cluster Info File",
+      "status": "passed",
+      "message": "File exists and contains correct region (westus)"
+    },
+    {
+      "name": "Kubernetes Config File",
+      "status": "passed",
+      "message": "File exists at /home/jonat/real_senti/environments/sit/config/kubeconfig"
+    },
+    {
+      "name": "Storage Connection File",
+      "status": "passed",
+      "message": "File exists at /home/jonat/real_senti/environments/sit/config/storage_connection.txt"
+    },
+    {
+      "name": "Resource Group",
+      "status": "passed",
+      "message": "Resource group exists and is in state: Succeeded"
+    },
+    {
+      "name": "Resource Group Location",
+      "status": "passed",
+      "message": "Resource group is in westus region"
+    },
+    {
+      "name": "AKS Cluster",
+      "status": "failed",
+      "message": "AKS cluster not found"
+    },
+    {
+      "name": "Storage Account",
+      "status": "failed",
+      "message": "Storage account not found"
+    },
+    {
+      "name": "Cluster Connection",
+      "status": "failed",
+      "message": "Failed to connect to Kubernetes cluster"
+    },
+    {
+      "name": "Service Endpoint",
+      "status": "warning",
+      "message": "Could not get Data Acquisition Service IP address"
+    },
+    {
+      "name": "Deployment Logs",
+      "status": "passed",
+      "message": "Found deployment log file: deployment_20250506_173253.json"
+    },
+    {
+      "name": "Deployment Status",
+      "status": "passed",
+      "message": "Deployment status is completed"
+    },
+    {
+      "name": "Deployment Region",
+      "status": "warning",
+      "message": "Deployment region is eastus instead of westus"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 3,
+    "warning": 2,
+    "skipped": 0
+  },
+  "verification_time": 3.961261034011841
+}

@@ -1,0 +1,8 @@
+{
+  "timestamp": "2025-05-06T17:32:53.642602",
+  "resource_group": "sentimark-sit-rg",
+  "location": "eastus",
+  "aks_cluster": "sentimark-sit-aks",
+  "storage_account": "sentimarksitstorage",
+  "status": "completed"
+}

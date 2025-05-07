@@ -1,0 +1,865 @@
+{
+  "version": 4,
+  "terraform_version": "1.11.4",
+  "serial": 76,
+  "lineage": "e306d26d-e17b-6634-18c2-f7062f49b893",
+  "outputs": {
+    "aks_cluster_name": {
+      "value": "rt-sentiment-aks",
+      "type": "string"
+    },
+    "front_door_endpoint": {
+      "value": "https://rt-sentiment-fd.azurefd.net",
+      "type": "string"
+    },
+    "resource_group_name": {
+      "value": "sentimark-sit-rg",
+      "type": "string"
+    },
+    "storage_account_name": {
+      "value": "sitsentimarkstorage",
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "mode": "data",
+      "type": "azurerm_resource_group",
+      "name": "cost_management",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/cost-management-resources",
+            "location": "westus",
+            "managed_by": "",
+            "name": "cost-management-resources",
+            "tags": {},
+            "timeouts": null
+          },
+          "sensitive_attributes": []
+        }
+      ]
+    },
+    {
+      "mode": "data",
+      "type": "azurerm_subscription",
+      "name": "current",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "display_name": "Azure subscription 1",
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd",
+            "location_placement_id": "Public_2014-09-01",
+            "quota_id": "PayAsYouGo_2014-09-01",
+            "spending_limit": "Off",
+            "state": "Enabled",
+            "subscription_id": "644936a7-e58a-4ccb-a882-0005f213f5bd",
+            "tags": {},
+            "tenant_id": "1ced8c49-a03c-439c-9ff1-0c23f5128720",
+            "timeouts": null
+          },
+          "sensitive_attributes": []
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurerm_key_vault",
+      "name": "data_tier",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 2,
+          "attributes": {
+            "access_policy": [],
+            "contact": [],
+            "enable_rbac_authorization": false,
+            "enabled_for_deployment": false,
+            "enabled_for_disk_encryption": false,
+            "enabled_for_template_deployment": false,
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.KeyVault/vaults/sentimark-dt-zcsdms",
+            "location": "westus",
+            "name": "sentimark-dt-zcsdms",
+            "network_acls": [
+              {
+                "bypass": "AzureServices",
+                "default_action": "Deny",
+                "ip_rules": null,
+                "virtual_network_subnet_ids": [
+                  "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Network/virtualNetworks/data-tier-vnet/subnets/data-tier-subnet"
+                ]
+              }
+            ],
+            "public_network_access_enabled": true,
+            "purge_protection_enabled": true,
+            "resource_group_name": "sentimark-sit-rg-data-tier",
+            "sku_name": "standard",
+            "soft_delete_retention_days": 7,
+            "tags": {
+              "Environment": "SIT",
+              "ManagedBy": "Terraform",
+              "Project": "Sentimark"
+            },
+            "tenant_id": "1ced8c49-a03c-439c-9ff1-0c23f5128720",
+            "timeouts": null,
+            "vault_uri": "https://sentimark-dt-zcsdms.vault.azure.net/"
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIyIn0=",
+          "dependencies": [
+            "azurerm_resource_group.data_tier",
+            "azurerm_subnet.data_tier",
+            "azurerm_virtual_network.data_tier",
+            "random_string.resource_suffix"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurerm_network_security_group",
+      "name": "data_tier",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Network/networkSecurityGroups/data-tier-nsg",
+            "location": "westus",
+            "name": "data-tier-nsg",
+            "resource_group_name": "sentimark-sit-rg-data-tier",
+            "security_rule": [
+              {
+                "access": "Allow",
+                "description": "",
+                "destination_address_prefix": "VirtualNetwork",
+                "destination_address_prefixes": [],
+                "destination_application_security_group_ids": [],
+                "destination_port_range": "*",
+                "destination_port_ranges": [],
+                "direction": "Inbound",
+                "name": "AllowVNetInBound",
+                "priority": 100,
+                "protocol": "*",
+                "source_address_prefix": "VirtualNetwork",
+                "source_address_prefixes": [],
+                "source_application_security_group_ids": [],
+                "source_port_range": "*",
+                "source_port_ranges": []
+              }
+            ],
+            "tags": {
+              "Environment": "SIT",
+              "ManagedBy": "Terraform",
+              "Project": "Sentimark"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurerm_resource_group.data_tier"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurerm_resource_group",
+      "name": "data_tier",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier",
+            "location": "westus",
+            "managed_by": "",
+            "name": "sentimark-sit-rg-data-tier",
+            "tags": {
+              "Environment": "SIT",
+              "ManagedBy": "Terraform",
+              "Project": "Sentimark",
+              "component": "data-tier",
+              "phase": "production"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo1NDAwMDAwMDAwMDAwLCJkZWxldGUiOjU0MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjo1NDAwMDAwMDAwMDAwfX0="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurerm_resource_group",
+      "name": "rg",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/rt-sentiment-uat",
+            "location": "westus",
+            "managed_by": "",
+            "name": "rt-sentiment-uat",
+            "tags": {},
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo1NDAwMDAwMDAwMDAwLCJkZWxldGUiOjU0MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjo1NDAwMDAwMDAwMDAwfX0="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurerm_subnet",
+      "name": "data_tier",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "address_prefixes": [
+              "10.1.0.0/24"
+            ],
+            "default_outbound_access_enabled": true,
+            "delegation": [],
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Network/virtualNetworks/data-tier-vnet/subnets/data-tier-subnet",
+            "name": "data-tier-subnet",
+            "private_endpoint_network_policies": "Disabled",
+            "private_link_service_network_policies_enabled": true,
+            "resource_group_name": "sentimark-sit-rg-data-tier",
+            "service_endpoint_policy_ids": null,
+            "service_endpoints": [
+              "Microsoft.KeyVault",
+              "Microsoft.Storage"
+            ],
+            "timeouts": null,
+            "virtual_network_name": "data-tier-vnet"
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurerm_resource_group.data_tier",
+            "azurerm_virtual_network.data_tier"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurerm_subnet_network_security_group_association",
+      "name": "data_tier",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Network/virtualNetworks/data-tier-vnet/subnets/data-tier-subnet",
+            "network_security_group_id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Network/networkSecurityGroups/data-tier-nsg",
+            "subnet_id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Network/virtualNetworks/data-tier-vnet/subnets/data-tier-subnet",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "azurerm_network_security_group.data_tier",
+            "azurerm_resource_group.data_tier",
+            "azurerm_subnet.data_tier",
+            "azurerm_virtual_network.data_tier"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "azurerm_virtual_network",
+      "name": "data_tier",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "address_space": [
+              "10.1.0.0/16"
+            ],
+            "bgp_community": "",
+            "ddos_protection_plan": [],
+            "dns_servers": [],
+            "edge_zone": "",
+            "encryption": [],
+            "flow_timeout_in_minutes": 0,
+            "guid": "415ed0a8-9482-4ab4-b8bf-48e61d5f5aa4",
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Network/virtualNetworks/data-tier-vnet",
+            "location": "westus",
+            "name": "data-tier-vnet",
+            "private_endpoint_vnet_policies": "Disabled",
+            "resource_group_name": "sentimark-sit-rg-data-tier",
+            "subnet": [],
+            "tags": {
+              "Environment": "SIT",
+              "ManagedBy": "Terraform",
+              "Project": "Sentimark"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurerm_resource_group.data_tier"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "random_string",
+      "name": "resource_suffix",
+      "provider": "provider[\"registry.terraform.io/hashicorp/random\"]",
+      "instances": [
+        {
+          "schema_version": 2,
+          "attributes": {
+            "id": "zcsdms",
+            "keepers": null,
+            "length": 6,
+            "lower": true,
+            "min_lower": 0,
+            "min_numeric": 0,
+            "min_special": 0,
+            "min_upper": 0,
+            "number": true,
+            "numeric": true,
+            "override_special": null,
+            "result": "zcsdms",
+            "special": false,
+            "upper": false
+          },
+          "sensitive_attributes": []
+        }
+      ]
+    },
+    {
+      "module": "module.iceberg",
+      "mode": "managed",
+      "type": "azurerm_storage_account",
+      "name": "iceberg_storage",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "status": "tainted",
+          "schema_version": 4,
+          "attributes": {
+            "access_tier": null,
+            "account_kind": "StorageV2",
+            "account_replication_type": "LRS",
+            "account_tier": "Standard",
+            "allow_nested_items_to_be_public": true,
+            "allowed_copy_scope": null,
+            "azure_files_authentication": [],
+            "blob_properties": [
+              {
+                "change_feed_enabled": false,
+                "change_feed_retention_in_days": 0,
+                "container_delete_retention_policy": [],
+                "cors_rule": [],
+                "default_service_version": "",
+                "delete_retention_policy": [
+                  {
+                    "days": 7,
+                    "permanent_delete_enabled": false
+                  }
+                ],
+                "last_access_time_enabled": false,
+                "restore_policy": [],
+                "versioning_enabled": true
+              }
+            ],
+            "cross_tenant_replication_enabled": false,
+            "custom_domain": [],
+            "customer_managed_key": [],
+            "default_to_oauth_authentication": false,
+            "dns_endpoint_type": "Standard",
+            "edge_zone": null,
+            "https_traffic_only_enabled": true,
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Storage/storageAccounts/sentimarkicezcsdms",
+            "identity": [],
+            "immutability_policy": [],
+            "infrastructure_encryption_enabled": false,
+            "is_hns_enabled": true,
+            "large_file_share_enabled": null,
+            "local_user_enabled": true,
+            "location": "westus",
+            "min_tls_version": "TLS1_2",
+            "name": "sentimarkicezcsdms",
+            "network_rules": [
+              {
+                "bypass": [
+                  "AzureServices",
+                  "Logging",
+                  "Metrics"
+                ],
+                "default_action": "Deny",
+                "ip_rules": [],
+                "private_link_access": [],
+                "virtual_network_subnet_ids": [
+                  "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Network/virtualNetworks/data-tier-vnet/subnets/data-tier-subnet"
+                ]
+              }
+            ],
+            "nfsv3_enabled": false,
+            "primary_access_key": null,
+            "primary_blob_connection_string": null,
+            "primary_blob_endpoint": null,
+            "primary_blob_host": null,
+            "primary_blob_internet_endpoint": null,
+            "primary_blob_internet_host": null,
+            "primary_blob_microsoft_endpoint": null,
+            "primary_blob_microsoft_host": null,
+            "primary_connection_string": null,
+            "primary_dfs_endpoint": null,
+            "primary_dfs_host": null,
+            "primary_dfs_internet_endpoint": null,
+            "primary_dfs_internet_host": null,
+            "primary_dfs_microsoft_endpoint": null,
+            "primary_dfs_microsoft_host": null,
+            "primary_file_endpoint": null,
+            "primary_file_host": null,
+            "primary_file_internet_endpoint": null,
+            "primary_file_internet_host": null,
+            "primary_file_microsoft_endpoint": null,
+            "primary_file_microsoft_host": null,
+            "primary_location": null,
+            "primary_queue_endpoint": null,
+            "primary_queue_host": null,
+            "primary_queue_microsoft_endpoint": null,
+            "primary_queue_microsoft_host": null,
+            "primary_table_endpoint": null,
+            "primary_table_host": null,
+            "primary_table_microsoft_endpoint": null,
+            "primary_table_microsoft_host": null,
+            "primary_web_endpoint": null,
+            "primary_web_host": null,
+            "primary_web_internet_endpoint": null,
+            "primary_web_internet_host": null,
+            "primary_web_microsoft_endpoint": null,
+            "primary_web_microsoft_host": null,
+            "public_network_access_enabled": true,
+            "queue_encryption_key_type": "Service",
+            "queue_properties": null,
+            "resource_group_name": "sentimark-sit-rg-data-tier",
+            "routing": null,
+            "sas_policy": [],
+            "secondary_access_key": null,
+            "secondary_blob_connection_string": null,
+            "secondary_blob_endpoint": null,
+            "secondary_blob_host": null,
+            "secondary_blob_internet_endpoint": null,
+            "secondary_blob_internet_host": null,
+            "secondary_blob_microsoft_endpoint": null,
+            "secondary_blob_microsoft_host": null,
+            "secondary_connection_string": null,
+            "secondary_dfs_endpoint": null,
+            "secondary_dfs_host": null,
+            "secondary_dfs_internet_endpoint": null,
+            "secondary_dfs_internet_host": null,
+            "secondary_dfs_microsoft_endpoint": null,
+            "secondary_dfs_microsoft_host": null,
+            "secondary_file_endpoint": null,
+            "secondary_file_host": null,
+            "secondary_file_internet_endpoint": null,
+            "secondary_file_internet_host": null,
+            "secondary_file_microsoft_endpoint": null,
+            "secondary_file_microsoft_host": null,
+            "secondary_location": null,
+            "secondary_queue_endpoint": null,
+            "secondary_queue_host": null,
+            "secondary_queue_microsoft_endpoint": null,
+            "secondary_queue_microsoft_host": null,
+            "secondary_table_endpoint": null,
+            "secondary_table_host": null,
+            "secondary_table_microsoft_endpoint": null,
+            "secondary_table_microsoft_host": null,
+            "secondary_web_endpoint": null,
+            "secondary_web_host": null,
+            "secondary_web_internet_endpoint": null,
+            "secondary_web_internet_host": null,
+            "secondary_web_microsoft_endpoint": null,
+            "secondary_web_microsoft_host": null,
+            "sftp_enabled": false,
+            "share_properties": null,
+            "shared_access_key_enabled": true,
+            "static_website": null,
+            "table_encryption_key_type": "Service",
+            "tags": {
+              "Environment": "SIT",
+              "ManagedBy": "Terraform",
+              "Project": "Sentimark",
+              "component": "iceberg",
+              "data_tier": "true",
+              "service": "iceberg"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "primary_blob_connection_string"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "primary_connection_string"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "primary_access_key"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "secondary_blob_connection_string"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "secondary_access_key"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "secondary_connection_string"
+              }
+            ]
+          ],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozNjAwMDAwMDAwMDAwLCJkZWxldGUiOjM2MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjozNjAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiI0In0=",
+          "dependencies": [
+            "azurerm_resource_group.data_tier",
+            "azurerm_subnet.data_tier",
+            "azurerm_virtual_network.data_tier",
+            "random_string.resource_suffix"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.iceberg",
+      "mode": "managed",
+      "type": "azurerm_user_assigned_identity",
+      "name": "iceberg_identity",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "client_id": "b143b251-dbdb-40cb-bbb8-26b35f925c29",
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.ManagedIdentity/userAssignedIdentities/sentimark-iceberg-identity",
+            "location": "westus",
+            "name": "sentimark-iceberg-identity",
+            "principal_id": "ac57cf49-d884-4193-9d63-e6c4600cacf4",
+            "resource_group_name": "sentimark-sit-rg-data-tier",
+            "tags": {
+              "Environment": "SIT",
+              "ManagedBy": "Terraform",
+              "Project": "Sentimark",
+              "component": "iceberg"
+            },
+            "tenant_id": "1ced8c49-a03c-439c-9ff1-0c23f5128720",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
+          "dependencies": [
+            "azurerm_resource_group.data_tier"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.monitoring",
+      "mode": "managed",
+      "type": "azurerm_application_insights",
+      "name": "data_tier",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 2,
+          "attributes": {
+            "app_id": "6df68975-e7d6-4172-83bf-462cb2de6892",
+            "application_type": "web",
+            "connection_string": "InstrumentationKey=abf66e89-0aee-4b23-9148-b22f4982474e;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://westus.livediagnostics.monitor.azure.com/;ApplicationId=6df68975-e7d6-4172-83bf-462cb2de6892",
+            "daily_data_cap_in_gb": 100,
+            "daily_data_cap_notifications_disabled": false,
+            "disable_ip_masking": false,
+            "force_customer_storage_for_profiler": false,
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Insights/components/sentimark-data-tier-insights",
+            "instrumentation_key": "abf66e89-0aee-4b23-9148-b22f4982474e",
+            "internet_ingestion_enabled": true,
+            "internet_query_enabled": true,
+            "local_authentication_disabled": false,
+            "location": "westus",
+            "name": "sentimark-data-tier-insights",
+            "resource_group_name": "sentimark-sit-rg-data-tier",
+            "retention_in_days": 90,
+            "sampling_percentage": 100,
+            "tags": {
+              "Environment": "SIT",
+              "ManagedBy": "Terraform",
+              "Project": "Sentimark",
+              "component": "monitoring"
+            },
+            "timeouts": null,
+            "workspace_id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.OperationalInsights/workspaces/sentimark-iceberg-logs-zcsdms"
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "instrumentation_key"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "connection_string"
+              }
+            ]
+          ],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozNjAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIyIn0=",
+          "dependencies": [
+            "azurerm_resource_group.data_tier",
+            "module.monitoring.azurerm_log_analytics_workspace.iceberg_monitoring",
+            "random_string.resource_suffix"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.monitoring",
+      "mode": "managed",
+      "type": "azurerm_log_analytics_workspace",
+      "name": "iceberg_monitoring",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 3,
+          "attributes": {
+            "allow_resource_only_permissions": true,
+            "cmk_for_query_forced": false,
+            "daily_quota_gb": -1,
+            "data_collection_rule_id": "",
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.OperationalInsights/workspaces/sentimark-iceberg-logs-zcsdms",
+            "identity": [],
+            "immediate_data_purge_on_30_days_enabled": false,
+            "internet_ingestion_enabled": true,
+            "internet_query_enabled": true,
+            "local_authentication_disabled": false,
+            "location": "westus",
+            "name": "sentimark-iceberg-logs-zcsdms",
+            "primary_shared_key": "XgsctVhy9xUx0UMYr4BlKF5/i7Sig/KI5426dGKZKZaQpgRy71E098QsRYWqQ3M+2wd6lK2qnwmmwV38CQl8+A==",
+            "reservation_capacity_in_gb_per_day": null,
+            "resource_group_name": "sentimark-sit-rg-data-tier",
+            "retention_in_days": 30,
+            "secondary_shared_key": "YrYgfxqCe8y4YsU6QI9OahSADKzj7RTQ8Gzyw8GmTCHDy5LEltpqzzN3Z9XkCcLzuuwLDmE7BizMHgFhqzuZyA==",
+            "sku": "PerGB2018",
+            "tags": {
+              "Environment": "SIT",
+              "ManagedBy": "Terraform",
+              "Project": "Sentimark",
+              "component": "monitoring"
+            },
+            "timeouts": null,
+            "workspace_id": "bf5c6d90-9149-412a-8ac2-518ba06da632"
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "secondary_shared_key"
+              }
+            ],
+            [
+              {
+                "type": "get_attr",
+                "value": "primary_shared_key"
+              }
+            ]
+          ],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIzIn0=",
+          "dependencies": [
+            "azurerm_resource_group.data_tier",
+            "random_string.resource_suffix"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.monitoring",
+      "mode": "managed",
+      "type": "azurerm_monitor_action_group",
+      "name": "iceberg_alerts",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arm_role_receiver": [],
+            "automation_runbook_receiver": [],
+            "azure_app_push_receiver": [],
+            "azure_function_receiver": [],
+            "email_receiver": [
+              {
+                "email_address": "jonathan.corners@gmail.com",
+                "name": "admin",
+                "use_common_alert_schema": true
+              }
+            ],
+            "enabled": true,
+            "event_hub_receiver": [],
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Insights/actionGroups/sentimark-iceberg-alerts",
+            "itsm_receiver": [],
+            "location": "global",
+            "logic_app_receiver": [],
+            "name": "sentimark-iceberg-alerts",
+            "resource_group_name": "sentimark-sit-rg-data-tier",
+            "short_name": "iceAlerts",
+            "sms_receiver": [],
+            "tags": {
+              "Environment": "SIT",
+              "ManagedBy": "Terraform",
+              "Project": "Sentimark",
+              "component": "monitoring"
+            },
+            "timeouts": null,
+            "voice_receiver": [],
+            "webhook_receiver": []
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
+          "dependencies": [
+            "azurerm_resource_group.data_tier"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.monitoring",
+      "mode": "managed",
+      "type": "azurerm_monitor_scheduled_query_rules_alert",
+      "name": "error_rate",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "action": [
+              {
+                "action_group": [
+                  "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Insights/actionGroups/sentimark-iceberg-alerts"
+                ],
+                "custom_webhook_payload": "{}",
+                "email_subject": "Iceberg Error Rate Alert"
+              }
+            ],
+            "authorized_resource_ids": null,
+            "auto_mitigation_enabled": false,
+            "data_source_id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Insights/components/sentimark-data-tier-insights",
+            "description": "Alert when Iceberg error rate exceeds threshold",
+            "enabled": true,
+            "frequency": 15,
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Insights/scheduledQueryRules/sentimark-iceberg-error-rate-alert",
+            "location": "westus",
+            "name": "sentimark-iceberg-error-rate-alert",
+            "query": "traces\n| where customDimensions.dbBackend == 'iceberg'\n| where severityLevel \u003e= 3\n| summarize errorCount=count() by bin(timestamp, 15m)\n| where errorCount \u003e 10\n",
+            "query_type": "ResultCount",
+            "resource_group_name": "sentimark-sit-rg-data-tier",
+            "severity": 1,
+            "tags": {
+              "Environment": "SIT",
+              "ManagedBy": "Terraform",
+              "Project": "Sentimark",
+              "component": "monitoring"
+            },
+            "throttling": 0,
+            "time_window": 30,
+            "timeouts": null,
+            "trigger": [
+              {
+                "metric_trigger": [],
+                "operator": "GreaterThan",
+                "threshold": 0
+              }
+            ]
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
+          "dependencies": [
+            "azurerm_resource_group.data_tier",
+            "module.monitoring.azurerm_application_insights.data_tier",
+            "module.monitoring.azurerm_log_analytics_workspace.iceberg_monitoring",
+            "module.monitoring.azurerm_monitor_action_group.iceberg_alerts",
+            "random_string.resource_suffix"
+          ]
+        }
+      ]
+    },
+    {
+      "module": "module.monitoring",
+      "mode": "managed",
+      "type": "azurerm_portal_dashboard",
+      "name": "iceberg_dashboard",
+      "provider": "provider[\"registry.terraform.io/hashicorp/azurerm\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "dashboard_properties": "{\"lenses\":{\"0\":{\"order\":0,\"parts\":{\"0\":{\"metadata\":{\"inputs\":[{\"isOptional\":true,\"name\":\"resourceTypeMode\",\"value\":\"workspace\"},{\"isOptional\":true,\"name\":\"ComponentId\",\"value\":\"/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.OperationalInsights/workspaces/sentimark-iceberg-logs-zcsdms\"},{\"isOptional\":true,\"name\":\"Scope\",\"value\":{\"resourceIds\":[\"/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.OperationalInsights/workspaces/sentimark-iceberg-logs-zcsdms\"]}},{\"isOptional\":true,\"name\":\"PartId\",\"value\":\"Iceberg Query Performance\"},{\"isOptional\":true,\"name\":\"Version\",\"value\":\"2.0\"},{\"isOptional\":true,\"name\":\"TimeRange\",\"value\":\"P1D\"},{\"isOptional\":true,\"name\":\"Query\",\"value\":\"traces | where customDimensions.operationType == 'IcebergQuery' | summarize avgDuration=avg(duration), maxDuration=max(duration), count=count() by bin(timestamp, 15m), customDimensions.queryType | render timechart\"},{\"isOptional\":true,\"name\":\"PartTitle\",\"value\":\"Iceberg Query Performance\"},{\"isOptional\":true,\"name\":\"PartSubTitle\",\"value\":\"sentimark-iceberg-logs-zcsdms\"},{\"isOptional\":true,\"name\":\"PartId\",\"value\":\"Iceberg Query Performance\"},{\"isOptional\":true,\"name\":\"aiRepeatDirective\",\"value\":\"data\"}],\"type\":\"Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart\"},\"position\":{\"colSpan\":6,\"rowSpan\":4,\"x\":0,\"y\":0}},\"1\":{\"metadata\":{\"inputs\":[{\"isOptional\":true,\"name\":\"resourceTypeMode\",\"value\":\"workspace\"},{\"isOptional\":true,\"name\":\"ComponentId\",\"value\":\"/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.OperationalInsights/workspaces/sentimark-iceberg-logs-zcsdms\"},{\"isOptional\":true,\"name\":\"Scope\",\"value\":{\"resourceIds\":[\"/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.OperationalInsights/workspaces/sentimark-iceberg-logs-zcsdms\"]}},{\"isOptional\":true,\"name\":\"PartId\",\"value\":\"Storage Operations\"},{\"isOptional\":true,\"name\":\"Version\",\"value\":\"2.0\"},{\"isOptional\":true,\"name\":\"TimeRange\",\"value\":\"P1D\"},{\"isOptional\":true,\"name\":\"Query\",\"value\":\"traces | where customDimensions.operationType == 'StorageOperation' | summarize count=count() by bin(timestamp, 15m), customDimensions.operationName | render timechart\"},{\"isOptional\":true,\"name\":\"PartTitle\",\"value\":\"Storage Operations\"},{\"isOptional\":true,\"name\":\"PartSubTitle\",\"value\":\"sentimark-iceberg-logs-zcsdms\"},{\"isOptional\":true,\"name\":\"PartId\",\"value\":\"Storage Operations\"},{\"isOptional\":true,\"name\":\"aiRepeatDirective\",\"value\":\"data\"}],\"type\":\"Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart\"},\"position\":{\"colSpan\":6,\"rowSpan\":4,\"x\":6,\"y\":0}},\"2\":{\"metadata\":{\"inputs\":[{\"isOptional\":true,\"name\":\"resourceTypeMode\",\"value\":\"workspace\"},{\"isOptional\":true,\"name\":\"ComponentId\",\"value\":\"/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.OperationalInsights/workspaces/sentimark-iceberg-logs-zcsdms\"},{\"isOptional\":true,\"name\":\"Scope\",\"value\":{\"resourceIds\":[\"/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.OperationalInsights/workspaces/sentimark-iceberg-logs-zcsdms\"]}},{\"isOptional\":true,\"name\":\"PartId\",\"value\":\"Database Backend Usage\"},{\"isOptional\":true,\"name\":\"Version\",\"value\":\"2.0\"},{\"isOptional\":true,\"name\":\"TimeRange\",\"value\":\"P1D\"},{\"isOptional\":true,\"name\":\"Query\",\"value\":\"traces | where customDimensions.componentType == 'Repository' | summarize count=count() by bin(timestamp, 15m), customDimensions.dbBackend | render piechart\"},{\"isOptional\":true,\"name\":\"PartTitle\",\"value\":\"Database Backend Usage\"},{\"isOptional\":true,\"name\":\"PartSubTitle\",\"value\":\"sentimark-iceberg-logs-zcsdms\"},{\"isOptional\":true,\"name\":\"PartId\",\"value\":\"Database Backend Usage\"},{\"isOptional\":true,\"name\":\"aiRepeatDirective\",\"value\":\"data\"}],\"type\":\"Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart\"},\"position\":{\"colSpan\":6,\"rowSpan\":4,\"x\":0,\"y\":4}},\"3\":{\"metadata\":{\"inputs\":[{\"isOptional\":true,\"name\":\"resourceTypeMode\",\"value\":\"workspace\"},{\"isOptional\":true,\"name\":\"ComponentId\",\"value\":\"/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.OperationalInsights/workspaces/sentimark-iceberg-logs-zcsdms\"},{\"isOptional\":true,\"name\":\"Scope\",\"value\":{\"resourceIds\":[\"/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.OperationalInsights/workspaces/sentimark-iceberg-logs-zcsdms\"]}},{\"isOptional\":true,\"name\":\"PartId\",\"value\":\"Database Errors\"},{\"isOptional\":true,\"name\":\"Version\",\"value\":\"2.0\"},{\"isOptional\":true,\"name\":\"TimeRange\",\"value\":\"P1D\"},{\"isOptional\":true,\"name\":\"Query\",\"value\":\"traces | where severityLevel == 3 or severityLevel == 4 | where customDimensions.componentType == 'Repository' | summarize count=count() by bin(timestamp, 15m), customDimensions.dbBackend, customDimensions.errorType | render barchart\"},{\"isOptional\":true,\"name\":\"PartTitle\",\"value\":\"Database Errors\"},{\"isOptional\":true,\"name\":\"PartSubTitle\",\"value\":\"sentimark-iceberg-logs-zcsdms\"},{\"isOptional\":true,\"name\":\"PartId\",\"value\":\"Database Errors\"},{\"isOptional\":true,\"name\":\"aiRepeatDirective\",\"value\":\"data\"}],\"type\":\"Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart\"},\"position\":{\"colSpan\":6,\"rowSpan\":4,\"x\":6,\"y\":4}}}}},\"metadata\":{\"model\":{\"timeRange\":{\"type\":\"MsPortalFx.Composition.Configuration.ValueTypes.TimeRange\",\"value\":{\"relative\":{\"duration\":24,\"timeUnit\":1}}}}}}",
+            "id": "/subscriptions/644936a7-e58a-4ccb-a882-0005f213f5bd/resourceGroups/sentimark-sit-rg-data-tier/providers/Microsoft.Portal/dashboards/sentimark-iceberg-dashboard",
+            "location": "westus",
+            "name": "sentimark-iceberg-dashboard",
+            "resource_group_name": "sentimark-sit-rg-data-tier",
+            "tags": {
+              "Environment": "SIT",
+              "ManagedBy": "Terraform",
+              "Project": "Sentimark",
+              "component": "monitoring"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInJlYWQiOjMwMDAwMDAwMDAwMCwidXBkYXRlIjoxODAwMDAwMDAwMDAwfX0=",
+          "dependencies": [
+            "azurerm_resource_group.data_tier",
+            "module.monitoring.azurerm_log_analytics_workspace.iceberg_monitoring",
+            "random_string.resource_suffix"
+          ]
+        }
+      ]
+    }
+  ],
+  "check_results": [
+    {
+      "object_kind": "var",
+      "config_addr": "module.app_config.var.iceberg_roll_percentage",
+      "status": "unknown",
+      "objects": [
+        {
+          "object_addr": "module.app_config.var.iceberg_roll_percentage",
+          "status": "unknown"
+        }
+      ]
+    }
+  ]
+}
