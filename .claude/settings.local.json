@@ -54,7 +54,9 @@
       "Bash(az aks command invoke:*)",
       "Bash(helm lint:*)",
       "Bash(helm dependency:*)",
-      "Bash(helm package:*)"
+      "Bash(helm package:*)",
+      "Bash(git reset:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }

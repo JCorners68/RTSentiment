@@ -48,3 +48,7 @@ Thumbs.db
 
 # Claude
 **/.claude/settings.local.json
+
+# Project specific
+/to_delete/
+values.override.yaml

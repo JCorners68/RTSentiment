@@ -123,13 +123,28 @@ fi
 log "${YELLOW}Current status:${NC}"
 git status --short
 
+# Make sure .gitignore includes to_delete directory
+if ! grep -q "^/to_delete/" .gitignore; then
+    log "${YELLOW}Adding /to_delete/ to .gitignore...${NC}"
+    echo -e "\n# Project specific\n/to_delete/" >> .gitignore
+    echo "values.override.yaml" >> .gitignore
+    log "${GREEN}Updated .gitignore to exclude /to_delete/ and values.override.yaml${NC}"
+fi
+
 # Handle file selection or stage all changes
 if [ "$SELECT_FILES" = true ]; then
     log "${YELLOW}Entering interactive mode to select files...${NC}"
     git add -i
 else
-    log "${YELLOW}Staging all changes...${NC}"
+    log "${YELLOW}Staging all changes (excluding to_delete directory)...${NC}"
+    
+    # Add all files except those in to_delete directory and values.override.yaml
     git add .
+    
+    # Remove any to_delete files that may have been staged
+    git reset HEAD -- to_delete/ 2>/dev/null || true
+    git reset HEAD -- values.override.yaml 2>/dev/null || true
+    log "${YELLOW}Excluded to_delete directory and values.override.yaml from staging${NC}"
 fi
 
 # Count staged files
@@ -144,6 +159,18 @@ log "${GREEN}$STAGED_COUNT files staged for commit${NC}"
 log "${YELLOW}Files to be committed:${NC}"
 git diff --cached --name-only | sed 's/^/  /'
 
+# Show files that will be ignored
+if [ -d "to_delete" ]; then
+    TO_DELETE_FILES=$(find to_delete -type f 2>/dev/null | wc -l)
+    if [ "$TO_DELETE_FILES" -gt 0 ]; then
+        log "${YELLOW}Ignoring $TO_DELETE_FILES files in to_delete directory${NC}"
+    fi
+fi
+
+# Review staged changes
+log "${YELLOW}Reviewing staged changes...${NC}"
+git diff --cached --stat
+
 # Get commit message if not provided
 if [ -z "$COMMIT_MESSAGE" ]; then
     echo ""
@@ -154,6 +181,16 @@ if [ -z "$COMMIT_MESSAGE" ]; then
     if [ -z "$COMMIT_MESSAGE" ]; then
         handle_error "Commit message cannot be empty."
     fi
+fi
+
+# Confirm before committing
+echo ""
+read -p "Do you want to continue with the commit and push? (y/n): " CONFIRM
+if [[ ! $CONFIRM =~ ^[Yy]$ ]]; then
+    log "${YELLOW}Operation cancelled by user.${NC}"
+    git reset HEAD
+    log "${GREEN}All changes have been unstaged.${NC}"
+    exit 0
 fi
 
 # Handle large commits
