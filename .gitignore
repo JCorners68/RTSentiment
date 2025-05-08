@@ -62,3 +62,26 @@ services/data-acquisition/data/models/
 *.onnx
 *.model
 *.safetensors
+
+# Python virtual environments
+environments/sit/azure_venv/
+**/azure_venv/
+venv/
+*.venv
+
+# Downloaded models / Large data files
+services/data-acquisition/data/models/
+infrastructure/terraform/azure/bin/terraform.zip
+
+# Optional: Consider ignoring generated data files if they can be recreated
+# data/sentiment_results/sentiment_analysis.csv
+# data/sentiment_results/sentiment_analysis.json
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS-specific files
+.DS_Store
+Thumbs.db
