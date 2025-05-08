@@ -52,3 +52,13 @@ Thumbs.db
 # Project specific
 /to_delete/
 values.override.yaml
+data/models/
+services/data-acquisition/data/models/
+# Large model files
+*.bin
+*.pt
+*.pth
+*.h5
+*.onnx
+*.model
+*.safetensors
