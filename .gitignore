@@ -91,3 +91,6 @@ Thumbs.db
 
 infrastructure/terraform/azure/providers.tf
 infrastructure/terraform/azure/backends/sit.tfbackend
+
+infrastructure/terraform/azure/backends/uat.tfbackend
+infrastructure/terraform/azure/terraform.sit.tfvars
