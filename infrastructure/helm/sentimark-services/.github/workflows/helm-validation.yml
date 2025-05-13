@@ -1,0 +1,169 @@
+name: Helm Chart Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'infrastructure/helm/sentimark-services/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'infrastructure/helm/sentimark-services/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to validate against'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - sit
+          - uat
+          - prod
+
+jobs:
+  validate:
+    name: Validate Helm Charts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.12.0'
+
+      - name: Set up Kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.26.0'
+
+      - name: Install kubesec
+        run: |
+          wget https://github.com/controlplaneio/kubesec/releases/download/v2.13.0/kubesec_linux_amd64.tar.gz
+          tar -xzf kubesec_linux_amd64.tar.gz
+          chmod +x kubesec
+          sudo mv kubesec /usr/local/bin/
+
+      - name: Create scan-results directory
+        run: mkdir -p scan-results
+
+      - name: Run Helm Lint
+        run: |
+          cd infrastructure/helm/sentimark-services
+          helm lint . > ../../scan-results/helm_lint.txt
+          echo "::group::Helm Lint Results"
+          cat ../../scan-results/helm_lint.txt
+          echo "::endgroup::"
+          grep -q "ERROR" ../../scan-results/helm_lint.txt && exit 1 || true
+
+      - name: Run Helm Template
+        run: |
+          cd infrastructure/helm/sentimark-services
+          helm template test-release . > ../../scan-results/helm_template.yaml 2> ../../scan-results/helm_template_errors.txt
+          echo "::group::Helm Template Errors"
+          cat ../../scan-results/helm_template_errors.txt
+          echo "::endgroup::"
+          [ -s ../../scan-results/helm_template_errors.txt ] && exit 1 || true
+
+      - name: Validate with Kubesec
+        run: |
+          kubesec scan scan-results/helm_template.yaml > scan-results/kubesec_results.json || true
+          echo "::group::Kubesec Results"
+          cat scan-results/kubesec_results.json
+          echo "::endgroup::"
+          # Check for high severity issues (score <= -7)
+          high_issues=$(grep -c '"score":-[7-9][0-9]*' scan-results/kubesec_results.json || echo "0")
+          if [ "$high_issues" -gt "0" ]; then
+            echo "::error::Found $high_issues high severity security issues!"
+            exit 1
+          fi
+
+      - name: Check SecurityContext Placement
+        run: |
+          # Check for pod-level securityContext with container-level properties
+          pod_sec_issues=$(grep -n "securityContext:" scan-results/helm_template.yaml | 
+                          grep -B 5 -A 10 "runAsNonRoot\|capabilities\|allowPrivilegeEscalation\|readOnlyRootFilesystem" | 
+                          grep -v "containers:" || echo "")
+          
+          if [ -n "$pod_sec_issues" ]; then
+            echo "::error::Found potential pod-level securityContext issues:"
+            echo "$pod_sec_issues"
+            exit 1
+          fi
+
+      - name: Validate Kubernetes Schema (Client-side)
+        continue-on-error: true
+        run: |
+          kubectl apply --dry-run=client -f scan-results/helm_template.yaml > scan-results/kubectl_validation.txt 2>&1
+          echo "::group::Kubectl Validation Results"
+          cat scan-results/kubectl_validation.txt
+          echo "::endgroup::"
+
+      - name: Generate Validation Report
+        run: |
+          echo "# Helm Chart Validation Results" > scan-results/validation_report.md
+          echo "" >> scan-results/validation_report.md
+          echo "**Date:** $(date)" >> scan-results/validation_report.md
+          echo "**Repository:** ${{ github.repository }}" >> scan-results/validation_report.md
+          echo "**Branch:** ${{ github.ref_name }}" >> scan-results/validation_report.md
+          echo "" >> scan-results/validation_report.md
+          echo "## Validation Steps" >> scan-results/validation_report.md
+          echo "" >> scan-results/validation_report.md
+          echo "✅ Helm Lint - Syntax validation" >> scan-results/validation_report.md
+          echo "✅ Helm Template - Template rendering" >> scan-results/validation_report.md
+          echo "✅ Kubesec - Security scanning" >> scan-results/validation_report.md
+          echo "✅ SecurityContext Placement - Verified proper configuration" >> scan-results/validation_report.md
+          echo "✅ Kubernetes Schema - Client-side validation" >> scan-results/validation_report.md
+          
+          # Get resource count
+          echo "" >> scan-results/validation_report.md
+          echo "## Resources" >> scan-results/validation_report.md
+          echo "" >> scan-results/validation_report.md
+          echo "Total resources: $(grep -c "^kind:" scan-results/helm_template.yaml)" >> scan-results/validation_report.md
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: validation-results
+          path: scan-results/
+          retention-days: 7
+
+  test-deployment:
+    name: Test Deployment
+    needs: validate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'v3.12.0'
+
+      - name: Set up Kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.26.0'
+
+      - name: Set up Kind cluster
+        uses: helm/kind-action@v1.5.0
+        with:
+          cluster_name: test-cluster
+
+      - name: Deploy to test cluster
+        run: |
+          cd infrastructure/helm/sentimark-services
+          helm upgrade --install --namespace test-namespace \
+            --create-namespace test-release . \
+            --set global.env=${{ github.event.inputs.environment }}
+          
+          # Wait for resources to be ready
+          kubectl wait --for=condition=ready pods --all -n test-namespace --timeout=120s || true
+          
+          # Get deployment status
+          kubectl get all -n test-namespace

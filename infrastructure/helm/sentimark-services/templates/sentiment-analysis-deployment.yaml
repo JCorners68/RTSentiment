@@ -27,8 +27,9 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      # Pod-level security context (fsGroup required for volume access)
       securityContext:
-        {{- toYaml .Values.sentimentAnalysis.securityContext | nindent 8 }}
+        fsGroup: {{ .Values.sentimentAnalysis.securityContext.fsGroup }}
       {{- if and .Values.global.spotInstances.enabled .Values.sentimentAnalysis.spotInstance.enabled }}
       # Node selector for spot instances
       nodeSelector:
@@ -63,6 +64,18 @@ spec:
       - name: {{ .Values.sentimentAnalysis.name }}
         image: "{{ .Values.sentimentAnalysis.image.repository }}:{{ .Values.sentimentAnalysis.image.tag | default "latest" }}"
         imagePullPolicy: {{ .Values.sentimentAnalysis.image.pullPolicy }}
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: {{ .Values.sentimentAnalysis.securityContext.runAsNonRoot }}
+          runAsUser: {{ .Values.sentimentAnalysis.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.sentimentAnalysis.securityContext.runAsGroup }}
+          allowPrivilegeEscalation: {{ .Values.sentimentAnalysis.securityContext.allowPrivilegeEscalation }}
+          capabilities:
+            drop:
+            {{- range .Values.sentimentAnalysis.securityContext.capabilities.drop }}
+            - {{ . }}
+            {{- end }}
+          readOnlyRootFilesystem: {{ .Values.sentimentAnalysis.securityContext.readOnlyRootFilesystem }}
         ports:
         - containerPort: {{ .Values.sentimentAnalysis.service.targetPort }}
           protocol: TCP

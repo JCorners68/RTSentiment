@@ -1,0 +1,304 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Sentimark Newsletter Subscription System - Secure Low-Cost Architecture'
+
+Parameters:
+  AdminEmail:
+    Type: String
+    Default: admin@sentimark.ai
+    Description: Email address to notify about new subscribers
+  
+  SenderEmail:
+    Type: String
+    Default: newsletter@sentimark.ai
+    Description: Email address to send confirmation emails from (must be verified in SES)
+  
+  RecaptchaSecret:
+    Type: String
+    NoEcho: true
+    Description: Google reCAPTCHA secret key
+  
+  IpSalt:
+    Type: String
+    NoEcho: true
+    Default: sentimark-ip-hash-salt
+    Description: Salt used for IP address hashing
+  
+  Stage:
+    Type: String
+    Default: prod
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+    Description: Deployment stage (environment)
+
+Resources:
+  # DynamoDB Table for Subscriber Storage
+  SubscribersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub sentimark-subscribers-${Stage}
+      BillingMode: PAY_PER_REQUEST  # On-demand capacity for cost optimization
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: EmailIndex
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Project
+          Value: Sentimark
+        - Key: Environment
+          Value: !Ref Stage
+
+  # Lambda Function for Newsletter Subscription
+  NewsletterFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub sentimark-newsletter-${Stage}
+      Runtime: nodejs18.x
+      Handler: index.handler
+      Role: !GetAtt NewsletterLambdaRole.Arn
+      Code:
+        ZipFile: |
+          exports.handler = async (event) => {
+            return { 
+              statusCode: 200, 
+              body: JSON.stringify({ message: 'Lambda function placeholder. Replace with actual code.' })
+            };
+          };
+      Environment:
+        Variables:
+          SUBSCRIBERS_TABLE_NAME: !Ref SubscribersTable
+          ADMIN_EMAIL: !Ref AdminEmail
+          SENDER_EMAIL: !Ref SenderEmail
+          RECAPTCHA_SECRET: !Ref RecaptchaSecret
+          ALLOWED_API_KEYS: sm_newsletter_webapp
+          IP_SALT: !Ref IpSalt
+          NOTIFICATION_TOPIC: !Ref NotificationTopic
+          STAGE: !Ref Stage
+      MemorySize: 128
+      Timeout: 10
+      Tags:
+        - Key: Project
+          Value: Sentimark
+        - Key: Environment
+          Value: !Ref Stage
+
+  # IAM Role for Lambda
+  NewsletterLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: NewsletterLambdaPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                Resource: 
+                  - !GetAtt SubscribersTable.Arn
+                  - !Sub ${SubscribersTable.Arn}/index/*
+              - Effect: Allow
+                Action:
+                  - sns:Publish
+                Resource: !Ref NotificationTopic
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: '*'
+                Condition:
+                  StringEquals:
+                    ses:FromAddress: !Ref SenderEmail
+
+  # API Gateway for Lambda
+  NewsletterApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub sentimark-newsletter-api-${Stage}
+      Description: API for Sentimark Newsletter Subscription
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      Tags:
+        - Key: Project
+          Value: Sentimark
+        - Key: Environment
+          Value: !Ref Stage
+
+  # API Gateway Resources
+  SubscribeResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref NewsletterApi
+      ParentId: !GetAtt NewsletterApi.RootResourceId
+      PathPart: subscribe
+
+  # API Gateway Methods
+  SubscribeMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref NewsletterApi
+      ResourceId: !Ref SubscribeResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      ApiKeyRequired: true
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NewsletterFunction.Arn}/invocations
+
+  # API Gateway CORS Support
+  SubscribeOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId: !Ref NewsletterApi
+      ResourceId: !Ref SubscribeResource
+      HttpMethod: OPTIONS
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Api-Key,Authorization'"
+              method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Origin: "'https://sentimark.ai'"
+            ResponseTemplates:
+              application/json: '{}'
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # API Gateway Deployment
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - SubscribeMethod
+      - SubscribeOptionsMethod
+    Properties:
+      RestApiId: !Ref NewsletterApi
+      StageName: !Ref Stage
+
+  # API Gateway API Key
+  ApiKey:
+    Type: AWS::ApiGateway::ApiKey
+    Properties:
+      Name: !Sub sentimark-newsletter-api-key-${Stage}
+      Description: API Key for Sentimark Newsletter API
+      Enabled: true
+
+  # API Gateway Usage Plan
+  UsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      ApiStages:
+        - ApiId: !Ref NewsletterApi
+          Stage: !Ref Stage
+      Description: Usage plan for Sentimark Newsletter API
+      Quota:
+        Limit: 1000
+        Period: DAY
+      Throttle:
+        BurstLimit: 10
+        RateLimit: 5
+      UsagePlanName: !Sub sentimark-newsletter-usage-plan-${Stage}
+
+  # Link API Key to Usage Plan
+  UsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    Properties:
+      KeyId: !Ref ApiKey
+      KeyType: API_KEY
+      UsagePlanId: !Ref UsagePlan
+
+  # Lambda Permission
+  LambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref NewsletterFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${NewsletterApi}/*/*/*
+
+  # SNS Topic for Admin Notifications
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub sentimark-newsletter-notifications-${Stage}
+      DisplayName: Sentimark Newsletter Notifications
+
+  # SNS Subscription for Admin Email
+  NotificationSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: email
+      Endpoint: !Ref AdminEmail
+      TopicArn: !Ref NotificationTopic
+
+  # CloudWatch Alarm for Error Monitoring
+  ErrorAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub sentimark-newsletter-errors-${Stage}
+      AlarmDescription: Alarm for newsletter subscription errors
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref NewsletterFunction
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 3
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref NotificationTopic
+
+Outputs:
+  ApiEndpoint:
+    Description: URL for the Newsletter API endpoint
+    Value: !Sub https://${NewsletterApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}/subscribe
+  
+  ApiKey:
+    Description: API Key for API access (keep this secure)
+    Value: !Ref ApiKey
+    
+  DynamoDBTable:
+    Description: DynamoDB table for newsletter subscribers
+    Value: !Ref SubscribersTable

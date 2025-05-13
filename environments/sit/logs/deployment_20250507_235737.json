@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-05-07T23:57:37-07:00",
+  "resource_group": "sentimark-sit-rg",
+  "cluster_name": "sentimark-sit-aks",
+  "namespace": "sit",
+  "release_name": "sentimark",
+  "chart": "test chart (simplified nginx deployment)",
+  "duration_seconds": 62,
+  "status": "completed",
+  "location": "westus",
+  "deployment_method": "helm_direct",
+  "exit_code": 0,
+  "jq_available": true,
+  "chart_size_mb": "0"
+}

@@ -1,0 +1,24 @@
+# Values override for deployments without spot instance node pools
+# This file disables spot instance requirements in the Helm chart
+
+# Disable spot instance requirements for data acquisition service
+dataAcquisition:
+  useSpotInstances: false
+  nodeSelector: {}
+  tolerations: []
+
+# Disable spot instance requirements for data migration service
+dataMigration:
+  useSpotInstances: false
+  nodeSelector: {}
+  tolerations: []
+
+# Disable spot instance requirements for sentiment analyzer service
+analyzer:
+  useSpotInstances: false
+  nodeSelector: {}
+  tolerations: []
+
+# Global environment setting
+global:
+  environment: sit

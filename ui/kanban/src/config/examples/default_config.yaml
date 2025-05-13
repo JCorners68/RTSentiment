@@ -1,0 +1,70 @@
+# Default CLI Kanban Configuration
+# This file serves as a template and reference for configuration
+
+app:
+  name: "cli_kanban"
+  version: "0.1.0"
+  display_name: "CLI Kanban"
+  description: "Command-line Kanban board with evidence management"
+
+data_paths:
+  base_dir: "data"
+  tasks_file: "tasks.yaml"
+  epics_file: "epics.yaml"
+  board_file: "board.yaml"
+  evidence_dir: "evidence"
+  checkpoints_dir: "checkpoints"
+  state_dir: "state"
+
+logging:
+  level: "INFO"
+  file: "logs/kanban.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  max_size: 10485760  # 10MB
+  backup_count: 5
+  separate_error_log: true
+
+ui:
+  color_theme: "default"
+  table_style: "rounded"
+  compact: false
+  show_ids: true
+  highlight_priority_tasks: true
+
+server:
+  enabled: true
+  port: 3000
+  host: "localhost"
+  webhook_secret: "change_this_to_a_secure_secret"
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8080"
+  rate_limit:
+    max_requests: 100
+    window_seconds: 60
+
+features:
+  evidence_management: true
+  auto_checkpoint: true
+  ai_integration: false
+  n8n_integration: false
+
+n8n:
+  webhook_url: "http://localhost:5678/webhook/kanban"
+  workflows_dir: "n8n/workflows"
+
+checkpoints:
+  enabled: true
+  max_checkpoints: 10
+  auto_cleanup: true
+  retention_days: 7
+
+environment:
+  min_python_version: "3.8.0"
+  min_node_version: "14.0.0"
+  min_disk_space_mb: 100
+
+security:
+  encrypt_sensitive_data: false
+  auto_backup: true
+  backup_count: 3

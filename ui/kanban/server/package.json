@@ -1,0 +1,50 @@
+{
+  "name": "cli-kanban-server",
+  "version": "0.1.0",
+  "description": "Companion server for CLI Kanban tool providing API endpoints",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest",
+    "generate-docs": "node scripts/generate-docs.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "uuid": "^9.0.0",
+    "morgan": "^1.10.0",
+    "winston": "^3.8.2",
+    "jsonwebtoken": "^9.0.0",
+    "helmet": "^7.0.0",
+    "multer": "^1.4.5-lts.1",
+    "express-rate-limit": "^6.7.0",
+    "file-type": "^18.5.0",
+    "sanitize-filename": "^1.6.3",
+    "swagger-ui-express": "^4.6.3",
+    "semver": "^7.5.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "jest": "^29.5.0",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-organization/cli-kanban.git"
+  },
+  "keywords": [
+    "kanban",
+    "cli",
+    "api",
+    "server",
+    "n8n",
+    "workflow"
+  ],
+  "author": "Sentimark Team",
+  "license": "MIT"
+}

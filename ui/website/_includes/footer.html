@@ -1,0 +1,42 @@
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-logo">
+        <img src="{{ "/assets/images/logos/sentimark-logo-white.svg" | relative_url }}" alt="Sentimark Logo" width="180" height="45">
+        <p>Uncovering Hidden Alpha through Advanced Sentiment Analysis</p>
+      </div>
+      
+      <div class="footer-links">
+        <div class="footer-nav">
+          <h4>Navigation</h4>
+          <ul>
+            <li><a href="{{ "/product/" | relative_url }}">Product</a></li>
+            <li><a href="{{ "/alpha/" | relative_url }}">Hidden Alpha</a></li>
+            <li><a href="{{ "/about/" | relative_url }}">About</a></li>
+            <li><a href="{{ "/blog/" | relative_url }}">Blog</a></li>
+            <li><a href="{{ "/kickstarter/" | relative_url }}">Kickstarter</a></li>
+            <li><a href="{{ "/contact/" | relative_url }}">Contact</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-social">
+          <h4>Connect</h4>
+          {% include social-links.html %}
+        </div>
+        
+        <div class="footer-newsletter">
+          <h4>Stay Updated</h4>
+          {% include newsletter-signup.html %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; {{ site.time | date: '%Y' }} Sentimark. All rights reserved.</p>
+      <p>
+        <a href="/privacy-policy/">Privacy Policy</a> | 
+        <a href="/terms-of-service/">Terms of Service</a>
+      </p>
+    </div>
+  </div>
+</footer>

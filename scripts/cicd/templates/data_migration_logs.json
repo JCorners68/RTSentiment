@@ -1,0 +1,53 @@
+{
+  "tables": [
+    {
+      "name": "SentimarkDataMigration_CL",
+      "columns": [
+        {
+          "name": "TimeGenerated",
+          "type": "datetime"
+        },
+        {
+          "name": "Environment",
+          "type": "string"
+        },
+        {
+          "name": "MigrationType",
+          "type": "string"
+        },
+        {
+          "name": "SourceSystem",
+          "type": "string"
+        },
+        {
+          "name": "TargetSystem",
+          "type": "string"
+        },
+        {
+          "name": "RecordsProcessed",
+          "type": "int"
+        },
+        {
+          "name": "RecordsSucceeded",
+          "type": "int"
+        },
+        {
+          "name": "RecordsFailed",
+          "type": "int"
+        },
+        {
+          "name": "DurationSeconds",
+          "type": "real"
+        },
+        {
+          "name": "ErrorMessage",
+          "type": "string"
+        },
+        {
+          "name": "Status",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}

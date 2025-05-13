@@ -38,8 +38,9 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      # Pod-level security context (fsGroup required for volume access)
       securityContext:
-        {{- toYaml .Values.dataMigration.securityContext | nindent 8 }}
+        fsGroup: {{ .Values.dataMigration.securityContext.fsGroup }}
       {{- if and .Values.global.spotInstances.enabled .Values.dataMigration.spotInstance.enabled }}
       # Node selector for spot instances
       nodeSelector:
@@ -58,6 +59,18 @@ spec:
       - name: data-migration
         image: "{{ .Values.dataMigration.image.repository }}:{{ .Values.dataMigration.image.tag | default "latest" }}"
         imagePullPolicy: {{ .Values.dataMigration.image.pullPolicy }}
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: {{ .Values.dataMigration.securityContext.runAsNonRoot }}
+          runAsUser: {{ .Values.dataMigration.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.dataMigration.securityContext.runAsGroup }}
+          allowPrivilegeEscalation: {{ .Values.dataMigration.securityContext.allowPrivilegeEscalation }}
+          capabilities:
+            drop:
+          {{- range .Values.dataMigration.securityContext.capabilities.drop }}
+            - {{ . }}
+            {{- end }}
+          readOnlyRootFilesystem: {{ .Values.dataMigration.securityContext.readOnlyRootFilesystem }}
         resources:
           {{- toYaml .Values.dataMigration.resources | nindent 12 }}
         env:
@@ -157,6 +170,18 @@ spec:
           - name: migration-job
             image: "{{ .Values.dataMigration.image.repository }}:{{ .Values.dataMigration.image.tag | default "latest" }}"
             imagePullPolicy: {{ .Values.dataMigration.image.pullPolicy }}
+            # Container-level security context
+            securityContext:
+              runAsNonRoot: {{ .Values.dataMigration.securityContext.runAsNonRoot }}
+              runAsUser: {{ .Values.dataMigration.securityContext.runAsUser }}
+              runAsGroup: {{ .Values.dataMigration.securityContext.runAsGroup }}
+              allowPrivilegeEscalation: {{ .Values.dataMigration.securityContext.allowPrivilegeEscalation }}
+              capabilities:
+                drop:
+                {{- range .Values.dataMigration.securityContext.capabilities.drop }}
+                - {{ . }}
+                {{- end }}
+              readOnlyRootFilesystem: {{ .Values.dataMigration.securityContext.readOnlyRootFilesystem }}
             args:
             {{- range .Values.dataMigration.cronJob.command }}
             - {{ . | quote }}

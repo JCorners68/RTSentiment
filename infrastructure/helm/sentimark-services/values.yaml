@@ -1,5 +1,7 @@
 # Default values for sentimark-services
 # This is a YAML-formatted file.
+#
+# Newsletter system integration added May 2025
 
 # Dependencies configuration
 sentimark-common:
@@ -171,6 +173,146 @@ dataAcquisition:
   annotations: {}
   # Additional labels specifically for this service
   labels: {}
+
+# Service-specific configuration for newsletter system
+newsletter:
+  enabled: true  # Newsletter service enabled
+  name: newsletter-service
+  
+  # Container image configuration
+  image:
+    repository: "${global.registry.server}/newsletter-service"
+    tag: latest
+    pullPolicy: Always
+  
+  # Replica count
+  replicaCount: 2
+  
+  # Spot instance configuration
+  spotInstance:
+    enabled: true
+    nodeSelector:
+      agentpool: appspots
+  
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: false
+  
+  # Resource requests and limits
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+  
+  # Pod disruption budget for high availability
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  
+  # Horizontal Pod Autoscaler
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 75
+  
+  # Environment variables
+  env:
+    - name: ENVIRONMENT
+      value: "${global.environment}"
+    - name: PORT
+      value: "8080"
+  
+  # Configuration for newsletter service
+  allowedOrigins: "https://www.sentimark.ai,https://sentimark.ai"
+  senderEmail: "newsletter@sentimark.ai"
+  
+  # Secrets (values should be provided via CI/CD pipeline or externally)
+  secrets:
+    applicationInsightsKey: ""
+    cosmosDbConnectionString: ""
+    communicationServiceConnectionString: ""
+    eventGridTopicEndpoint: ""
+    eventGridTopicKey: ""
+  
+  # Probes configuration
+  probes:
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 2
+    startupProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      failureThreshold: 30
+      periodSeconds: 10
+  
+  # Lifecycle hooks for graceful termination
+  lifecycle:
+    preStop:
+      exec:
+        command: 
+          - "/bin/sh"
+          - "-c"
+          - "sleep 5; /app/shutdown.sh || true"
+  
+  # Ingress configuration
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      nginx.ingress.kubernetes.io/enable-cors: "true"
+      nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Ocp-Apim-Subscription-Key"
+    hosts:
+      - host: "newsletter.${global.environment}.${global.network.domain}"
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: newsletter-tls
+        hosts:
+          - "newsletter.${global.environment}.${global.network.domain}"
+  
+  # Additional annotations specifically for this service
+  annotations: {}
+  # Additional labels specifically for this service
+  labels: {}
+  # Pod annotations
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
 
 # Service-specific configuration for data-migration
 dataMigration:

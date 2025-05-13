@@ -1,0 +1,4 @@
+storage_account_name = "sentimarktfstate"
+container_name       = "tfstate"
+key                  = "uat.terraform.tfstate"
+# Credentials will be provided via ARM_* environment variables

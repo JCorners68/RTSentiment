@@ -1,0 +1,182 @@
+{{- if .Values.auth.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "auth" "service" .Values.auth "releaseName" .Release.Name) }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "auth" "service" .Values.auth "releaseName" .Release.Name "component" "auth") | nindent 4 }}
+  {{- with .Values.auth.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.auth.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "auth" "service" .Values.auth "releaseName" .Release.Name) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "auth" "service" .Values.auth "releaseName" .Release.Name "component" "auth") | nindent 8 }}
+      {{- with .Values.auth.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      # Pod-level security context (fsGroup must be at pod level)
+      #       #       # securityContext:
+        #         #         # fsGroup: {{ .Values.auth.securityContext.fsGroup }}
+      {{- if and .Values.global.spotInstances.enabled .Values.auth.spotInstance.enabled }}
+      # Node selector for spot instances
+      nodeSelector:
+        {{- toYaml .Values.auth.spotInstance.nodeSelector | nindent 8 }}
+      # Tolerations for spot instances
+      tolerations:
+        {{- include "sentimark.spotTolerations" (dict "root" . "service" .Values.auth) | nindent 8 }}
+      {{- else }}
+      {{- with .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - {{ include "sentimark.serviceName" (dict "defaultName" "auth" "service" .Values.auth "releaseName" .Release.Name) }}
+              topologyKey: kubernetes.io/hostname
+        {{- with .Values.global.affinity }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: {{ .Values.auth.name }}
+        image: "{{ .Values.auth.image.repository }}:{{ .Values.auth.image.tag | default "latest" }}"
+        imagePullPolicy: {{ .Values.auth.image.pullPolicy }}
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: {{ .Values.auth.securityContext.runAsNonRoot }}
+          runAsUser: {{ .Values.auth.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.auth.securityContext.runAsGroup }}
+          allowPrivilegeEscalation: {{ .Values.auth.securityContext.allowPrivilegeEscalation }}
+          capabilities:
+            drop:
+          {{- range .Values.auth.securityContext.capabilities.drop }}
+            - {{ . }}
+            {{- end }}
+          readOnlyRootFilesystem: {{ .Values.auth.securityContext.readOnlyRootFilesystem }}
+        ports:
+        - containerPort: {{ .Values.auth.service.targetPort }}
+          protocol: TCP
+        env:
+        {{- range .Values.auth.env }}
+        - name: {{ .name }}
+          {{- if .value }}
+          value: {{ .value | quote }}
+          {{- else if .valueFrom }}
+          valueFrom:
+            {{- toYaml .valueFrom | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.auth.resources | nindent 12 }}
+        {{- with .Values.auth.probes.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.auth.probes.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.auth.probes.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.auth.lifecycle }}
+        lifecycle:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "auth" "service" .Values.auth "releaseName" .Release.Name) }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "auth" "service" .Values.auth "releaseName" .Release.Name "component" "auth") | nindent 4 }}
+spec:
+  type: {{ .Values.auth.service.type }}
+  ports:
+    - port: {{ .Values.auth.service.port }}
+      targetPort: {{ .Values.auth.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "auth" "service" .Values.auth "releaseName" .Release.Name) | nindent 4 }}
+{{- if .Values.auth.podDisruptionBudget.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "auth" "service" .Values.auth "releaseName" .Release.Name) }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "auth" "service" .Values.auth "releaseName" .Release.Name "component" "auth") | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.auth.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "auth" "service" .Values.auth "releaseName" .Release.Name) | nindent 6 }}
+{{- end }}
+{{- if .Values.auth.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "auth" "service" .Values.auth "releaseName" .Release.Name) }}-ingress
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "auth" "service" .Values.auth "releaseName" .Release.Name "component" "auth") | nindent 4 }}
+  {{- with .Values.auth.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.auth.ingress.className }}
+  ingressClassName: {{ .Values.auth.ingress.className }}
+  {{- end }}
+  {{- if .Values.auth.ingress.tls }}
+  tls:
+    {{- range .Values.auth.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.auth.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "sentimark.serviceName" (dict "defaultName" "auth" "service" $.Values.auth "releaseName" $.Release.Name) }}
+                port:
+                  number: {{ $.Values.auth.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,24 @@
+{
+  "warning_threshold": 30,
+  "critical_threshold": 120,
+  "email_recipients": "devops@sentimark.example.com,alerts@sentimark.example.com",
+  "teams_webhook": "https://outlook.office.com/webhook/EXAMPLE-WEBHOOK-URL",
+  "slack_webhook": "https://hooks.slack.com/services/EXAMPLE-SLACK-WEBHOOK",
+  "notification_level": "warning",
+  "environments": ["sit", "uat", "prod"],
+  "check_interval": 300,
+  "contact_info": {
+    "owner": "DevOps Team",
+    "email": "devops@sentimark.example.com",
+    "phone": "+1-555-123-4567"
+  },
+  "alert_routing": {
+    "warning": ["email", "teams"],
+    "critical": ["email", "teams", "slack", "pager"]
+  },
+  "lock_metadata": {
+    "organization": "Sentimark",
+    "project": "Terraform Infrastructure",
+    "include_user_info": true
+  }
+}

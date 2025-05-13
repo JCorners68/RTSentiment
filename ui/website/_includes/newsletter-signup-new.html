@@ -1,0 +1,43 @@
+<!-- Sentimark Newsletter Signup Form -->
+<div class="newsletter-form">
+    <form id="sentimark-subscribe-form" class="validate">
+        <div class="form-group">
+            <label for="subscriber-email" class="sr-only">Email Address</label>
+            <input type="email" name="email" class="required email form-control"
+                   id="subscriber-email" placeholder="Your email address"
+                   aria-required="true" aria-label="Email Address" required>
+            <div class="email-error-message" id="email-error-message" aria-live="polite"></div>
+        </div>
+
+        <!-- Optional reCAPTCHA for anti-bot protection -->
+        {% if site.recaptcha_site_key %}
+        <div class="form-group recaptcha-container">
+            <div class="g-recaptcha" data-sitekey="{{ site.recaptcha_site_key }}" data-size="invisible"></div>
+        </div>
+        {% endif %}
+
+        <!-- Optional GDPR consent - uncomment when needed
+        <div class="form-group gdpr-consent">
+            <input type="checkbox" id="gdpr_consent" name="gdpr_consent" value="Y" required>
+            <label for="gdpr_consent">I agree to receive marketing emails from Sentimark. I understand I can unsubscribe at any time.</label>
+        </div>
+        -->
+
+        <div class="form-group">
+            <button type="submit" id="subscribe-button" class="btn btn-primary">Subscribe</button>
+        </div>
+
+        <div class="form-status">
+            <div class="success-message" id="subscribe-success" style="display:none"></div>
+            <div class="error-message" id="subscribe-error" style="display:none"></div>
+        </div>
+
+        <p class="small">Join our newsletter for updates on our Kickstarter launch and product development. <a href="/privacy-policy/">Privacy Policy</a></p>
+    </form>
+</div>
+
+{% if site.recaptcha_site_key %}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% endif %}
+<script src="{{ "/assets/js/newsletter-subscribe.js" | relative_url }}"></script>
+<!-- End Sentimark Newsletter Signup Form -->

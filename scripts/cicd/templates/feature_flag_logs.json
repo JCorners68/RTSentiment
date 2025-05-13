@@ -1,0 +1,37 @@
+{
+  "tables": [
+    {
+      "name": "SentimarkFeatureFlagChanges_CL",
+      "columns": [
+        {
+          "name": "TimeGenerated",
+          "type": "datetime"
+        },
+        {
+          "name": "Environment",
+          "type": "string"
+        },
+        {
+          "name": "FeatureName",
+          "type": "string"
+        },
+        {
+          "name": "OldValue",
+          "type": "string"
+        },
+        {
+          "name": "NewValue",
+          "type": "string"
+        },
+        {
+          "name": "ChangedBy",
+          "type": "string"
+        },
+        {
+          "name": "ChangeReason",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+// Replacement functions for deprecated Sass features
+
+// Import the sass:color module to use modern color manipulation
+@use "sass:color";
+
+// Safe division replacement for $a / $b
+@function divide($a, $b) {
+  @return calc($a / $b);
+}
+
+// Replacement for lighten() function
+@function lighten-safe($color, $percentage) {
+  // Since we can't use color.mix directly (which would be preferred),
+  // we'll use color.adjust instead which is also recommended
+  @return color.adjust($color, $lightness: $percentage);
+}
+
+// Replacement for darken() function
+@function darken-safe($color, $percentage) {
+  // Use negative percentage to darken
+  @return color.adjust($color, $lightness: -$percentage);
+}

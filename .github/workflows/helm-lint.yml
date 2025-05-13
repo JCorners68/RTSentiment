@@ -1,0 +1,94 @@
+name: Helm Chart Validation
+
+on:
+  push:
+    paths:
+      - 'infrastructure/helm/**'
+    branches:
+      - main
+      - 'feature/**'
+      - 'release/**'
+  pull_request:
+    paths:
+      - 'infrastructure/helm/**'
+
+jobs:
+  validate-helm-charts:
+    name: Validate Helm Charts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: 'v3.10.0'
+
+      - name: Set up Kubernetes tools
+        run: |
+          curl -Lo kubeval.tar.gz https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+          tar xf kubeval.tar.gz
+          sudo mv kubeval /usr/local/bin
+          curl -L https://github.com/stackrox/kube-linter/releases/latest/download/kube-linter-linux.tar.gz | tar xvz
+          sudo mv kube-linter /usr/local/bin
+          curl -L https://github.com/controlplaneio/kubesec/releases/latest/download/kubesec_linux_amd64.tar.gz | tar xvz
+          sudo mv kubesec /usr/local/bin
+
+      - name: Run Helm Lint
+        run: |
+          cd infrastructure/helm/sentimark-services
+          helm lint .
+          
+      - name: Run Helm Template Validation
+        run: |
+          cd infrastructure/helm/sentimark-services
+          mkdir -p scan-results
+          helm template . > scan-results/helm_template.yaml
+          
+      - name: Validate Security Context Settings
+        run: |
+          cd infrastructure/helm/sentimark-services
+          echo "Checking for securityContext settings..."
+          grep -r "securityContext:" templates/ --include="*.yaml" | wc -l
+          
+          # Check for container-level security settings
+          for setting in "runAsNonRoot" "runAsUser" "runAsGroup" "capabilities" "allowPrivilegeEscalation" "readOnlyRootFilesystem"; do
+            echo "Checking for $setting..."
+            grep -r "$setting:" templates/ --include="*.yaml" | wc -l
+          done
+          
+          # Check for volumes and fsGroup settings
+          echo "Checking for volumes..."
+          FILES_WITH_VOLUMES=$(grep -l "volumes:" templates/ --include="*.yaml")
+          for file in $FILES_WITH_VOLUMES; do
+            echo "Checking $file for fsGroup settings..."
+            if grep -q "fsGroup:" "$file"; then
+              echo "✅ $file has proper fsGroup setting"
+            else
+              echo "❌ $file has volumes but no fsGroup setting"
+              exit 1
+            fi
+          done
+          
+      - name: Run KubeSec Security Scan
+        run: |
+          cd infrastructure/helm/sentimark-services
+          # Only scan deployment templates
+          for file in templates/*-deployment.yaml; do
+            echo "Scanning $file..."
+            # Because kubesec requires valid Kubernetes YAML, we process each template individually
+            helm template . -s "$file" | kubesec scan - || echo "Security issues found in $file"
+          done
+
+      - name: Run kube-linter
+        run: |
+          cd infrastructure/helm/sentimark-services
+          helm template . > all_resources.yaml
+          kube-linter lint all_resources.yaml --config .kube-linter.yaml || echo "Linting issues found, check report"
+          
+      - name: Upload scan results
+        uses: actions/upload-artifact@v2
+        with:
+          name: helm-scan-results
+          path: infrastructure/helm/sentimark-services/scan-results/

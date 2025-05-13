@@ -1,0 +1,227 @@
+{{- if .Values.dataTier.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.dataTier.configMap.name }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name "component" "data") | nindent 4 }}
+data:
+  {{- with .Values.dataTier.configMap.data }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name) }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name "component" "data") | nindent 4 }}
+  {{- with .Values.dataTier.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.dataTier.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name "component" "data") | nindent 8 }}
+      {{- with .Values.dataTier.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      # Pod-level security context (fsGroup settings moved to volumes when needed)
+      {{- if and .Values.global.spotInstances.enabled .Values.dataTier.spotInstance.enabled }}
+      # Node selector for spot instances
+      nodeSelector:
+        {{- toYaml .Values.dataTier.spotInstance.nodeSelector | nindent 8 }}
+      # Tolerations for spot instances
+      tolerations:
+        {{- include "sentimark.spotTolerations" (dict "root" . "service" .Values.dataTier) | nindent 8 }}
+      {{- else }}
+      {{- with .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - {{ include "sentimark.serviceName" (dict "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name) }}
+              topologyKey: kubernetes.io/hostname
+        {{- with .Values.global.affinity }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      terminationGracePeriodSeconds: 90
+      containers:
+      - name: {{ .Values.dataTier.name }}
+        image: "{{ .Values.dataTier.image.repository }}:{{ .Values.dataTier.image.tag | default "latest" }}"
+        imagePullPolicy: {{ .Values.dataTier.image.pullPolicy }}
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: {{ .Values.dataTier.securityContext.runAsNonRoot }}
+          runAsUser: {{ .Values.dataTier.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.dataTier.securityContext.runAsGroup }}
+          allowPrivilegeEscalation: {{ .Values.dataTier.securityContext.allowPrivilegeEscalation }}
+          capabilities:
+            drop:
+            {{- range .Values.dataTier.securityContext.capabilities.drop }}
+            - {{ . }}
+            {{- end }}
+          readOnlyRootFilesystem: {{ .Values.dataTier.securityContext.readOnlyRootFilesystem }}
+        ports:
+        - containerPort: {{ .Values.dataTier.service.targetPort }}
+          protocol: TCP
+        env:
+        {{- range .Values.dataTier.env }}
+        - name: {{ .name }}
+          {{- if .value }}
+          value: {{ .value | quote }}
+          {{- else if .valueFrom }}
+          valueFrom:
+            {{- toYaml .valueFrom | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.dataTier.resources | nindent 12 }}
+        {{- with .Values.dataTier.volumeMounts }}
+        volumeMounts:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.dataTier.probes.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.dataTier.probes.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.dataTier.probes.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.dataTier.lifecycle }}
+        lifecycle:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- with .Values.dataTier.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name) }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name "component" "data") | nindent 4 }}
+spec:
+  type: {{ .Values.dataTier.service.type }}
+  ports:
+    - port: {{ .Values.dataTier.service.port }}
+      targetPort: {{ .Values.dataTier.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name) | nindent 4 }}
+{{- if .Values.dataTier.podDisruptionBudget.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name) }}-pdb
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name "component" "data") | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.dataTier.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name) | nindent 6 }}
+{{- end }}
+{{- if .Values.dataTier.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name) }}-ingress
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name "component" "data") | nindent 4 }}
+  {{- with .Values.dataTier.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.dataTier.ingress.className }}
+  ingressClassName: {{ .Values.dataTier.ingress.className }}
+  {{- end }}
+  {{- if .Values.dataTier.ingress.tls }}
+  tls:
+    {{- range .Values.dataTier.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+            -  {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.dataTier.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "sentimark.serviceName" (dict "defaultName" "data-tier" "service" $.Values.dataTier "releaseName" $.Release.Name) }}
+                port:
+                  number: {{ $.Values.dataTier.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
+{{- if .Values.dataTier.rbac.enabled }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Values.dataTier.rbac.roleName }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name "component" "data") | nindent 4 }}
+rules:
+{{- with .Values.dataTier.rbac.rules }}
+{{ toYaml . }}
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name) }}-role-binding
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-tier" "service" .Values.dataTier "releaseName" .Release.Name "component" "data") | nindent 4 }}
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ .Values.dataTier.rbac.roleName }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- end }}

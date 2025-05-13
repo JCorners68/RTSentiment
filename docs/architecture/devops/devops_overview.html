@@ -1,0 +1,165 @@
+<svg viewBox="0 0 900 680" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="900" height="680" fill="#f5f5f5" />
+  
+  <!-- Title -->
+  <text x="450" y="30" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle">Sentimark DevOps Architecture</text>
+  
+  <!-- Developer Tier -->
+  <rect x="30" y="80" width="150" height="80" rx="5" fill="#e1f5fe" stroke="#01579b" stroke-width="2" />
+  <text x="105" y="105" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Development</text>
+  <text x="105" y="125" font-family="Arial" font-size="12" text-anchor="middle">IDE + WSL</text>
+  <text x="105" y="145" font-family="Arial" font-size="12" text-anchor="middle">Git Workflow</text>
+  
+  <!-- Source Control -->
+  <rect x="30" y="190" width="150" height="80" rx="5" fill="#e1f5fe" stroke="#01579b" stroke-width="2" />
+  <text x="105" y="215" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Source Control</text>
+  <text x="105" y="235" font-family="Arial" font-size="12" text-anchor="middle">GitHub</text>
+  <text x="105" y="255" font-family="Arial" font-size="12" text-anchor="middle">Pull Request Flow</text>
+  
+  <!-- CI Pipeline -->
+  <rect x="240" y="100" width="170" height="150" rx="5" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2" />
+  <text x="325" y="125" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">CI Pipeline</text>
+  <text x="325" y="145" font-family="Arial" font-size="12" text-anchor="middle">GitHub Actions</text>
+  <text x="325" y="165" font-family="Arial" font-size="12" text-anchor="middle">Unit & Integration Tests</text>
+  <text x="325" y="185" font-family="Arial" font-size="12" text-anchor="middle">Security Scanning</text>
+  <text x="325" y="205" font-family="Arial" font-size="12" text-anchor="middle">Docker Image Build</text>
+  <text x="325" y="225" font-family="Arial" font-size="12" text-anchor="middle">Quality Gates</text>
+  
+  <!-- CD Pipeline -->
+  <rect x="450" y="100" width="170" height="150" rx="5" fill="#fff3e0" stroke="#e65100" stroke-width="2" />
+  <text x="535" y="125" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">CD Pipeline</text>
+  <text x="535" y="145" font-family="Arial" font-size="12" text-anchor="middle">Automated Deployments</text>
+  <text x="535" y="165" font-family="Arial" font-size="12" text-anchor="middle">Terraform Execution</text>
+  <text x="535" y="185" font-family="Arial" font-size="12" text-anchor="middle">Helm Chart Packaging</text>
+  <text x="535" y="205" font-family="Arial" font-size="12" text-anchor="middle">Environment Promotion</text>
+  <text x="535" y="225" font-family="Arial" font-size="12" text-anchor="middle">CICD Logging</text>
+  
+  <!-- Infrastructure -->
+  <rect x="350" y="290" width="200" height="120" rx="5" fill="#e1bee7" stroke="#6a1b9a" stroke-width="2" />
+  <text x="450" y="315" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Infrastructure as Code</text>
+  <text x="450" y="335" font-family="Arial" font-size="12" text-anchor="middle">Terraform Modules</text>
+  <text x="450" y="355" font-family="Arial" font-size="12" text-anchor="middle">State in Azure Storage</text>
+  <text x="450" y="375" font-family="Arial" font-size="12" text-anchor="middle">Resource Groups</text>
+  <text x="450" y="395" font-family="Arial" font-size="12" text-anchor="middle">Network Security</text>
+  
+  <!-- Environment Deployment -->
+  <rect x="70" y="450" width="140" height="80" rx="5" fill="#bbdefb" stroke="#0d47a1" stroke-width="2" />
+  <text x="140" y="475" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Development</text>
+  <text x="140" y="495" font-family="Arial" font-size="12" text-anchor="middle">AKS Dev Cluster</text>
+  <text x="140" y="515" font-family="Arial" font-size="12" text-anchor="middle">Dev Services</text>
+  
+  <rect x="240" y="450" width="140" height="80" rx="5" fill="#bbdefb" stroke="#0d47a1" stroke-width="2" />
+  <text x="310" y="475" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">SIT</text>
+  <text x="310" y="495" font-family="Arial" font-size="12" text-anchor="middle">AKS SIT Cluster</text>
+  <text x="310" y="515" font-family="Arial" font-size="12" text-anchor="middle">Integration Testing</text>
+  
+  <rect x="410" y="450" width="140" height="80" rx="5" fill="#bbdefb" stroke="#0d47a1" stroke-width="2" />
+  <text x="480" y="475" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">UAT</text>
+  <text x="480" y="495" font-family="Arial" font-size="12" text-anchor="middle">AKS UAT Cluster</text>
+  <text x="480" y="515" font-family="Arial" font-size="12" text-anchor="middle">Acceptance Testing</text>
+  
+  <rect x="580" y="450" width="140" height="80" rx="5" fill="#bbdefb" stroke="#0d47a1" stroke-width="2" />
+  <text x="650" y="475" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Production</text>
+  <text x="650" y="495" font-family="Arial" font-size="12" text-anchor="middle">Multi-region AKS</text>
+  <text x="650" y="515" font-family="Arial" font-size="12" text-anchor="middle">High Availability</text>
+  
+  <!-- Secrets Management -->
+  <rect x="680" y="100" width="180" height="100" rx="5" fill="#d1c4e9" stroke="#4527a0" stroke-width="2" />
+  <text x="770" y="125" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Secrets Management</text>
+  <text x="770" y="145" font-family="Arial" font-size="12" text-anchor="middle">Azure Key Vault</text>
+  <text x="770" y="165" font-family="Arial" font-size="12" text-anchor="middle">K8s Secret Store CSI</text>
+  <text x="770" y="185" font-family="Arial" font-size="12" text-anchor="middle">Rotation Policies</text>
+  
+  <!-- Monitoring & Observability -->
+  <rect x="680" y="230" width="180" height="130" rx="5" fill="#ffcdd2" stroke="#b71c1c" stroke-width="2" />
+  <text x="770" y="255" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Monitoring</text>
+  <text x="770" y="275" font-family="Arial" font-size="12" text-anchor="middle">Prometheus + Grafana</text>
+  <text x="770" y="295" font-family="Arial" font-size="12" text-anchor="middle">Application Insights</text>
+  <text x="770" y="315" font-family="Arial" font-size="12" text-anchor="middle">Log Analytics</text>
+  <text x="770" y="335" font-family="Arial" font-size="12" text-anchor="middle">Alerting</text>
+  
+  <!-- Cost Management -->
+  <rect x="680" y="390" width="180" height="110" rx="5" fill="#fff9c4" stroke="#f57f17" stroke-width="2" />
+  <text x="770" y="415" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">Cost Management</text>
+  <text x="770" y="435" font-family="Arial" font-size="12" text-anchor="middle">Azure Cost Analysis</text>
+  <text x="770" y="455" font-family="Arial" font-size="12" text-anchor="middle">Budgets & Alerts</text>
+  <text x="770" y="475" font-family="Arial" font-size="12" text-anchor="middle">Resource Optimization</text>
+  
+  <!-- Kubernetes Configuration -->
+  <rect x="680" y="530" width="180" height="90" rx="5" fill="#dcedc8" stroke="#33691e" stroke-width="2" />
+  <text x="770" y="555" font-family="Arial" font-size="14" text-anchor="middle" font-weight="bold">K8s Configuration</text>
+  <text x="770" y="575" font-family="Arial" font-size="12" text-anchor="middle">Helm Charts</text>
+  <text x="770" y="595" font-family="Arial" font-size="12" text-anchor="middle">Security Best Practices</text>
+  <text x="770" y="615" font-family="Arial" font-size="12" text-anchor="middle">Resource Management</text>
+
+  <!-- Connection Lines -->
+  <!-- Development to Source Control -->
+  <path d="M105 160 V190" fill="none" stroke="#666" stroke-width="2" />
+  <polygon points="105,190 100,180 110,180" fill="#666" />
+  
+  <!-- Source Control to CI -->
+  <path d="M180 230 H240" fill="none" stroke="#666" stroke-width="2" />
+  <polygon points="240,230 230,225 230,235" fill="#666" />
+  
+  <!-- CI to CD -->
+  <path d="M410 175 H450" fill="none" stroke="#666" stroke-width="2" />
+  <polygon points="450,175 440,170 440,180" fill="#666" />
+  
+  <!-- CD to Infrastructure -->
+  <path d="M535 250 V290" fill="none" stroke="#666" stroke-width="2" />
+  <polygon points="535,290 530,280 540,280" fill="#666" />
+  
+  <!-- Infrastructure to All Environments -->
+  <path d="M350 350 H140 V450" fill="none" stroke="#666" stroke-width="2" />
+  <polygon points="140,450 135,440 145,440" fill="#666" />
+  
+  <path d="M400 410 H310 V450" fill="none" stroke="#666" stroke-width="2" />
+  <polygon points="310,450 305,440 315,440" fill="#666" />
+  
+  <path d="M450 410 V450" fill="none" stroke="#666" stroke-width="2" />
+  <polygon points="450,450 445,440 455,440" fill="#666" />
+  
+  <path d="M550 350 H650 V450" fill="none" stroke="#666" stroke-width="2" />
+  <polygon points="650,450 645,440 655,440" fill="#666" />
+  
+  <!-- CD to Secrets Management -->
+  <path d="M620 150 H680" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="5,5" />
+  <polygon points="680,150 670,145 670,155" fill="#666" />
+  
+  <!-- Secrets to Environments -->
+  <path d="M770 200 V280 H700 V490 H580" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="5,5" />
+  <polygon points="580,490 590,485 590,495" fill="#666" />
+  
+  <!-- Environments to Monitoring -->
+  <path d="M140 450 V400 H600 A10 10 0 0 1 610 410 V280 H680" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="5,5" />
+  <polygon points="680,280 670,275 670,285" fill="#666" />
+  
+  <path d="M480 450 V425 H625 A10 10 0 0 0 635 415 V295 H680" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="5,5" />
+  <polygon points="680,295 670,290 670,300" fill="#666" />
+  
+  <!-- Legend -->
+  <rect x="30" y="600" width="15" height="15" fill="#e1f5fe" stroke="#01579b" stroke-width="2" />
+  <text x="55" y="613" font-family="Arial" font-size="12">Development</text>
+  
+  <rect x="170" y="600" width="15" height="15" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2" />
+  <text x="195" y="613" font-family="Arial" font-size="12">CI Pipeline</text>
+  
+  <rect x="290" y="600" width="15" height="15" fill="#fff3e0" stroke="#e65100" stroke-width="2" />
+  <text x="315" y="613" font-family="Arial" font-size="12">CD Pipeline</text>
+  
+  <rect x="410" y="600" width="15" height="15" fill="#e1bee7" stroke="#6a1b9a" stroke-width="2" />
+  <text x="435" y="613" font-family="Arial" font-size="12">Infrastructure</text>
+  
+  <rect x="530" y="600" width="15" height="15" fill="#bbdefb" stroke="#0d47a1" stroke-width="2" />
+  <text x="555" y="613" font-family="Arial" font-size="12">Environments</text>
+  
+  <rect x="650" y="600" width="15" height="15" fill="#d1c4e9" stroke="#4527a0" stroke-width="2" />
+  <text x="675" y="613" font-family="Arial" font-size="12">Secrets</text>
+  
+  <rect x="730" y="600" width="15" height="15" fill="#ffcdd2" stroke="#b71c1c" stroke-width="2" />
+  <text x="755" y="613" font-family="Arial" font-size="12">Monitoring</text>
+  
+  <rect x="810" y="600" width="15" height="15" fill="#fff9c4" stroke="#f57f17" stroke-width="2" />
+  <text x="835" y="613" font-family="Arial" font-size="12">Cost Management</text>
+</svg>

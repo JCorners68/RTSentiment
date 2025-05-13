@@ -1,0 +1,84 @@
+{
+  "svg_images": [
+    {
+      "id": "favicon",
+      "file_path": "/assets/images/logos/favicon.svg",
+      "replacement_path": "/assets/images/logos/favicon.svg",
+      "type": "logo",
+      "theme": "brand_identity",
+      "style": "minimal_vector",
+      "color_scheme": "primary_blue",
+      "dimensions": {
+        "width": 32,
+        "height": 32,
+        "aspect_ratio": "1:1"
+      },
+      "format": "SVG",
+      "alt_text": "Sentimark logo favicon",
+      "usage": "Browser favicon",
+      "priority": "high",
+      "designer_notes": "Create a minimal, clean SVG favicon for Sentimark financial technology company. Simple 'S' letterform with a subtle chart line or upward trend integrated into the design. Primary blue color (#2E5BFF). Professional, modern style with good visibility at small sizes."
+    },
+    {
+      "id": "logo_color",
+      "file_path": "/assets/images/logos/sentimark-logo.svg",
+      "replacement_path": "/assets/images/logos/sentimark-logo.svg",
+      "type": "logo",
+      "theme": "brand_identity",
+      "style": "modern_professional_vector",
+      "color_scheme": "primary_blue",
+      "dimensions": {
+        "width": 180,
+        "height": 45,
+        "aspect_ratio": "4:1"
+      },
+      "format": "SVG",
+      "alt_text": "Sentimark company logo",
+      "usage": "Header logo",
+      "priority": "high",
+      "designer_notes": "Create a professional vector logo for Sentimark financial technology company. Clean, modern wordmark with integrated sentiment graph element. Primary blue color (#2E5BFF). Horizontal format with good visibility at various sizes."
+    },
+    {
+      "id": "logo_white",
+      "file_path": "/assets/images/logos/sentimark-logo-white.svg",
+      "replacement_path": "/assets/images/logos/sentimark-logo-white.svg",
+      "type": "logo",
+      "theme": "brand_identity",
+      "style": "modern_professional_vector",
+      "color_scheme": "white",
+      "dimensions": {
+        "width": 180,
+        "height": 45,
+        "aspect_ratio": "4:1"
+      },
+      "format": "SVG",
+      "alt_text": "Sentimark company logo in white",
+      "usage": "Footer logo",
+      "priority": "high",
+      "designer_notes": "Create a professional white vector logo for Sentimark financial technology company. Clean, modern wordmark with integrated sentiment graph element. Pure white color on transparent background. Horizontal format with good visibility for use on dark backgrounds."
+    }
+  ],
+  "general_style_guidelines": {
+    "color_palette": {
+      "primary": "#2E5BFF",
+      "secondary": "#8C54FF",
+      "accent": "#00D1B2",
+      "text": "#333333",
+      "background": "#FFFFFF",
+      "dark_background": "#1E1E2D"
+    },
+    "typography": {
+      "heading_font": "Poppins",
+      "body_font": "Inter"
+    },
+    "svg_design_notes": [
+      "All SVGs should be optimized for web use with minimal paths",
+      "SVGs should be responsive and scalable to any size",
+      "Use clean, modern design principles with minimal details",
+      "Ensure SVGs have appropriate viewBox settings",
+      "Design should work in both light and dark backgrounds",
+      "Use correct color values as specified in the color palette",
+      "SVGs should be accessible with proper ARIA attributes when implemented"
+    ]
+  }
+}

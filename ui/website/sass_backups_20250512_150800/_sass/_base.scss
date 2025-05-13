@@ -1,0 +1,318 @@
+@use "sass:color";
+// Base styles for Sentimark website
+
+// Reset and normalize
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: $base-font-size;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $base-font-family;
+  line-height: $base-line-height;
+  color: $text-color;
+  background-color: $bg-color;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Typography
+h1, h2, h3, h4, h5, h6 {
+  font-family: $heading-font-family;
+  font-weight: 700;
+  margin-bottom: $spacing-sm;
+  line-height: 1.2;
+  color: darken-safe($text-color, 10%);
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: $spacing-md;
+  
+  @media (min-width: $tablet) {
+    font-size: 3rem;
+  }
+  
+  @media (min-width: $desktop) {
+    font-size: 3.5rem;
+  }
+}
+
+h2 {
+  font-size: 2rem;
+  margin-bottom: $spacing-md;
+  
+  @media (min-width: $desktop) {
+    font-size: 2.5rem;
+  }
+}
+
+h3 {
+  font-size: 1.5rem;
+  
+  @media (min-width: $desktop) {
+    font-size: 1.75rem;
+  }
+}
+
+h4 {
+  font-size: 1.25rem;
+  
+  @media (min-width: $desktop) {
+    font-size: 1.35rem;
+  }
+}
+
+h5 { font-size: 1.1rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin-bottom: $spacing-sm;
+  
+  &.lead {
+    font-size: 1.25rem;
+    line-height: 1.5;
+    margin-bottom: $spacing-md;
+    
+    @media (min-width: $desktop) {
+      font-size: 1.35rem;
+    }
+  }
+}
+
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color $transition-speed $transition-ease;
+  
+  &:hover, &:focus {
+    color: darken-safe($primary-color, 10%);
+    text-decoration: underline;
+  }
+}
+
+// Lists
+ul, ol {
+  margin-bottom: $spacing-sm;
+  padding-left: $spacing-md;
+  
+  li {
+    margin-bottom: divide($spacing-sm, 2);
+  }
+}
+
+// Code blocks
+pre, code {
+  font-family: $monospace-font-family;
+  font-size: 0.9rem;
+  border-radius: $border-radius-sm;
+  background-color: $light-bg;
+}
+
+code {
+  padding: 0.2em 0.4em;
+}
+
+pre {
+  padding: $spacing-sm;
+  margin-bottom: $spacing-md;
+  overflow-x: auto;
+  
+  code {
+    padding: 0;
+    background-color: transparent;
+  }
+}
+
+// Blockquotes
+blockquote {
+  border-left: 4px solid $primary-color;
+  padding: $spacing-sm $spacing-md;
+  margin-bottom: $spacing-md;
+  background-color: $light-bg;
+  
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Images
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+// Buttons
+.btn {
+  display: inline-block;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: $border-radius-md;
+  transition: all $transition-speed $transition-ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+  
+  &:hover, &:focus {
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-primary {
+  background-color: $primary-color;
+  color: white;
+  
+  &:hover, &:focus {
+    background-color: darken-safe($primary-color, 7%);
+    color: white;
+  }
+}
+
+.btn-secondary {
+  background-color: $secondary-color;
+  color: white;
+  
+  &:hover, &:focus {
+    background-color: darken-safe($secondary-color, 7%);
+    color: white;
+  }
+}
+
+.btn-accent {
+  background-color: $accent-color;
+  color: white;
+  
+  &:hover, &:focus {
+    background-color: darken-safe($accent-color, 7%);
+    color: white;
+  }
+}
+
+.btn-outline {
+  background-color: transparent;
+  border-color: $primary-color;
+  color: $primary-color;
+  
+  &:hover, &:focus {
+    background-color: $primary-color;
+    color: white;
+  }
+}
+
+// Sections
+section {
+  padding: $spacing-lg 0;
+
+  @media (min-width: $desktop) {
+    padding: $spacing-xl 0;
+  }
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: $spacing-lg;
+
+  h2 {
+    margin-bottom: divide($spacing-sm, 2);
+  }
+
+  p {
+    color: $light-text;
+    font-size: 1.1rem;
+  }
+}
+
+// Accessibility
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: $primary-color;
+  color: white;
+  padding: 8px 16px;
+  z-index: $z-header + 1;
+  transition: top 0.3s;
+
+  &:focus {
+    top: 0;
+    text-decoration: none;
+  }
+}
+
+// Focus styles
+:focus {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+// Form accessibility
+input, select, textarea, button {
+  &:focus {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+// Lazy loading image transition
+img {
+  &.lazy-load {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+
+    &.loaded {
+      opacity: 1;
+    }
+  }
+}
+
+// Utilities
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.small {
+  font-size: 0.875rem;
+}
+
+// Form validation states
+.input-error-message, .email-error-message {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.form-success-message {
+  color: #28a745;
+  padding: 10px;
+  background-color: rgba(#28a745, 0.1);
+  border-radius: $border-radius-sm;
+  margin-top: 15px;
+  text-align: center;
+}

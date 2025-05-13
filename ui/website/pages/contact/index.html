@@ -1,0 +1,141 @@
+---
+layout: page
+title: Contact Us
+subtitle: Get in touch with Sentimark
+permalink: /contact/
+custom_js:
+  - contact-form
+---
+
+<div class="container">
+  <div class="contact-intro">
+    <div class="row">
+      <div class="col-12 col-md-6">
+        <h2>Get in Touch</h2>
+        <p class="lead">We'd love to hear from you! Whether you have questions about Sentimark, want to discuss partnership opportunities, or need support, we're here to help.</p>
+        <p>Please use the contact form below to get in touch. All inquiries are carefully reviewed and we strive to respond within 1-2 business days.</p>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="contact-options">
+          <h3>Contact Options</h3>
+          <p>We handle all inquiries through our contact form to ensure they're properly categorized. Simply select the appropriate subject when submitting your message:</p>
+
+          <ul class="contact-subjects">
+            <li><strong>General Inquiry</strong> - Questions about Sentimark's products or services</li>
+            <li><strong>Kickstarter Campaign</strong> - Information about our upcoming crowdfunding</li>
+            <li><strong>Partnership Opportunity</strong> - Business collaborations and integrations</li>
+            <li><strong>Investor Inquiry</strong> - Information for potential investors</li>
+            <li><strong>Support</strong> - Help with existing products or services</li>
+          </ul>
+
+          <p>Please use the contact form below and we'll respond promptly to your inquiry.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-form-section">
+    <h2>Send Us a Message</h2>
+    <p>Please complete the form below with your inquiry details. All messages are carefully reviewed, and we'll respond within 1-2 business days.</p>
+    
+    <form class="contact-form" id="contactForm" action="#" method="POST">
+      <!-- Honeypot field - Hidden field to catch bots -->
+      <div class="form-group" style="display:none; position:absolute; left:-9999px;" aria-hidden="true">
+        <label for="website">Leave this field empty</label>
+        <input type="text" id="website" name="website" autocomplete="off" tabindex="-1">
+      </div>
+
+      <!-- Time-based check - Hidden field to track when the form was loaded -->
+      <input type="hidden" id="form_time" name="form_time" value="">
+
+      <div class="form-group">
+        <label for="name">Your Name</label>
+        <input type="text" id="name" name="name" class="form-control" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" class="form-control" required>
+      </div>
+
+      <div class="form-group">
+        <label for="subject">Subject</label>
+        <select id="subject" name="subject" class="form-control" required>
+          <option value="">Please select a subject</option>
+          <option value="general">General Inquiry</option>
+          <option value="kickstarter">Kickstarter Campaign</option>
+          <option value="partnership">Partnership Opportunity</option>
+          <option value="investor">Investor Inquiry</option>
+          <option value="support">Support</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="message">Your Message</label>
+        <textarea id="message" name="message" class="form-control" rows="5" required></textarea>
+      </div>
+
+      <div class="form-group privacy-consent">
+        <input type="checkbox" id="privacy" name="privacy" required>
+        <label for="privacy">I consent to Sentimark collecting and storing the information I have provided in this form for the purpose of responding to my inquiry. I understand that my information will be processed in accordance with Sentimark's <a href="/privacy-policy">Privacy Policy</a>.</label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Send Message</button>
+      </div>
+    </form>
+    
+    <div class="form-note">
+      <p>Note: This contact form is currently collecting submissions but will not be processed until our official launch in Summer 2025.</p>
+    </div>
+  </div>
+
+  <div class="faq-section">
+    <h2>Frequently Asked Questions</h2>
+    
+    <div class="faq-grid">
+      <div class="faq-item">
+        <h3>When will Sentimark be available?</h3>
+        <p>Sentimark is currently in development, with our Kickstarter campaign scheduled to launch in Summer 2025. Early access for backers will begin in Fall 2025, with full platform launch in Winter 2025.</p>
+      </div>
+      
+      <div class="faq-item">
+        <h3>How can I support the Kickstarter campaign?</h3>
+        <p>You can sign up for our newsletter to be notified when the campaign launches. Once live, you'll be able to back the project at various tiers to receive early access and special benefits.</p>
+      </div>
+      
+      <div class="faq-item">
+        <h3>Do you offer partnerships or affiliate programs?</h3>
+        <p>We're exploring partnership opportunities with financial platforms, content providers, and educational institutions. For partnership inquiries, please use our contact form and select "Partnership Opportunity" as the subject.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Are you hiring?</h3>
+        <p>While we don't currently have open positions, we're always interested in connecting with talented individuals passionate about AI and financial markets. Please use our contact form with "General Inquiry" as the subject and include details about your experience.</p>
+      </div>
+    </div>
+    
+    <div class="faq-more">
+      <p>Have a question not answered here? Please <a href="#contactForm">contact us</a> or check our <a href="/kickstarter#campaign-faq">Kickstarter FAQ</a> for more information.</p>
+    </div>
+  </div>
+
+  <div class="newsletter-section">
+    <h2>Stay Updated</h2>
+    <p>Subscribe to our newsletter to receive updates on Sentimark's development, our upcoming Kickstarter campaign, and valuable insights on market sentiment analysis.</p>
+    
+    <div class="newsletter-container">
+      {% include newsletter-signup.html %}
+    </div>
+  </div>
+
+  <div class="social-section">
+    <h2>Connect With Us</h2>
+    <p>Follow Sentimark on social media for the latest updates, insights, and announcements.</p>
+    
+    <div class="social-container">
+      {% include social-links.html %}
+    </div>
+  </div>
+</div>

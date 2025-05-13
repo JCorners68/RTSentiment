@@ -1,0 +1,3020 @@
+---
+# Source: sentimark-services/templates/api-deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: api
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api
+      app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/auth-deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: auth
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: auth
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "auth"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: auth
+      app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/data-acquisition-deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: data-acquisition
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-acquisition
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: data-acquisition
+      app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/data-migration-deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: data-migration-service-pdb
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: data-migration-service
+      app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/data-tier-deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: data-tier-pdb
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: data-tier
+      app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/sentiment-analysis-deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: sentiment-analysis
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: sentiment-analysis
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "analysis"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sentiment-analysis
+      app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/api-deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: api
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api
+      app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/auth-deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: auth
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: auth
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "auth"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: auth
+      app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-acquisition-deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: data-acquisition
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-acquisition
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: data-acquisition
+      app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-migration-deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: data-migration-service-pdb
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: data-migration-service
+      app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-tier-deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: data-tier-pdb
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: data-tier
+      app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/sentiment-analysis-deployment.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: sentiment-analysis
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: sentiment-analysis
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "analysis"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sentiment-analysis
+      app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/data-migration-deployment.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-migration-config
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+data:
+  application.properties: |
+    # Data migration service configuration
+    spring.application.name=data-migration-service
+  
+    # Feature flags configuration
+    feature.flags.provider=azure-app-configuration
+    azure.app.configuration.endpoint=${APP_CONFIG_ENDPOINT}
+  
+    # Monitor configuration
+    azure.application-insights.connection-string=${APP_INSIGHTS_CONNECTION_STRING}
+  
+    # Database configurations
+    # PostgreSQL
+    spring.datasource.postgres.url=${POSTGRES_URL}
+    spring.datasource.postgres.username=${POSTGRES_USERNAME}
+    spring.datasource.postgres.password=${POSTGRES_PASSWORD}
+    spring.datasource.postgres.driver-class-name=org.postgresql.Driver
+  
+    # Iceberg
+    iceberg.catalog-type=rest
+    iceberg.catalog.url=${ICEBERG_REST_CATALOG_URL}
+    iceberg.warehouse=${ICEBERG_WAREHOUSE}
+    iceberg.storage.account=${ICEBERG_STORAGE_ACCOUNT}
+    iceberg.storage.access-key=${ICEBERG_STORAGE_ACCESS_KEY}
+  
+    # Migration settings
+    migration.batch-size=100
+    migration.parallel-threads=4
+    migration.validation-enabled=true
+    migration.auto-retry-count=3
+    migration.error-tolerance-percentage=1.0
+---
+# Source: sentimark-services/templates/data-tier-deployment.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-tier-config
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+data:
+  application.properties: |
+    # Data tier service configuration
+    spring.application.name=data-tier-service
+  
+    # Feature flags configuration
+    feature.flags.provider=azure-app-configuration
+    azure.app.configuration.endpoint=${APP_CONFIG_ENDPOINT}
+  
+    # Monitor configuration
+    azure.application-insights.connection-string=${APP_INSIGHTS_CONNECTION_STRING}
+  
+    # Database configurations
+    # PostgreSQL
+    spring.datasource.postgres.url=${POSTGRES_URL}
+    spring.datasource.postgres.username=${POSTGRES_USERNAME}
+    spring.datasource.postgres.password=${POSTGRES_PASSWORD}
+    spring.datasource.postgres.driver-class-name=org.postgresql.Driver
+  
+    # Iceberg
+    iceberg.catalog-type=rest
+    iceberg.catalog.url=${ICEBERG_REST_CATALOG_URL}
+    iceberg.warehouse=${ICEBERG_WAREHOUSE}
+    iceberg.storage.account=${ICEBERG_STORAGE_ACCOUNT}
+    iceberg.storage.access-key=${ICEBERG_STORAGE_ACCESS_KEY}
+  
+    # Query settings
+    query.timeout.seconds=30
+    query.batch-size=50
+    query.cache-enabled=true
+    query.cache-ttl-seconds=300
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-migration-deployment.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-migration-config
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+data:
+  application.properties: |
+    # Data migration service configuration
+    spring.application.name=data-migration-service
+  
+    # Feature flags configuration
+    feature.flags.provider=azure-app-configuration
+    azure.app.configuration.endpoint=${APP_CONFIG_ENDPOINT}
+  
+    # Monitor configuration
+    azure.application-insights.connection-string=${APP_INSIGHTS_CONNECTION_STRING}
+  
+    # Database configurations
+    # PostgreSQL
+    spring.datasource.postgres.url=${POSTGRES_URL}
+    spring.datasource.postgres.username=${POSTGRES_USERNAME}
+    spring.datasource.postgres.password=${POSTGRES_PASSWORD}
+    spring.datasource.postgres.driver-class-name=org.postgresql.Driver
+  
+    # Iceberg
+    iceberg.catalog-type=rest
+    iceberg.catalog.url=${ICEBERG_REST_CATALOG_URL}
+    iceberg.warehouse=${ICEBERG_WAREHOUSE}
+    iceberg.storage.account=${ICEBERG_STORAGE_ACCOUNT}
+    iceberg.storage.access-key=${ICEBERG_STORAGE_ACCESS_KEY}
+  
+    # Migration settings
+    migration.batch-size=100
+    migration.parallel-threads=4
+    migration.validation-enabled=true
+    migration.auto-retry-count=3
+    migration.error-tolerance-percentage=1.0
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-tier-deployment.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: data-tier-config
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+data:
+  application.properties: |
+    # Data tier service configuration
+    spring.application.name=data-tier-service
+  
+    # Feature flags configuration
+    feature.flags.provider=azure-app-configuration
+    azure.app.configuration.endpoint=${APP_CONFIG_ENDPOINT}
+  
+    # Monitor configuration
+    azure.application-insights.connection-string=${APP_INSIGHTS_CONNECTION_STRING}
+  
+    # Database configurations
+    # PostgreSQL
+    spring.datasource.postgres.url=${POSTGRES_URL}
+    spring.datasource.postgres.username=${POSTGRES_USERNAME}
+    spring.datasource.postgres.password=${POSTGRES_PASSWORD}
+    spring.datasource.postgres.driver-class-name=org.postgresql.Driver
+  
+    # Iceberg
+    iceberg.catalog-type=rest
+    iceberg.catalog.url=${ICEBERG_REST_CATALOG_URL}
+    iceberg.warehouse=${ICEBERG_WAREHOUSE}
+    iceberg.storage.account=${ICEBERG_STORAGE_ACCOUNT}
+    iceberg.storage.access-key=${ICEBERG_STORAGE_ACCESS_KEY}
+  
+    # Query settings
+    query.timeout.seconds=30
+    query.batch-size=50
+    query.cache-enabled=true
+    query.cache-ttl-seconds=300
+---
+# Source: sentimark-services/templates/data-migration-deployment.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: data-migration-role
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+---
+# Source: sentimark-services/templates/data-tier-deployment.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: data-tier-role
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-migration-deployment.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: data-migration-role
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-tier-deployment.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: data-tier-role
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+---
+# Source: sentimark-services/templates/data-migration-deployment.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: data-migration-service-role-binding
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
+roleRef:
+  kind: Role
+  name: data-migration-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: sentimark-services/templates/data-tier-deployment.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: data-tier-role-binding
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
+roleRef:
+  kind: Role
+  name: data-tier-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-migration-deployment.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: data-migration-service-role-binding
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
+roleRef:
+  kind: Role
+  name: data-migration-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-tier-deployment.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: data-tier-role-binding
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
+roleRef:
+  kind: Role
+  name: data-tier-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: sentimark-services/templates/api-deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: api
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8001
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: api
+    app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/auth-deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: auth
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "auth"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8003
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: auth
+    app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/data-acquisition-deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-acquisition
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-acquisition
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8002
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: data-acquisition
+    app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/data-migration-deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-migration-service
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/data-tier-deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-tier
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8004
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/sentiment-analysis-deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-analysis
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: sentiment-analysis
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "analysis"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: sentiment-analysis
+    app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/api-deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: api
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8001
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: api
+    app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/auth-deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: auth
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "auth"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8003
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: auth
+    app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-acquisition-deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-acquisition
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-acquisition
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8002
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: data-acquisition
+    app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-migration-deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-migration-service
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-tier-deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-tier
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8004
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/sentiment-analysis-deployment.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-analysis
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: sentiment-analysis
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "analysis"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: sentiment-analysis
+    app.kubernetes.io/instance: sentimark-test
+---
+# Source: sentimark-services/templates/api-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: api
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api
+      app.kubernetes.io/instance: sentimark-test
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sentimark-services-0.1.0
+        app.kubernetes.io/name: api
+        app.kubernetes.io/instance: sentimark-test
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: "api"
+        app.kubernetes.io/part-of: sentimark
+        app.kubernetes.io/managed-by: "helm"
+        app.kubernetes.io/part-of: "sentimark"
+    spec:
+      # Pod-level security context (fsGroup must be at pod level)
+      # securityContext:
+      #   fsGroup: 1000
+      # Node selector for spot instances
+      nodeSelector:
+        agentpool: apispots
+      # Tolerations for spot instances
+      tolerations:
+        
+        - effect: NoSchedule
+          key: kubernetes.azure.com/scalesetpriority
+          operator: Equal
+          value: spot
+        - effect: NoSchedule
+          key: workload
+          operator: Equal
+          value: apiworkload
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - api
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: api
+        image: "${global.registry.server}/api:latest"
+        imagePullPolicy: Always
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+        ports:
+        - containerPort: 8001
+          protocol: TCP
+        env:
+        - name: ENVIRONMENT
+          value: "sit"
+        - name: PORT
+          value: "8001"
+        - name: AUTH_SERVICE_URL
+          value: "http://auth/auth"
+        - name: SENTIMENT_ANALYSIS_SERVICE_URL
+          value: "http://sentiment-analysis/analyze"
+        - name: DATA_TIER_SERVICE_URL
+          value: "http://data-tier/data"
+        - name: API_LOG_LEVEL
+          value: "INFO"
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              key: connectionString
+              name: app-insights
+        resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+        startupProbe:
+          failureThreshold: 30
+          httpGet:
+            path: /health
+            port: 8001
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 10; /app/shutdown.sh || true
+---
+# Source: sentimark-services/templates/auth-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: auth
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "auth"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: auth
+      app.kubernetes.io/instance: sentimark-test
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sentimark-services-0.1.0
+        app.kubernetes.io/name: auth
+        app.kubernetes.io/instance: sentimark-test
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: "auth"
+        app.kubernetes.io/part-of: sentimark
+        app.kubernetes.io/managed-by: "helm"
+        app.kubernetes.io/part-of: "sentimark"
+    spec:
+      # Pod-level security context (fsGroup must be at pod level)
+      # securityContext:
+      #   fsGroup: 1000
+      # Node selector for spot instances
+      nodeSelector:
+        agentpool: apispots
+      # Tolerations for spot instances
+      tolerations:
+        
+        - effect: NoSchedule
+          key: kubernetes.azure.com/scalesetpriority
+          operator: Equal
+          value: spot
+        - effect: NoSchedule
+          key: workload
+          operator: Equal
+          value: apiworkload
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - auth
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: auth
+        image: "${global.registry.server}/auth:latest"
+        imagePullPolicy: Always
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+        ports:
+        - containerPort: 8003
+          protocol: TCP
+        env:
+        - name: ENVIRONMENT
+          value: "sit"
+        - name: PORT
+          value: "8003"
+        - name: AUTH_LOG_LEVEL
+          value: "INFO"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: jwt-secret
+              name: auth-secrets
+        - name: JWT_EXPIRATION_SECONDS
+          value: "3600"
+        - name: AUTH_ADMIN_EMAIL
+          valueFrom:
+            secretKeyRef:
+              key: admin-email
+              name: auth-secrets
+        - name: AUTH_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: admin-password
+              name: auth-secrets
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              key: connectionString
+              name: app-insights
+        resources:
+            limits:
+              cpu: 800m
+              memory: 1Gi
+            requests:
+              cpu: 300m
+              memory: 512Mi
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+        startupProbe:
+          failureThreshold: 30
+          httpGet:
+            path: /health
+            port: 8003
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 10; /app/shutdown.sh || true
+---
+# Source: sentimark-services/templates/data-acquisition-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-acquisition
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-acquisition
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: data-acquisition
+      app.kubernetes.io/instance: sentimark-test
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sentimark-services-0.1.0
+        app.kubernetes.io/name: data-acquisition
+        app.kubernetes.io/instance: sentimark-test
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: "api"
+        app.kubernetes.io/part-of: sentimark
+        app.kubernetes.io/managed-by: "helm"
+        app.kubernetes.io/part-of: "sentimark"
+    spec:
+      # Pod-level security context (fsGroup must be at pod level)
+      #       #       #       # # securityContext:
+        #         #         #         #         # fsGroup: 1000
+      # Node selector for spot instances
+      nodeSelector:
+        agentpool: dataspots
+      # Tolerations for spot instances
+      tolerations:
+        
+        - effect: NoSchedule
+          key: kubernetes.azure.com/scalesetpriority
+          operator: Equal
+          value: spot
+        - effect: NoSchedule
+          key: workload
+          operator: Equal
+          value: dataprocessing
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - data-acquisition
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: data-acquisition
+        image: "rtsentiregistry.azurecr.io/data-acquisition:latest"
+        imagePullPolicy: Always
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+        ports:
+        - containerPort: 8002
+          protocol: TCP
+        env:
+        - name: ENVIRONMENT
+          value: "sit"
+        - name: PORT
+          value: "8002"
+        - name: OPTIMIZE_FOR_LATENCY
+          value: "true"
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              key: connectionString
+              name: app-insights
+        resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8002
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /
+            port: 8002
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+        startupProbe:
+          failureThreshold: 30
+          httpGet:
+            path: /
+            port: 8002
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 10; /app/shutdown.sh || true
+---
+# Source: sentimark-services/templates/data-migration-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-migration-service
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: data-migration-service
+      app.kubernetes.io/instance: sentimark-test
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sentimark-services-0.1.0
+        app.kubernetes.io/name: data-migration-service
+        app.kubernetes.io/instance: sentimark-test
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: "migration"
+        app.kubernetes.io/part-of: sentimark
+        app.kubernetes.io/managed-by: "helm"
+        app.kubernetes.io/part-of: "sentimark"
+    spec:
+      # Pod-level security context (fsGroup must be at pod level)
+      #       #       # # securityContext:
+        #         #         #         # fsGroup: 1000
+      # Node selector for spot instances
+      nodeSelector:
+        agentpool: dataspots
+      # Tolerations for spot instances
+      tolerations:
+        
+        - effect: NoSchedule
+          key: kubernetes.azure.com/scalesetpriority
+          operator: Equal
+          value: spot
+        - effect: NoSchedule
+          key: workload
+          operator: Equal
+          value: dataprocessing
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: data-migration
+        image: "${global.registry.server}/data-migration-service:latest"
+        imagePullPolicy: Always
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+        resources:
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+        env:
+        - name: APP_CONFIG_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              key: app-config-endpoint
+              name: data-tier-secrets
+        - name: APP_INSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              key: app-insights-connection-string
+              name: data-tier-secrets
+        - name: POSTGRES_URL
+          valueFrom:
+            secretKeyRef:
+              key: postgres-url
+              name: data-tier-secrets
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: postgres-username
+              name: data-tier-secrets
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: postgres-password
+              name: data-tier-secrets
+        - name: ICEBERG_REST_CATALOG_URL
+          valueFrom:
+            secretKeyRef:
+              key: iceberg-rest-catalog-url
+              name: data-tier-secrets
+        - name: ICEBERG_WAREHOUSE
+          value: "s3a://warehouse"
+        - name: ICEBERG_STORAGE_ACCOUNT
+          valueFrom:
+            secretKeyRef:
+              key: iceberg-storage-account
+              name: data-tier-secrets
+        - name: ICEBERG_STORAGE_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: iceberg-storage-access-key
+              name: data-tier-secrets
+        volumeMounts:
+          - mountPath: /app/config
+            name: config-volume
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 5; curl -X POST http://localhost:8080/actuator/shutdown || true
+      volumes:
+        - configMap:
+            name: data-migration-config
+          name: config-volume
+---
+# Source: sentimark-services/templates/data-tier-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-tier
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: data-tier
+      app.kubernetes.io/instance: sentimark-test
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sentimark-services-0.1.0
+        app.kubernetes.io/name: data-tier
+        app.kubernetes.io/instance: sentimark-test
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: "data"
+        app.kubernetes.io/part-of: sentimark
+        app.kubernetes.io/managed-by: "helm"
+        app.kubernetes.io/part-of: "sentimark"
+    spec:
+      # Pod-level security context (fsGroup must be at pod level)
+      #       #       #       # securityContext:
+        #         #         #         # fsGroup: 1000
+      # Node selector for spot instances
+      nodeSelector:
+        agentpool: dataspots
+      # Tolerations for spot instances
+      tolerations:
+        
+        - effect: NoSchedule
+          key: kubernetes.azure.com/scalesetpriority
+          operator: Equal
+          value: spot
+        - effect: NoSchedule
+          key: workload
+          operator: Equal
+          value: dataprocessing
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - data-tier
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 90
+      containers:
+      - name: data-tier
+        image: "${global.registry.server}/data-tier:latest"
+        imagePullPolicy: Always
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+        ports:
+        - containerPort: 8004
+          protocol: TCP
+        env:
+        - name: APP_CONFIG_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              key: app-config-endpoint
+              name: data-tier-secrets
+        - name: APP_INSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              key: app-insights-connection-string
+              name: data-tier-secrets
+        - name: POSTGRES_URL
+          valueFrom:
+            secretKeyRef:
+              key: postgres-url
+              name: data-tier-secrets
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: postgres-username
+              name: data-tier-secrets
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: postgres-password
+              name: data-tier-secrets
+        - name: ICEBERG_REST_CATALOG_URL
+          valueFrom:
+            secretKeyRef:
+              key: iceberg-rest-catalog-url
+              name: data-tier-secrets
+        - name: ICEBERG_WAREHOUSE
+          value: "s3a://warehouse"
+        - name: ICEBERG_STORAGE_ACCOUNT
+          valueFrom:
+            secretKeyRef:
+              key: iceberg-storage-account
+              name: data-tier-secrets
+        - name: ICEBERG_STORAGE_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: iceberg-storage-access-key
+              name: data-tier-secrets
+        - name: PORT
+          value: "8004"
+        resources:
+            limits:
+              cpu: 1500m
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+        volumeMounts:
+          - mountPath: /app/config
+            name: config-volume
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8004
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8004
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 15; curl -X POST http://localhost:8004/actuator/shutdown || true
+      volumes:
+        - configMap:
+            name: data-tier-config
+          name: config-volume
+---
+# Source: sentimark-services/templates/sentiment-analysis-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-analysis
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: sentiment-analysis
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "analysis"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sentiment-analysis
+      app.kubernetes.io/instance: sentimark-test
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sentimark-services-0.1.0
+        app.kubernetes.io/name: sentiment-analysis
+        app.kubernetes.io/instance: sentimark-test
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: "analysis"
+        app.kubernetes.io/part-of: sentimark
+        app.kubernetes.io/managed-by: "helm"
+        app.kubernetes.io/part-of: "sentimark"
+    spec:
+      # Pod-level security context (fsGroup must be at pod level)
+      #       #       # # securityContext:
+        #         #         #         # fsGroup: 1000
+      # Node selector for spot instances
+      nodeSelector:
+        agentpool: mlspots
+      # Tolerations for spot instances
+      tolerations:
+        
+        - effect: NoSchedule
+          key: kubernetes.azure.com/scalesetpriority
+          operator: Equal
+          value: spot
+        - effect: NoSchedule
+          key: workload
+          operator: Equal
+          value: mlworkload
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - sentiment-analysis
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: sentiment-analysis
+        image: "${global.registry.server}/sentiment-analysis:latest"
+        imagePullPolicy: Always
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+        ports:
+        - containerPort: 8000
+          protocol: TCP
+        env:
+        - name: ENVIRONMENT
+          value: "sit"
+        - name: PORT
+          value: "8000"
+        - name: MODEL_PATH
+          value: "/app/models/finbert"
+        - name: BATCH_SIZE
+          value: "32"
+        - name: USE_GPU
+          value: "true"
+        - name: MAX_SEQUENCE_LENGTH
+          value: "256"
+        - name: CACHE_ENABLED
+          value: "true"
+        - name: CACHE_TTL_SECONDS
+          value: "3600"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              key: connectionString
+              name: app-insights
+        resources:
+            limits:
+              cpu: 2000m
+              memory: 4Gi
+            requests:
+              cpu: 1000m
+              memory: 2Gi
+        volumeMounts:
+          - mountPath: /app/models
+            name: model-volume
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          timeoutSeconds: 5
+        startupProbe:
+          failureThreshold: 60
+          httpGet:
+            path: /health
+            port: 8000
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 30; /app/shutdown.sh || true
+      volumes:
+        - name: model-volume
+          persistentVolumeClaim:
+            claimName: finbert-model-pvc
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/api-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: api
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: api
+      app.kubernetes.io/instance: sentimark-test
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sentimark-services-0.1.0
+        app.kubernetes.io/name: api
+        app.kubernetes.io/instance: sentimark-test
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: "api"
+        app.kubernetes.io/part-of: sentimark
+        app.kubernetes.io/managed-by: "helm"
+        app.kubernetes.io/part-of: "sentimark"
+    spec:
+      # Pod-level security context (fsGroup must be at pod level)
+      #       #       # securityContext:
+        #         #         # fsGroup: 1000
+      # Node selector for spot instances
+      nodeSelector:
+        agentpool: apispots
+      # Tolerations for spot instances
+      tolerations:
+        
+        - effect: NoSchedule
+          key: kubernetes.azure.com/scalesetpriority
+          operator: Equal
+          value: spot
+        - effect: NoSchedule
+          key: workload
+          operator: Equal
+          value: apiworkload
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - api
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: api
+        image: "${global.registry.server}/api:latest"
+        imagePullPolicy: Always
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+        ports:
+        - containerPort: 8001
+          protocol: TCP
+        env:
+        - name: ENVIRONMENT
+          value: "sit"
+        - name: PORT
+          value: "8001"
+        - name: AUTH_SERVICE_URL
+          value: "http://auth/auth"
+        - name: SENTIMENT_ANALYSIS_SERVICE_URL
+          value: "http://sentiment-analysis/analyze"
+        - name: DATA_TIER_SERVICE_URL
+          value: "http://data-tier/data"
+        - name: API_LOG_LEVEL
+          value: "INFO"
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              key: connectionString
+              name: app-insights
+        resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+        startupProbe:
+          failureThreshold: 30
+          httpGet:
+            path: /health
+            port: 8001
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 10; /app/shutdown.sh || true
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/auth-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: auth
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "auth"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: auth
+      app.kubernetes.io/instance: sentimark-test
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sentimark-services-0.1.0
+        app.kubernetes.io/name: auth
+        app.kubernetes.io/instance: sentimark-test
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: "auth"
+        app.kubernetes.io/part-of: sentimark
+        app.kubernetes.io/managed-by: "helm"
+        app.kubernetes.io/part-of: "sentimark"
+    spec:
+      # Pod-level security context (fsGroup must be at pod level)
+      #       #       # securityContext:
+        #         #         # fsGroup: 1000
+      # Node selector for spot instances
+      nodeSelector:
+        agentpool: apispots
+      # Tolerations for spot instances
+      tolerations:
+        
+        - effect: NoSchedule
+          key: kubernetes.azure.com/scalesetpriority
+          operator: Equal
+          value: spot
+        - effect: NoSchedule
+          key: workload
+          operator: Equal
+          value: apiworkload
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - auth
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: auth
+        image: "${global.registry.server}/auth:latest"
+        imagePullPolicy: Always
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+        ports:
+        - containerPort: 8003
+          protocol: TCP
+        env:
+        - name: ENVIRONMENT
+          value: "sit"
+        - name: PORT
+          value: "8003"
+        - name: AUTH_LOG_LEVEL
+          value: "INFO"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: jwt-secret
+              name: auth-secrets
+        - name: JWT_EXPIRATION_SECONDS
+          value: "3600"
+        - name: AUTH_ADMIN_EMAIL
+          valueFrom:
+            secretKeyRef:
+              key: admin-email
+              name: auth-secrets
+        - name: AUTH_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: admin-password
+              name: auth-secrets
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              key: connectionString
+              name: app-insights
+        resources:
+            limits:
+              cpu: 800m
+              memory: 1Gi
+            requests:
+              cpu: 300m
+              memory: 512Mi
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+        startupProbe:
+          failureThreshold: 30
+          httpGet:
+            path: /health
+            port: 8003
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 10; /app/shutdown.sh || true
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-acquisition-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-acquisition
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-acquisition
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: data-acquisition
+      app.kubernetes.io/instance: sentimark-test
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sentimark-services-0.1.0
+        app.kubernetes.io/name: data-acquisition
+        app.kubernetes.io/instance: sentimark-test
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: "api"
+        app.kubernetes.io/part-of: sentimark
+        app.kubernetes.io/managed-by: "helm"
+        app.kubernetes.io/part-of: "sentimark"
+    spec:
+      # Pod-level security context (fsGroup must be at pod level)
+      #       #       # # securityContext:
+        #         #         #         # fsGroup: 1000
+      # Node selector for spot instances
+      nodeSelector:
+        agentpool: dataspots
+      # Tolerations for spot instances
+      tolerations:
+        
+        - effect: NoSchedule
+          key: kubernetes.azure.com/scalesetpriority
+          operator: Equal
+          value: spot
+        - effect: NoSchedule
+          key: workload
+          operator: Equal
+          value: dataprocessing
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - data-acquisition
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: data-acquisition
+        image: "rtsentiregistry.azurecr.io/data-acquisition:latest"
+        imagePullPolicy: Always
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+        ports:
+        - containerPort: 8002
+          protocol: TCP
+        env:
+        - name: ENVIRONMENT
+          value: "sit"
+        - name: PORT
+          value: "8002"
+        - name: OPTIMIZE_FOR_LATENCY
+          value: "true"
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              key: connectionString
+              name: app-insights
+        resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8002
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 2
+          httpGet:
+            path: /
+            port: 8002
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+        startupProbe:
+          failureThreshold: 30
+          httpGet:
+            path: /
+            port: 8002
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 10; /app/shutdown.sh || true
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-migration-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-migration-service
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: data-migration-service
+      app.kubernetes.io/instance: sentimark-test
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sentimark-services-0.1.0
+        app.kubernetes.io/name: data-migration-service
+        app.kubernetes.io/instance: sentimark-test
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: "migration"
+        app.kubernetes.io/part-of: sentimark
+        app.kubernetes.io/managed-by: "helm"
+        app.kubernetes.io/part-of: "sentimark"
+    spec:
+      # Pod-level security context (fsGroup must be at pod level)
+      #       # # securityContext:
+        #         #         # fsGroup: 1000
+      # Node selector for spot instances
+      nodeSelector:
+        agentpool: dataspots
+      # Tolerations for spot instances
+      tolerations:
+        
+        - effect: NoSchedule
+          key: kubernetes.azure.com/scalesetpriority
+          operator: Equal
+          value: spot
+        - effect: NoSchedule
+          key: workload
+          operator: Equal
+          value: dataprocessing
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: data-migration
+        image: "${global.registry.server}/data-migration-service:latest"
+        imagePullPolicy: Always
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+        resources:
+            limits:
+              cpu: 2000m
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+        env:
+        - name: APP_CONFIG_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              key: app-config-endpoint
+              name: data-tier-secrets
+        - name: APP_INSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              key: app-insights-connection-string
+              name: data-tier-secrets
+        - name: POSTGRES_URL
+          valueFrom:
+            secretKeyRef:
+              key: postgres-url
+              name: data-tier-secrets
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: postgres-username
+              name: data-tier-secrets
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: postgres-password
+              name: data-tier-secrets
+        - name: ICEBERG_REST_CATALOG_URL
+          valueFrom:
+            secretKeyRef:
+              key: iceberg-rest-catalog-url
+              name: data-tier-secrets
+        - name: ICEBERG_WAREHOUSE
+          value: "s3a://warehouse"
+        - name: ICEBERG_STORAGE_ACCOUNT
+          valueFrom:
+            secretKeyRef:
+              key: iceberg-storage-account
+              name: data-tier-secrets
+        - name: ICEBERG_STORAGE_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: iceberg-storage-access-key
+              name: data-tier-secrets
+        volumeMounts:
+          - mountPath: /app/config
+            name: config-volume
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 5; curl -X POST http://localhost:8080/actuator/shutdown || true
+      volumes:
+        - configMap:
+            name: data-migration-config
+          name: config-volume
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-tier-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-tier
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-tier
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "data"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: data-tier
+      app.kubernetes.io/instance: sentimark-test
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sentimark-services-0.1.0
+        app.kubernetes.io/name: data-tier
+        app.kubernetes.io/instance: sentimark-test
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: "data"
+        app.kubernetes.io/part-of: sentimark
+        app.kubernetes.io/managed-by: "helm"
+        app.kubernetes.io/part-of: "sentimark"
+    spec:
+      # Pod-level security context (fsGroup must be at pod level)
+      #       #       # securityContext:
+        #         #         # fsGroup: 1000
+      # Node selector for spot instances
+      nodeSelector:
+        agentpool: dataspots
+      # Tolerations for spot instances
+      tolerations:
+        
+        - effect: NoSchedule
+          key: kubernetes.azure.com/scalesetpriority
+          operator: Equal
+          value: spot
+        - effect: NoSchedule
+          key: workload
+          operator: Equal
+          value: dataprocessing
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - data-tier
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 90
+      containers:
+      - name: data-tier
+        image: "${global.registry.server}/data-tier:latest"
+        imagePullPolicy: Always
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+        ports:
+        - containerPort: 8004
+          protocol: TCP
+        env:
+        - name: APP_CONFIG_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              key: app-config-endpoint
+              name: data-tier-secrets
+        - name: APP_INSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              key: app-insights-connection-string
+              name: data-tier-secrets
+        - name: POSTGRES_URL
+          valueFrom:
+            secretKeyRef:
+              key: postgres-url
+              name: data-tier-secrets
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: postgres-username
+              name: data-tier-secrets
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: postgres-password
+              name: data-tier-secrets
+        - name: ICEBERG_REST_CATALOG_URL
+          valueFrom:
+            secretKeyRef:
+              key: iceberg-rest-catalog-url
+              name: data-tier-secrets
+        - name: ICEBERG_WAREHOUSE
+          value: "s3a://warehouse"
+        - name: ICEBERG_STORAGE_ACCOUNT
+          valueFrom:
+            secretKeyRef:
+              key: iceberg-storage-account
+              name: data-tier-secrets
+        - name: ICEBERG_STORAGE_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: iceberg-storage-access-key
+              name: data-tier-secrets
+        - name: PORT
+          value: "8004"
+        resources:
+            limits:
+              cpu: 1500m
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+        volumeMounts:
+          - mountPath: /app/config
+            name: config-volume
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8004
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8004
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 15; curl -X POST http://localhost:8004/actuator/shutdown || true
+      volumes:
+        - configMap:
+            name: data-tier-config
+          name: config-volume
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/sentiment-analysis-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-analysis
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: sentiment-analysis
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "analysis"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sentiment-analysis
+      app.kubernetes.io/instance: sentimark-test
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sentimark-services-0.1.0
+        app.kubernetes.io/name: sentiment-analysis
+        app.kubernetes.io/instance: sentimark-test
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: "analysis"
+        app.kubernetes.io/part-of: sentimark
+        app.kubernetes.io/managed-by: "helm"
+        app.kubernetes.io/part-of: "sentimark"
+    spec:
+      # Pod-level security context (fsGroup must be at pod level)
+      #       # # securityContext:
+        #         #         # fsGroup: 1000
+      # Node selector for spot instances
+      nodeSelector:
+        agentpool: mlspots
+      # Tolerations for spot instances
+      tolerations:
+        
+        - effect: NoSchedule
+          key: kubernetes.azure.com/scalesetpriority
+          operator: Equal
+          value: spot
+        - effect: NoSchedule
+          key: workload
+          operator: Equal
+          value: mlworkload
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - sentiment-analysis
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: sentiment-analysis
+        image: "${global.registry.server}/sentiment-analysis:latest"
+        imagePullPolicy: Always
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          runAsGroup: 1000
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+        ports:
+        - containerPort: 8000
+          protocol: TCP
+        env:
+        - name: ENVIRONMENT
+          value: "sit"
+        - name: PORT
+          value: "8000"
+        - name: MODEL_PATH
+          value: "/app/models/finbert"
+        - name: BATCH_SIZE
+          value: "32"
+        - name: USE_GPU
+          value: "true"
+        - name: MAX_SEQUENCE_LENGTH
+          value: "256"
+        - name: CACHE_ENABLED
+          value: "true"
+        - name: CACHE_TTL_SECONDS
+          value: "3600"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              key: connectionString
+              name: app-insights
+        resources:
+            limits:
+              cpu: 2000m
+              memory: 4Gi
+            requests:
+              cpu: 1000m
+              memory: 2Gi
+        volumeMounts:
+          - mountPath: /app/models
+            name: model-volume
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 15
+          timeoutSeconds: 5
+        startupProbe:
+          failureThreshold: 60
+          httpGet:
+            path: /health
+            port: 8000
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - sleep 30; /app/shutdown.sh || true
+      volumes:
+        - name: model-volume
+          persistentVolumeClaim:
+            claimName: finbert-model-pvc
+---
+# Source: sentimark-services/templates/data-migration-deployment.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: data-migration-service-scheduler
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration-cron"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  schedule: "0 0 * * *"
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            helm.sh/chart: sentimark-services-0.1.0
+            app.kubernetes.io/name: data-migration-service
+            app.kubernetes.io/instance: sentimark-test
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/version: "1.0.0"
+            app.kubernetes.io/component: "migration-job"
+            app.kubernetes.io/part-of: sentimark
+            app.kubernetes.io/managed-by: "helm"
+            app.kubernetes.io/part-of: "sentimark"
+        spec:
+          # Node selector for spot instances
+          nodeSelector:
+            agentpool: dataspots
+          # Tolerations for spot instances
+          tolerations:
+            
+            - effect: NoSchedule
+              key: kubernetes.azure.com/scalesetpriority
+              operator: Equal
+              value: spot
+            - effect: NoSchedule
+              key: workload
+              operator: Equal
+              value: dataprocessing
+          containers:
+          - name: migration-job
+            image: "${global.registry.server}/data-migration-service:latest"
+            imagePullPolicy: Always
+            # Container-level security context
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 1000
+              runAsGroup: 1000
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                - ALL
+              readOnlyRootFilesystem: false
+            args:
+            - "java"
+            - "-jar"
+            - "/app/data-migration-service.jar"
+            - "--spring.profiles.active=migration-job"
+            env:
+            - name: APP_CONFIG_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  key: app-config-endpoint
+                  name: data-tier-secrets
+            - name: APP_INSIGHTS_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  key: app-insights-connection-string
+                  name: data-tier-secrets
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  key: postgres-url
+                  name: data-tier-secrets
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: postgres-username
+                  name: data-tier-secrets
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: postgres-password
+                  name: data-tier-secrets
+            - name: ICEBERG_REST_CATALOG_URL
+              valueFrom:
+                secretKeyRef:
+                  key: iceberg-rest-catalog-url
+                  name: data-tier-secrets
+            - name: ICEBERG_WAREHOUSE
+              value: "s3a://warehouse"
+            - name: ICEBERG_STORAGE_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  key: iceberg-storage-account
+                  name: data-tier-secrets
+            - name: ICEBERG_STORAGE_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: iceberg-storage-access-key
+                  name: data-tier-secrets
+            volumeMounts:
+              - mountPath: /app/config
+                name: config-volume
+          volumes:
+            - configMap:
+                name: data-migration-config
+              name: config-volume
+          restartPolicy: OnFailure
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/data-migration-deployment.yaml
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: data-migration-service-scheduler
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: data-migration-service
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "migration-cron"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+spec:
+  schedule: "0 0 * * *"
+  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            helm.sh/chart: sentimark-services-0.1.0
+            app.kubernetes.io/name: data-migration-service
+            app.kubernetes.io/instance: sentimark-test
+            app.kubernetes.io/managed-by: Helm
+            app.kubernetes.io/version: "1.0.0"
+            app.kubernetes.io/component: "migration-job"
+            app.kubernetes.io/part-of: sentimark
+            app.kubernetes.io/managed-by: "helm"
+            app.kubernetes.io/part-of: "sentimark"
+        spec:
+          # Node selector for spot instances
+          nodeSelector:
+            agentpool: dataspots
+          # Tolerations for spot instances
+          tolerations:
+            
+            - effect: NoSchedule
+              key: kubernetes.azure.com/scalesetpriority
+              operator: Equal
+              value: spot
+            - effect: NoSchedule
+              key: workload
+              operator: Equal
+              value: dataprocessing
+          containers:
+          - name: migration-job
+            image: "${global.registry.server}/data-migration-service:latest"
+            imagePullPolicy: Always
+            # Container-level security context
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 1000
+              runAsGroup: 1000
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                - ALL
+              readOnlyRootFilesystem: false
+            args:
+            - "java"
+            - "-jar"
+            - "/app/data-migration-service.jar"
+            - "--spring.profiles.active=migration-job"
+            env:
+            - name: APP_CONFIG_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  key: app-config-endpoint
+                  name: data-tier-secrets
+            - name: APP_INSIGHTS_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  key: app-insights-connection-string
+                  name: data-tier-secrets
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  key: postgres-url
+                  name: data-tier-secrets
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: postgres-username
+                  name: data-tier-secrets
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: postgres-password
+                  name: data-tier-secrets
+            - name: ICEBERG_REST_CATALOG_URL
+              valueFrom:
+                secretKeyRef:
+                  key: iceberg-rest-catalog-url
+                  name: data-tier-secrets
+            - name: ICEBERG_WAREHOUSE
+              value: "s3a://warehouse"
+            - name: ICEBERG_STORAGE_ACCOUNT
+              valueFrom:
+                secretKeyRef:
+                  key: iceberg-storage-account
+                  name: data-tier-secrets
+            - name: ICEBERG_STORAGE_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: iceberg-storage-access-key
+                  name: data-tier-secrets
+            volumeMounts:
+              - mountPath: /app/config
+                name: config-volume
+          volumes:
+            - configMap:
+                name: data-migration-config
+              name: config-volume
+          restartPolicy: OnFailure
+---
+# Source: sentimark-services/templates/api-deployment.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: api
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - "api.sit.sentimark.com"
+      secretName: api-tls
+  rules:
+    - host: "api.sit.sentimark.com"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 80
+---
+# Source: sentimark-services/templates/templates_backup_20250509_222431/api-deployment.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
+  labels:
+    helm.sh/chart: sentimark-services-0.1.0
+    app.kubernetes.io/name: api
+    app.kubernetes.io/instance: sentimark-test
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: "api"
+    app.kubernetes.io/part-of: sentimark
+    app.kubernetes.io/managed-by: "helm"
+    app.kubernetes.io/part-of: "sentimark"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - "api.sit.sentimark.com"
+      secretName: api-tls
+  rules:
+    - host: "api.sit.sentimark.com"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 80

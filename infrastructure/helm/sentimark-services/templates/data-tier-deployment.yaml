@@ -38,8 +38,9 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      # Pod-level security context (fsGroup required for volume access)
       securityContext:
-        {{- toYaml .Values.dataTier.securityContext | nindent 8 }}
+        fsGroup: {{ .Values.dataTier.securityContext.fsGroup }}
       {{- if and .Values.global.spotInstances.enabled .Values.dataTier.spotInstance.enabled }}
       # Node selector for spot instances
       nodeSelector:
@@ -74,6 +75,18 @@ spec:
       - name: {{ .Values.dataTier.name }}
         image: "{{ .Values.dataTier.image.repository }}:{{ .Values.dataTier.image.tag | default "latest" }}"
         imagePullPolicy: {{ .Values.dataTier.image.pullPolicy }}
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: {{ .Values.dataTier.securityContext.runAsNonRoot }}
+          runAsUser: {{ .Values.dataTier.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.dataTier.securityContext.runAsGroup }}
+          allowPrivilegeEscalation: {{ .Values.dataTier.securityContext.allowPrivilegeEscalation }}
+          capabilities:
+            drop:
+            {{- range .Values.dataTier.securityContext.capabilities.drop }}
+            - {{ . }}
+            {{- end }}
+          readOnlyRootFilesystem: {{ .Values.dataTier.securityContext.readOnlyRootFilesystem }}
         ports:
         - containerPort: {{ .Values.dataTier.service.targetPort }}
           protocol: TCP
@@ -164,7 +177,7 @@ spec:
     {{- range .Values.dataTier.ingress.tls }}
     - hosts:
         {{- range .hosts }}
-        - {{ . | quote }}
+            -  {{ . | quote }}
         {{- end }}
       secretName: {{ .secretName }}
     {{- end }}

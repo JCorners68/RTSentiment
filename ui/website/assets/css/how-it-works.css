@@ -1,0 +1,802 @@
+/* How It Works Page - Interactive Technical Design */
+
+:root {
+  --tech-primary: #2563eb;
+  --tech-secondary: #3b82f6;
+  --tech-accent: #7c3aed;
+  --tech-light: #dbeafe;
+  --tech-dark: #1e3a8a;
+  --tech-gray: #94a3b8;
+  --tech-bg-light: #f8fafc;
+  --tech-bg-dark: #0f172a;
+  --tech-card-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.05);
+  --tech-gradient: linear-gradient(135deg, #2563eb, #7c3aed);
+  --tech-gradient-hover: linear-gradient(135deg, #1d4ed8, #6d28d9);
+  --animation-speed: 0.5s;
+}
+
+/* Base Styling */
+.how-it-works-page {
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.6;
+  color: #1e293b;
+  background-color: #ffffff;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+.how-it-works-page::-webkit-scrollbar {
+  width: 8px;
+}
+
+.how-it-works-page::-webkit-scrollbar-track {
+  background: var(--tech-bg-light);
+}
+
+.how-it-works-page::-webkit-scrollbar-thumb {
+  background: var(--tech-gradient);
+  border-radius: 4px;
+}
+
+/* Interactive Header Section */
+.tech-hero {
+  position: relative;
+  padding: 6rem 0 4rem;
+  overflow: hidden;
+}
+
+.tech-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--tech-gradient);
+  clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+  opacity: 0.05;
+  z-index: -1;
+}
+
+.tech-hero__content {
+  position: relative;
+  z-index: 1;
+}
+
+.tech-hero__title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  background: var(--tech-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: fadeInUp 1s ease-out;
+}
+
+.tech-hero__subtitle {
+  font-size: 1.5rem;
+  color: var(--tech-gray);
+  margin-bottom: 2rem;
+  animation: fadeInUp 1s ease-out 0.2s both;
+}
+
+.tech-hero__text {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  animation: fadeInUp 1s ease-out 0.4s both;
+}
+
+.tech-hero__image {
+  position: relative;
+  animation: float 6s ease-in-out infinite;
+  box-shadow: var(--tech-card-shadow);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Interactive Architecture Diagram */
+.tech-architecture {
+  padding: 6rem 0;
+  position: relative;
+}
+
+.tech-architecture__title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--tech-dark);
+}
+
+.tech-architecture__subtitle {
+  text-align: center;
+  font-size: 1.25rem;
+  color: var(--tech-gray);
+  margin-bottom: 4rem;
+}
+
+.architecture-diagram {
+  position: relative;
+  margin-bottom: 4rem;
+  transition: transform var(--animation-speed) ease;
+}
+
+.architecture-diagram:hover {
+  transform: scale(1.02);
+}
+
+.architecture-diagram img {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: var(--tech-card-shadow);
+}
+
+/* Process Steps with Interactive Animation */
+.process-steps {
+  position: relative;
+}
+
+.process-steps::before {
+  content: '';
+  position: absolute;
+  left: 25px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--tech-gradient);
+}
+
+.process-step {
+  position: relative;
+  padding-left: 70px;
+  margin-bottom: 4rem;
+  transition: transform var(--animation-speed) ease;
+}
+
+.process-step:hover {
+  transform: translateX(10px);
+}
+
+.step-number {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50px;
+  height: 50px;
+  background: var(--tech-gradient);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+  z-index: 2;
+}
+
+.step-content {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: var(--tech-card-shadow);
+}
+
+.step-content h3 {
+  color: var(--tech-primary);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.step-content ul {
+  padding-left: 1.5rem;
+}
+
+.step-content li {
+  margin-bottom: 0.75rem;
+}
+
+.step-content strong {
+  color: var(--tech-dark);
+}
+
+/* Technical Details Section with Hover Effects */
+.tech-details {
+  padding: 6rem 0;
+  background-color: var(--tech-bg-light);
+  position: relative;
+  overflow: hidden;
+}
+
+.tech-details::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: url('/assets/images/visualizations/sentiment_heatmap.png') no-repeat;
+  background-size: cover;
+  opacity: 0.03;
+  z-index: 0;
+}
+
+.tech-details__title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  color: var(--tech-dark);
+  position: relative;
+  z-index: 1;
+}
+
+.detail-section {
+  margin-bottom: 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.detail-section h3 {
+  font-size: 1.75rem;
+  margin-bottom: 2rem;
+  color: var(--tech-primary);
+  text-align: center;
+}
+
+.detail-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  height: 100%;
+  box-shadow: var(--tech-card-shadow);
+  transition: transform var(--animation-speed) ease, box-shadow var(--animation-speed) ease;
+}
+
+.detail-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.2), 0 10px 10px -5px rgba(59, 130, 246, 0.1);
+}
+
+.detail-image {
+  border-radius: 8px;
+  box-shadow: var(--tech-card-shadow);
+  transition: transform var(--animation-speed) ease;
+}
+
+.detail-image:hover {
+  transform: scale(1.05);
+}
+
+/* Performance Metrics Section with Animated Counters */
+.performance-metrics {
+  padding: 6rem 0;
+  position: relative;
+}
+
+.performance-metrics__title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--tech-dark);
+}
+
+.performance-metrics__subtitle {
+  text-align: center;
+  font-size: 1.25rem;
+  color: var(--tech-gray);
+  margin-bottom: 4rem;
+}
+
+.metric-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  height: 100%;
+  box-shadow: var(--tech-card-shadow);
+  transition: transform var(--animation-speed) ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-10px);
+}
+
+.metric-card h3 {
+  color: var(--tech-primary);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.metric-stat {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--tech-dark);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.metric-label {
+  text-align: center;
+  color: var(--tech-gray);
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* 3D Interactive Use Cases Section */
+.use-case-examples {
+  padding: 6rem 0;
+  background-color: var(--tech-bg-light);
+  position: relative;
+  overflow: hidden;
+}
+
+.use-case-examples::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--tech-gradient);
+  clip-path: polygon(0 15%, 100% 0, 100% 85%, 0 100%);
+  opacity: 0.05;
+  z-index: 0;
+}
+
+.use-case__title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--tech-dark);
+  position: relative;
+  z-index: 1;
+}
+
+.use-case__subtitle {
+  text-align: center;
+  font-size: 1.25rem;
+  color: var(--tech-gray);
+  margin-bottom: 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.use-case-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 768px) {
+  .use-case-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.use-case-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: var(--tech-card-shadow);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.6s ease;
+}
+
+.use-case-card:hover {
+  transform: rotateY(10deg) translateZ(20px);
+  box-shadow: -10px 10px 30px rgba(59, 130, 246, 0.2);
+}
+
+.use-case-icon-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 2rem;
+  perspective: 1000px;
+}
+
+.use-case-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
+}
+
+.use-case-card:hover .use-case-icon {
+  transform: rotateY(-20deg) translateZ(20px);
+}
+
+.use-case-card h3 {
+  color: var(--tech-primary);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.use-case-card p {
+  color: var(--tech-gray);
+  font-size: 1.1rem;
+  margin-bottom: 0;
+}
+
+.use-case-action {
+  margin-top: auto;
+  padding-top: 1.5rem;
+}
+
+.use-case-link {
+  color: var(--tech-primary);
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: color var(--animation-speed) ease;
+}
+
+.use-case-link:hover {
+  color: var(--tech-accent);
+}
+
+.use-case-link .arrow {
+  margin-left: 0.5rem;
+  transition: transform var(--animation-speed) ease;
+}
+
+.use-case-link:hover .arrow {
+  transform: translateX(5px);
+}
+
+/* Animated CTA Section */
+.tech-cta {
+  padding: 6rem 0;
+  text-align: center;
+  position: relative;
+  background: var(--tech-gradient);
+  color: white;
+  border-radius: 16px;
+  margin: 2rem 0;
+  overflow: hidden;
+}
+
+.tech-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  opacity: 0.3;
+}
+
+.tech-cta::after {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+  transform: rotate(0deg);
+  animation: rotateGradient 15s linear infinite;
+}
+
+@keyframes rotateGradient {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.tech-cta__title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.tech-cta__text {
+  font-size: 1.25rem;
+  margin-bottom: 2.5rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.cta-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 576px) {
+  .cta-buttons {
+    flex-direction: row;
+  }
+}
+
+.cta-buttons .btn {
+  padding: 0.75rem 2rem;
+  font-weight: 500;
+  border-radius: 50px;
+  transition: transform var(--animation-speed) ease, box-shadow var(--animation-speed) ease;
+}
+
+.cta-buttons .btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.cta-buttons .btn-primary {
+  background-color: white;
+  color: var(--tech-primary);
+  border: none;
+}
+
+.cta-buttons .btn-outline {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+  .tech-hero__title {
+    font-size: 2.5rem;
+  }
+  
+  .tech-hero__subtitle {
+    font-size: 1.25rem;
+  }
+  
+  .tech-architecture__title,
+  .tech-details__title,
+  .performance-metrics__title,
+  .use-case__title,
+  .tech-cta__title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .tech-hero {
+    padding: 4rem 0 2rem;
+  }
+  
+  .tech-hero__image {
+    margin-top: 2rem;
+  }
+  
+  .process-steps::before {
+    left: 20px;
+  }
+  
+  .process-step {
+    padding-left: 55px;
+  }
+  
+  .step-number {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+  
+  .detail-image {
+    margin-bottom: 2rem;
+  }
+}
+
+/* Interactive Animations for Page Elements */
+.tech-animate-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.tech-animate-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Animation Delay Classes */
+.delay-1 {
+  transition-delay: 0.1s;
+}
+
+.delay-2 {
+  transition-delay: 0.2s;
+}
+
+.delay-3 {
+  transition-delay: 0.3s;
+}
+
+.delay-4 {
+  transition-delay: 0.4s;
+}
+
+/* Custom Components */
+.tech-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--tech-primary);
+  opacity: 0.6;
+}
+
+/* Code Display Component */
+.code-display {
+  background-color: var(--tech-bg-dark);
+  border-radius: 12px;
+  padding: 1.5rem;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  white-space: pre;
+  overflow-x: auto;
+  box-shadow: var(--tech-card-shadow);
+  margin: 2rem 0;
+}
+
+.code-line {
+  position: relative;
+  padding-left: 2rem;
+  line-height: 1.6;
+}
+
+.code-line::before {
+  content: attr(data-line);
+  position: absolute;
+  left: 0;
+  color: var(--tech-gray);
+  opacity: 0.5;
+  font-size: 0.8rem;
+  text-align: right;
+  width: 1.5rem;
+}
+
+.code-keyword {
+  color: #7c3aed;
+}
+
+.code-string {
+  color: #2563eb;
+}
+
+.code-comment {
+  color: #64748b;
+}
+
+/* Interactive JS */
+document.addEventListener('DOMContentLoaded', function() {
+  // Animate in elements when they come into view
+  const animateElements = document.querySelectorAll('.tech-animate-in');
+  
+  function checkIfInView() {
+    animateElements.forEach(element => {
+      const elementTop = element.getBoundingClientRect().top;
+      const elementBottom = element.getBoundingClientRect().bottom;
+      const isVisible = (elementTop >= 0) && (elementBottom <= window.innerHeight);
+      
+      if (isVisible) {
+        element.classList.add('visible');
+      }
+    });
+  }
+  
+  // Initial check
+  checkIfInView();
+  
+  // Check on scroll
+  window.addEventListener('scroll', checkIfInView);
+  
+  // 3D effect for use case cards
+  const useCards = document.querySelectorAll('.use-case-card');
+  
+  useCards.forEach(card => {
+    card.addEventListener('mousemove', function(e) {
+      const cardRect = card.getBoundingClientRect();
+      const cardCenterX = cardRect.left + cardRect.width / 2;
+      const cardCenterY = cardRect.top + cardRect.height / 2;
+      const angleY = (e.clientX - cardCenterX) / 20;
+      const angleX = (cardCenterY - e.clientY) / 20;
+      
+      card.style.transform = `rotateY(${angleY}deg) rotateX(${angleX}deg) translateZ(10px)`;
+    });
+    
+    card.addEventListener('mouseleave', function() {
+      card.style.transform = 'rotateY(0) rotateX(0) translateZ(0)';
+    });
+  });
+  
+  // Animated counters for metrics
+  const metrics = document.querySelectorAll('.metric-stat');
+  let counted = false;
+  
+  function animateCounters() {
+    if (counted) return;
+    
+    metrics.forEach(metric => {
+      const target = parseFloat(metric.getAttribute('data-value'));
+      const duration = 2000;
+      const startTime = Date.now();
+      const suffix = metric.getAttribute('data-suffix') || '';
+      
+      const updateCounter = () => {
+        const now = Date.now();
+        const progress = Math.min((now - startTime) / duration, 1);
+        const easeProgress = 1 - Math.pow(1 - progress, 3); // Cubic ease out
+        const value = (target * easeProgress).toFixed(1);
+        
+        metric.textContent = value + suffix;
+        
+        if (progress < 1) {
+          requestAnimationFrame(updateCounter);
+        }
+      };
+      
+      updateCounter();
+    });
+    
+    counted = true;
+  }
+  
+  // Check if metrics are in view
+  const metricsSection = document.querySelector('.performance-metrics');
+  if (metricsSection) {
+    window.addEventListener('scroll', function() {
+      const rect = metricsSection.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom >= 0) {
+        animateCounters();
+      }
+    });
+  }
+});

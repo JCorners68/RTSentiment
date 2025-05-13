@@ -1,0 +1,182 @@
+{{- if .Values.dataAcquisition.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "data-acquisition" "service" .Values.dataAcquisition "releaseName" .Release.Name) }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-acquisition" "service" .Values.dataAcquisition "releaseName" .Release.Name "component" "api") | nindent 4 }}
+  {{- with .Values.dataAcquisition.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.dataAcquisition.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "data-acquisition" "service" .Values.dataAcquisition "releaseName" .Release.Name) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-acquisition" "service" .Values.dataAcquisition "releaseName" .Release.Name "component" "api") | nindent 8 }}
+      {{- with .Values.dataAcquisition.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      # Pod-level security context (fsGroup must be at pod level)
+      #       #       #       # # securityContext:
+        #         #         #         #         # fsGroup: {{ .Values.dataAcquisition.securityContext.fsGroup }}
+      {{- if and .Values.global.spotInstances.enabled .Values.dataAcquisition.spotInstance.enabled }}
+      # Node selector for spot instances
+      nodeSelector:
+        {{- toYaml .Values.dataAcquisition.spotInstance.nodeSelector | nindent 8 }}
+      # Tolerations for spot instances
+      tolerations:
+        {{- include "sentimark.spotTolerations" (dict "root" . "service" .Values.dataAcquisition) | nindent 8 }}
+      {{- else }}
+      {{- with .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - {{ include "sentimark.serviceName" (dict "defaultName" "data-acquisition" "service" .Values.dataAcquisition "releaseName" .Release.Name) }}
+              topologyKey: kubernetes.io/hostname
+        {{- with .Values.global.affinity }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: {{ .Values.dataAcquisition.name }}
+        image: "{{ .Values.dataAcquisition.image.repository }}:{{ .Values.dataAcquisition.image.tag | default "latest" }}"
+        imagePullPolicy: {{ .Values.dataAcquisition.image.pullPolicy }}
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: {{ .Values.dataAcquisition.securityContext.runAsNonRoot }}
+          runAsUser: {{ .Values.dataAcquisition.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.dataAcquisition.securityContext.runAsGroup }}
+          allowPrivilegeEscalation: {{ .Values.dataAcquisition.securityContext.allowPrivilegeEscalation }}
+          capabilities:
+            drop:
+            {{- range .Values.dataAcquisition.securityContext.capabilities.drop }}
+            - {{ . }}
+            {{- end }}
+          readOnlyRootFilesystem: {{ .Values.dataAcquisition.securityContext.readOnlyRootFilesystem }}
+        ports:
+        - containerPort: 8002
+          protocol: TCP
+        env:
+        {{- range .Values.dataAcquisition.env }}
+        - name: {{ .name }}
+          {{- if .value }}
+          value: {{ .value | quote }}
+          {{- else if .valueFrom }}
+          valueFrom:
+            {{- toYaml .valueFrom | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.dataAcquisition.resources | nindent 12 }}
+        {{- with .Values.dataAcquisition.probes.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.dataAcquisition.probes.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.dataAcquisition.probes.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.dataAcquisition.lifecycle }}
+        lifecycle:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "data-acquisition" "service" .Values.dataAcquisition "releaseName" .Release.Name) }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-acquisition" "service" .Values.dataAcquisition "releaseName" .Release.Name "component" "api") | nindent 4 }}
+spec:
+  type: {{ .Values.dataAcquisition.service.type }}
+  ports:
+    - port: {{ .Values.dataAcquisition.service.port }}
+      targetPort: {{ .Values.dataAcquisition.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "data-acquisition" "service" .Values.dataAcquisition "releaseName" .Release.Name) | nindent 4 }}
+{{- if .Values.dataAcquisition.podDisruptionBudget.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "data-acquisition" "service" .Values.dataAcquisition "releaseName" .Release.Name) }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-acquisition" "service" .Values.dataAcquisition "releaseName" .Release.Name "component" "api") | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.dataAcquisition.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "data-acquisition" "service" .Values.dataAcquisition "releaseName" .Release.Name) | nindent 6 }}
+{{- end }}
+{{- if .Values.dataAcquisition.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "data-acquisition" "service" .Values.dataAcquisition "releaseName" .Release.Name) }}-ingress
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "data-acquisition" "service" .Values.dataAcquisition "releaseName" .Release.Name "component" "api") | nindent 4 }}
+  {{- with .Values.dataAcquisition.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.dataAcquisition.ingress.className }}
+  ingressClassName: {{ .Values.dataAcquisition.ingress.className }}
+  {{- end }}
+  {{- if .Values.dataAcquisition.ingress.tls }}
+  tls:
+    {{- range .Values.dataAcquisition.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+            -  {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.dataAcquisition.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "sentimark.serviceName" (dict "defaultName" "data-acquisition" "service" $.Values.dataAcquisition "releaseName" $.Release.Name) }}
+                port:
+                  number: {{ $.Values.dataAcquisition.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
+{{- end }}

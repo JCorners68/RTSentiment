@@ -1,0 +1,963 @@
+openapi: 3.0.0
+info:
+  title: Evidence Management System API
+  description: |
+    API for the Evidence Management System, supporting comprehensive evidence operations,
+    relationship management, and attachment handling.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@evidence-system.example.com
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+  - url: https://api.evidence-system.example.com/api
+    description: Production server
+
+tags:
+  - name: Evidence
+    description: Evidence item operations
+  - name: Relationships
+    description: Evidence relationship operations
+  - name: Attachments
+    description: Evidence attachment operations
+  - name: Categories
+    description: Evidence categorization operations
+  - name: Batch
+    description: Batch operations for bulk processing
+  - name: Webhooks
+    description: Webhook management for integrations
+  - name: Version
+    description: API version information
+
+paths:
+  /versions:
+    get:
+      summary: Get API versions
+      description: Returns all available API versions
+      operationId: getApiVersions
+      tags:
+        - Version
+      responses:
+        '200':
+          description: List of API versions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  versions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ApiVersion'
+                  latest:
+                    $ref: '#/components/schemas/ApiVersion'
+
+  /v1/evidence:
+    get:
+      summary: List evidence items
+      description: Returns a list of evidence items with optional filtering
+      operationId: listEvidence
+      tags:
+        - Evidence
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by category
+        - name: tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: true
+          description: Filter by tags
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search query (full-text search)
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Items per page
+      responses:
+        '200':
+          description: List of evidence items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EvidenceItem'
+                  total:
+                    type: integer
+                  page:
+                    type: integer
+                  pages:
+                    type: integer
+                  limit:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - BearerAuth: []
+
+    post:
+      summary: Create evidence item
+      description: Creates a new evidence item
+      operationId: createEvidence
+      tags:
+        - Evidence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvidenceCreate'
+      responses:
+        '201':
+          description: Evidence item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvidenceItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - BearerAuth: []
+
+  /v1/evidence/{evidenceId}:
+    parameters:
+      - name: evidenceId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Evidence item ID
+    
+    get:
+      summary: Get evidence item
+      description: Returns a specific evidence item by ID
+      operationId: getEvidence
+      tags:
+        - Evidence
+      responses:
+        '200':
+          description: Evidence item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvidenceItem'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+    
+    put:
+      summary: Update evidence item
+      description: Updates an existing evidence item
+      operationId: updateEvidence
+      tags:
+        - Evidence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvidenceUpdate'
+      responses:
+        '200':
+          description: Evidence item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvidenceItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - BearerAuth: []
+    
+    delete:
+      summary: Delete evidence item
+      description: Deletes an existing evidence item
+      operationId: deleteEvidence
+      tags:
+        - Evidence
+      responses:
+        '204':
+          description: Evidence item deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+
+  /v1/evidence/{evidenceId}/relationships:
+    parameters:
+      - name: evidenceId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Evidence item ID
+    
+    get:
+      summary: Get evidence relationships
+      description: Returns relationships for a specific evidence item
+      operationId: getEvidenceRelationships
+      tags:
+        - Relationships
+      parameters:
+        - name: direction
+          in: query
+          schema:
+            type: string
+            enum: [outgoing, incoming, both]
+            default: both
+          description: Relationship direction
+      responses:
+        '200':
+          description: Evidence relationships
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  outgoing:
+                    type: object
+                    additionalProperties:
+                      $ref: '#/components/schemas/Relationship'
+                  incoming:
+                    type: object
+                    additionalProperties:
+                      $ref: '#/components/schemas/Relationship'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+    
+    post:
+      summary: Create evidence relationship
+      description: Creates a new relationship for an evidence item
+      operationId: createEvidenceRelationship
+      tags:
+        - Relationships
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RelationshipCreate'
+      responses:
+        '201':
+          description: Relationship created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      security:
+        - BearerAuth: []
+
+  /v1/evidence/{evidenceId}/attachments:
+    parameters:
+      - name: evidenceId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Evidence item ID
+    
+    get:
+      summary: List evidence attachments
+      description: Returns a list of attachments for a specific evidence item
+      operationId: listAttachments
+      tags:
+        - Attachments
+      responses:
+        '200':
+          description: List of attachments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attachment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+    
+    post:
+      summary: Upload attachment
+      description: Uploads a new attachment for an evidence item
+      operationId: uploadAttachment
+      tags:
+        - Attachments
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Attachment uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attachment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '413':
+          description: Payload too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - BearerAuth: []
+
+  /v1/evidence/batch/submit:
+    post:
+      summary: Submit batch operation
+      description: Submits a batch of operations for processing
+      operationId: submitBatch
+      tags:
+        - Batch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchSubmission'
+      responses:
+        '202':
+          description: Batch accepted for processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        '200':
+          description: Batch processed synchronously
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+        - BearerAuth: []
+
+  /v1/evidence/batch/status/{batchId}:
+    parameters:
+      - name: batchId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Batch operation ID
+    
+    get:
+      summary: Get batch status
+      description: Returns the status of a batch operation
+      operationId: getBatchStatus
+      tags:
+        - Batch
+      parameters:
+        - name: include_operations
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Whether to include operation details
+      responses:
+        '200':
+          description: Batch status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - BearerAuth: []
+
+  /v1/webhooks/subscriptions:
+    get:
+      summary: List webhook subscriptions
+      description: Returns a list of webhook subscriptions
+      operationId: listWebhookSubscriptions
+      tags:
+        - Webhooks
+      responses:
+        '200':
+          description: List of webhook subscriptions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subscriptions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WebhookSubscription'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - BearerAuth: []
+    
+    post:
+      summary: Create webhook subscription
+      description: Creates a new webhook subscription
+      operationId: createWebhookSubscription
+      tags:
+        - Webhooks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookSubscriptionCreate'
+      responses:
+        '201':
+          description: Webhook subscription created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookSubscription'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+        - BearerAuth: []
+
+components:
+  schemas:
+    ApiVersion:
+      type: object
+      properties:
+        version:
+          type: string
+          example: v1
+        internal_version:
+          type: integer
+          example: 1
+        release_date:
+          type: string
+          format: date
+          example: 2023-01-15
+        deprecated:
+          type: boolean
+          example: false
+        sunset_date:
+          type: string
+          format: date
+          nullable: true
+          example: null
+        description:
+          type: string
+          example: Initial API version
+    
+    EvidenceItem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: EV-123
+        title:
+          type: string
+          example: Performance Test Results
+        description:
+          type: string
+          example: Results from the latest performance testing
+        category_path:
+          type: array
+          items:
+            type: string
+          example: [Test, Performance]
+        tags:
+          type: array
+          items:
+            type: string
+          example: [performance, test, benchmark]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          example: user123
+        schema_version:
+          type: string
+          example: 1.0
+        version_info:
+          type: object
+          additionalProperties: true
+        previous_versions:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+    
+    EvidenceCreate:
+      type: object
+      required:
+        - title
+        - description
+      properties:
+        title:
+          type: string
+          example: Performance Test Results
+        description:
+          type: string
+          example: Results from the latest performance testing
+        category_path:
+          type: array
+          items:
+            type: string
+          example: [Test, Performance]
+        tags:
+          type: array
+          items:
+            type: string
+          example: [performance, test, benchmark]
+    
+    EvidenceUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Updated Performance Test Results
+        description:
+          type: string
+          example: Updated results from the latest performance testing
+        category_path:
+          type: array
+          items:
+            type: string
+          example: [Test, Performance, Regression]
+        tags:
+          type: array
+          items:
+            type: string
+          example: [performance, test, benchmark, regression]
+    
+    Relationship:
+      type: object
+      properties:
+        source_id:
+          type: string
+          example: EV-123
+        target_id:
+          type: string
+          example: EV-456
+        type:
+          type: string
+          enum: [DEPENDS_ON, REQUIRED_BY, PART_OF, CONTAINS, DERIVED_FROM, SOURCE_OF, ALTERNATIVE_TO, SUPERSEDES, SUPERSEDED_BY, RELATES_TO, CONTRADICTS]
+          example: DEPENDS_ON
+        strength:
+          type: string
+          enum: [WEAK, MODERATE, STRONG, CRITICAL]
+          example: STRONG
+        created_at:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+    
+    RelationshipCreate:
+      type: object
+      required:
+        - target_id
+        - type
+      properties:
+        target_id:
+          type: string
+          example: EV-456
+        type:
+          type: string
+          enum: [DEPENDS_ON, REQUIRED_BY, PART_OF, CONTAINS, DERIVED_FROM, SOURCE_OF, ALTERNATIVE_TO, SUPERSEDES, SUPERSEDED_BY, RELATES_TO, CONTRADICTS]
+          example: DEPENDS_ON
+        strength:
+          type: string
+          enum: [WEAK, MODERATE, STRONG, CRITICAL]
+          example: STRONG
+        metadata:
+          type: object
+          additionalProperties: true
+    
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: string
+          example: ATT-123
+        filename:
+          type: string
+          example: test-results.pdf
+        description:
+          type: string
+          example: PDF report of test results
+        mime_type:
+          type: string
+          example: application/pdf
+        size:
+          type: integer
+          example: 1024576
+        checksum:
+          type: string
+          example: 5eb63bbbe01eeed093cb22bb8f5acdc3
+        uploaded_at:
+          type: string
+          format: date-time
+        uploaded_by:
+          type: string
+          example: user123
+        download_url:
+          type: string
+          example: /api/v1/evidence/EV-123/attachments/ATT-123/download
+    
+    BatchSubmission:
+      type: object
+      required:
+        - operations
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchOperation'
+        options:
+          type: object
+          properties:
+            continue_on_error:
+              type: boolean
+              default: false
+            async:
+              type: boolean
+              default: true
+    
+    BatchOperation:
+      type: object
+      required:
+        - operation
+      properties:
+        operation:
+          type: string
+          enum: [create, update, delete, add_relationship, remove_relationship, categorize]
+        evidence_id:
+          type: string
+          example: EV-123
+        data:
+          type: object
+          additionalProperties: true
+        source_id:
+          type: string
+          example: EV-123
+        target_id:
+          type: string
+          example: EV-456
+        relationship_type:
+          type: string
+          example: DEPENDS_ON
+        strength:
+          type: string
+          example: STRONG
+        category_path:
+          type: array
+          items:
+            type: string
+          example: [Test, Performance]
+    
+    BatchResponse:
+      type: object
+      properties:
+        batch_id:
+          type: string
+          example: batch-123
+        operation_count:
+          type: integer
+          example: 10
+        status:
+          type: string
+          enum: [queued, processing, completed, failed]
+          example: queued
+        submitted_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        success_count:
+          type: integer
+          example: 8
+        failed_count:
+          type: integer
+          example: 2
+    
+    BatchStatus:
+      type: object
+      properties:
+        batch_id:
+          type: string
+          example: batch-123
+        status:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 10
+            pending:
+              type: integer
+              example: 2
+            success:
+              type: integer
+              example: 8
+            failure:
+              type: integer
+              example: 0
+            retrying:
+              type: integer
+              example: 0
+            skipped:
+              type: integer
+              example: 0
+        operations:
+          type: array
+          items:
+            type: object
+            properties:
+              index:
+                type: integer
+                example: 0
+              operation_type:
+                type: string
+                example: create
+              description:
+                type: string
+                example: Create evidence
+              status:
+                type: string
+                enum: [pending, success, failure, retrying, skipped]
+                example: success
+              error:
+                type: string
+                nullable: true
+              attempt_count:
+                type: integer
+                example: 1
+              last_attempt:
+                type: string
+                format: date-time
+                nullable: true
+              next_retry:
+                type: string
+                format: date-time
+                nullable: true
+    
+    WebhookSubscription:
+      type: object
+      properties:
+        id:
+          type: string
+          example: sub_123
+        url:
+          type: string
+          example: https://example.com/webhooks
+        events:
+          type: array
+          items:
+            type: string
+          example: [evidence.created, evidence.updated]
+        description:
+          type: string
+          example: Evidence update notifications
+        secret:
+          type: string
+          example: 5eb63bbbe01eeed093cb22bb8f5acdc3
+        active:
+          type: boolean
+          example: true
+        created_by:
+          type: string
+          example: user123
+        created_at:
+          type: string
+          format: date-time
+        last_delivery:
+          type: string
+          format: date-time
+          nullable: true
+        stats:
+          type: object
+          properties:
+            successful_deliveries:
+              type: integer
+              example: 42
+            failed_deliveries:
+              type: integer
+              example: 3
+    
+    WebhookSubscriptionCreate:
+      type: object
+      required:
+        - url
+        - events
+      properties:
+        url:
+          type: string
+          example: https://example.com/webhooks
+        events:
+          type: array
+          items:
+            type: string
+          example: [evidence.created, evidence.updated]
+        description:
+          type: string
+          example: Evidence update notifications
+        secret:
+          type: string
+          example: 5eb63bbbe01eeed093cb22bb8f5acdc3
+    
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Bad Request
+        details:
+          type: string
+          example: Invalid input data
+        field_errors:
+          type: object
+          additionalProperties:
+            type: string
+  
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    TooManyRequests:
+      description: Too many requests
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Rate limit ceiling
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Remaining requests
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+          description: Reset time as Unix timestamp
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retrying
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

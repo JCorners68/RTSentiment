@@ -1,0 +1,63 @@
+Security Context Issues:
+=======================
+
+Found runAsNonRoot at pod level (should be at container level):
+12:2003-          runAsNonRoot: true
+26:2138-          runAsNonRoot: true
+54:2286-          runAsNonRoot: true
+82:2423-          runAsNonRoot: true
+110:2571-          runAsNonRoot: true
+138:2689-          runAsNonRoot: true
+166:2845-          runAsNonRoot: true
+194:3006-          runAsNonRoot: true
+208:3154-          runAsNonRoot: true
+236:3272-          runAsNonRoot: true
+264:3428-          runAsNonRoot: true
+278:3587-          runAsNonRoot: true
+292:3722-          runAsNonRoot: true
+306:3868-          runAsNonRoot: true
+320:3984-          runAsNonRoot: true
+334:4138-          runAsNonRoot: true
+348:4297-          runAsNonRoot: true
+376:4447-          runAsNonRoot: true
+404:4597-          runAsNonRoot: true
+432:4734-          runAsNonRoot: true
+460:4882-          runAsNonRoot: true
+488:5000-          runAsNonRoot: true
+516:5156-          runAsNonRoot: true
+544:5317-          runAsNonRoot: true
+558:5451-              runAsNonRoot: true
+572:5571-              runAsNonRoot: true
+586:5691-              runAsNonRoot: true
+600:5811-              runAsNonRoot: true
+
+Found runAsUser at pod level (should be at container level):
+13:2004-          runAsUser: 1000
+27:2139-          runAsUser: 1000
+55:2287-          runAsUser: 1000
+83:2424-          runAsUser: 1000
+111:2572-          runAsUser: 1000
+139:2690-          runAsUser: 1000
+167:2846-          runAsUser: 1000
+195:3007-          runAsUser: 1000
+209:3155-          runAsUser: 1000
+237:3273-          runAsUser: 1000
+265:3429-          runAsUser: 1000
+279:3588-          runAsUser: 1000
+293:3723-          runAsUser: 1000
+307:3869-          runAsUser: 1000
+321:3985-          runAsUser: 1000
+335:4139-          runAsUser: 1000
+349:4298-          runAsUser: 1000
+377:4448-          runAsUser: 1000
+405:4598-          runAsUser: 1000
+433:4735-          runAsUser: 1000
+461:4883-          runAsUser: 1000
+489:5001-          runAsUser: 1000
+517:5157-          runAsUser: 1000
+545:5318-          runAsUser: 1000
+559:5452-              runAsUser: 1000
+573:5572-              runAsUser: 1000
+587:5692-              runAsUser: 1000
+601:5812-              runAsUser: 1000
+

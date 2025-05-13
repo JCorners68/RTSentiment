@@ -1,0 +1,200 @@
+/* Case Studies Page Styles */
+
+/* Case study main images */
+.case-study-image {
+  width: 100%;
+  max-width: 450px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  object-fit: contain;
+  background-color: #f8f9fa;
+  padding: 15px;
+}
+
+/* Case study specific illustrations */
+.case-image {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 0 auto 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  object-fit: contain;
+  background-color: #f8f9fa;
+  padding: 10px;
+}
+
+/* Icons for advantages section */
+.advantage-icon {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin: 0 auto 1rem;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* Case study sections */
+.case-study {
+  margin-bottom: 4rem;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.case-study h2 {
+  color: #2E5BFF;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid rgba(46, 91, 255, 0.2);
+  padding-bottom: 0.5rem;
+}
+
+.case-study-details {
+  margin-bottom: 1.5rem;
+}
+
+.case-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.case-meta span {
+  background-color: #f0f4ff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+/* Timeline section */
+.case-timeline {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-top: 1.5rem;
+}
+
+.case-timeline h4 {
+  margin-bottom: 1rem;
+  color: #2E5BFF;
+}
+
+.case-timeline ul {
+  list-style-type: none;
+  padding-left: 0;
+  position: relative;
+}
+
+.case-timeline ul::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 4px;
+  width: 2px;
+  background-color: rgba(46, 91, 255, 0.2);
+  z-index: 1;
+}
+
+.case-timeline li {
+  padding-left: 25px;
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.case-timeline li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #2E5BFF;
+  z-index: 2;
+}
+
+/* Advantages section */
+.case-study-conclusion {
+  padding: 3rem 2rem;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 4rem;
+  text-align: center;
+}
+
+.case-study-conclusion h2 {
+  color: #2E5BFF;
+  margin-bottom: 1.5rem;
+}
+
+.advantage-list {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 768px) {
+  .advantage-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.advantage-item {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.advantage-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.advantage-item h3 {
+  color: #2E5BFF;
+  margin: 1rem 0;
+}
+
+/* CTA section */
+.cta-section {
+  background-color: #2E5BFF;
+  color: white;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.cta-section h2 {
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.cta-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.cta-buttons .btn-outline {
+  background-color: transparent;
+  border: 2px solid white;
+  color: white;
+}
+
+.cta-buttons .btn-outline:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}

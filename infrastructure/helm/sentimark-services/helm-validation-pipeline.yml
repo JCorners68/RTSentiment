@@ -1,0 +1,25 @@
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- checkout: self
+
+- task: Bash@3
+  displayName: 'Validate Helm Charts'
+  inputs:
+    targetType: 'filePath'
+    filePath: './scripts/helm_schema_validator_azure.sh'
+    arguments: '--chart-dir $(Build.SourcesDirectory)/infrastructure/helm/sentimark-services --ci'
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Validation Results'
+  inputs:
+    pathToPublish: '$(Build.ArtifactStagingDirectory)/helm-validation'
+    artifactName: 'HelmValidationResults'
+  condition: always()

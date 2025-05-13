@@ -1,0 +1,1 @@
+error: error validating "/home/jonat/real_senti/scan-results/20250509_225442/helm_template.yaml": error validating data: failed to download openapi: Get "http://localhost:8080/openapi/v2?timeout=32s": dial tcp 127.0.0.1:8080: connect: connection refused; if you choose to ignore these errors, turn validation off with --validate=false

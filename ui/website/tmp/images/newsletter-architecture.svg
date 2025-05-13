@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient Definitions -->
+    <linearGradient id="awsOrange" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff9900"/>
+      <stop offset="100%" stop-color="#ffac31"/>
+    </linearGradient>
+    <linearGradient id="sentimarkBlue" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2E5BFF"/>
+      <stop offset="100%" stop-color="#3D6AFF"/>
+    </linearGradient>
+    
+    <!-- Arrow Marker -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+  
+  <style>
+    .aws-box {
+      fill: white;
+      stroke: #ff9900;
+      stroke-width: 2;
+      rx: 10;
+      ry: 10;
+    }
+    .website-box {
+      fill: white;
+      stroke: #2E5BFF;
+      stroke-width: 2;
+      rx: 10;
+      ry: 10;
+    }
+    .section-box {
+      fill: rgba(240,240,240,0.5);
+      stroke: #ddd;
+      stroke-width: 1;
+      rx: 15;
+      ry: 15;
+    }
+    .aws-title {
+      fill: #ff9900;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+    }
+    .section-title {
+      fill: #666;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+    }
+    .title {
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      text-anchor: middle;
+    }
+    .subtitle {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      fill: #666;
+      text-anchor: middle;
+    }
+    .connector {
+      stroke: #666;
+      stroke-width: 2;
+      fill: none;
+      marker-end: url(#arrowhead);
+    }
+    .dashed-connector {
+      stroke: #666;
+      stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 5, 5;
+      marker-end: url(#arrowhead);
+    }
+    .aws-logo {
+      font-family: Arial, sans-serif;
+      font-size: 9px;
+      font-weight: bold;
+      fill: #232F3E;
+    }
+  </style>
+  
+  <!-- AWS Cloud Section Box -->
+  <rect x="230" y="80" width="540" height="360" class="section-box"/>
+  <text x="250" y="105" class="section-title">AWS Cloud</text>
+  
+  <!-- Website Section Box -->
+  <rect x="30" y="80" width="170" height="360" class="section-box"/>
+  <text x="50" y="105" class="section-title">Sentimark Website</text>
+  
+  <!-- Title and Subtitle -->
+  <text x="400" y="40" font-size="24" class="title">Sentimark Newsletter Subscription System</text>
+  <text x="400" y="65" class="subtitle">Secure, Low-Cost Serverless Architecture</text>
+  
+  <!-- Website Components -->
+  <rect x="50" y="130" width="130" height="60" class="website-box"/>
+  <text x="115" y="160" class="title" font-size="14">Newsletter Form</text>
+  <text x="115" y="175" class="subtitle">HTML + JavaScript</text>
+  
+  <rect x="50" y="220" width="130" height="60" class="website-box"/>
+  <text x="115" y="250" class="title" font-size="14">Form Handler</text>
+  <text x="115" y="265" class="subtitle">newsletter-subscribe.js</text>
+  
+  <rect x="50" y="310" width="130" height="60" class="website-box"/>
+  <text x="115" y="340" class="title" font-size="14">reCAPTCHA</text>
+  <text x="115" y="355" class="subtitle">(Optional)</text>
+  
+  <!-- AWS Components -->
+  <rect x="260" y="130" width="120" height="60" class="aws-box"/>
+  <text x="320" y="160" class="title" font-size="14">API Gateway</text>
+  <text x="320" y="175" class="subtitle">REST API + Key</text>
+  <text x="285" y="143" class="aws-logo">AWS</text>
+  
+  <rect x="420" y="130" width="120" height="60" class="aws-box"/>
+  <text x="480" y="160" class="title" font-size="14">Lambda</text>
+  <text x="480" y="175" class="subtitle">Subscription Handler</text>
+  <text x="445" y="143" class="aws-logo">AWS</text>
+  
+  <rect x="580" y="130" width="120" height="60" class="aws-box"/>
+  <text x="640" y="160" class="title" font-size="14">DynamoDB</text>
+  <text x="640" y="175" class="subtitle">Subscriber Storage</text>
+  <text x="605" y="143" class="aws-logo">AWS</text>
+  
+  <rect x="260" y="250" width="120" height="60" class="aws-box"/>
+  <text x="320" y="280" class="title" font-size="14">SES</text>
+  <text x="320" y="295" class="subtitle">Email Service</text>
+  <text x="285" y="263" class="aws-logo">AWS</text>
+  
+  <rect x="420" y="250" width="120" height="60" class="aws-box"/>
+  <text x="480" y="280" class="title" font-size="14">SNS</text>
+  <text x="480" y="295" class="subtitle">Notifications</text>
+  <text x="445" y="263" class="aws-logo">AWS</text>
+  
+  <rect x="580" y="250" width="120" height="60" class="aws-box"/>
+  <text x="640" y="280" class="title" font-size="14">CloudWatch</text>
+  <text x="640" y="295" class="subtitle">Monitoring</text>
+  <text x="605" y="263" class="aws-logo">AWS</text>
+  
+  <!-- External Components -->
+  <rect x="400" y="360" width="160" height="50" rx="10" ry="10" fill="white" stroke="#888" stroke-width="1"/>
+  <text x="480" y="385" class="title" font-size="14">Admin Email</text>
+  <text x="480" y="400" class="subtitle">Notifications</text>
+  
+  <rect x="260" y="360" width="120" height="50" rx="10" ry="10" fill="white" stroke="#888" stroke-width="1"/>
+  <text x="320" y="385" class="title" font-size="14">Subscriber</text>
+  <text x="320" y="400" class="subtitle">Confirmation Email</text>
+  
+  <!-- Connectors -->
+  <!-- Website to AWS -->
+  <path d="M180 160 C210 160, 220 160, 260 160" class="connector"/>
+  
+  <!-- AWS Internal -->
+  <path d="M380 160 L420 160" class="connector"/>
+  <path d="M540 160 L580 160" class="connector"/>
+  <path d="M480 190 L480 250" class="connector"/>
+  <path d="M320 190 L320 250" class="connector"/>
+  <path d="M640 190 L640 250" class="connector"/>
+  
+  <!-- Feedback paths -->
+  <path d="M320 310 L320 340 C320 370, 100 370, 100 280" class="dashed-connector"/>
+  <path d="M480 310 L480 360" class="dashed-connector"/>
+  
+  <!-- Cost indicators -->
+  <g transform="translate(330, 190)">
+    <rect x="-20" y="-10" width="40" height="20" rx="10" ry="10" fill="rgba(0,200,0,0.1)" stroke="#0a0" stroke-width="1"/>
+    <text x="0" y="5" class="subtitle" text-anchor="middle" fill="#0a0">$1.00</text>
+  </g>
+  
+  <g transform="translate(490, 190)">
+    <rect x="-20" y="-10" width="40" height="20" rx="10" ry="10" fill="rgba(0,200,0,0.1)" stroke="#0a0" stroke-width="1"/>
+    <text x="0" y="5" class="subtitle" text-anchor="middle" fill="#0a0">$0.00</text>
+  </g>
+  
+  <g transform="translate(650, 190)">
+    <rect x="-20" y="-10" width="40" height="20" rx="10" ry="10" fill="rgba(0,200,0,0.1)" stroke="#0a0" stroke-width="1"/>
+    <text x="0" y="5" class="subtitle" text-anchor="middle" fill="#0a0">$1.25</text>
+  </g>
+  
+  <g transform="translate(330, 310)">
+    <rect x="-20" y="-10" width="40" height="20" rx="10" ry="10" fill="rgba(0,200,0,0.1)" stroke="#0a0" stroke-width="1"/>
+    <text x="0" y="5" class="subtitle" text-anchor="middle" fill="#0a0">$0.10</text>
+  </g>
+  
+  <g transform="translate(490, 310)">
+    <rect x="-20" y="-10" width="40" height="20" rx="10" ry="10" fill="rgba(0,200,0,0.1)" stroke="#0a0" stroke-width="1"/>
+    <text x="0" y="5" class="subtitle" text-anchor="middle" fill="#0a0">$0.00</text>
+  </g>
+  
+  <g transform="translate(650, 310)">
+    <rect x="-20" y="-10" width="40" height="20" rx="10" ry="10" fill="rgba(0,200,0,0.1)" stroke="#0a0" stroke-width="1"/>
+    <text x="0" y="5" class="subtitle" text-anchor="middle" fill="#0a0">$0.00</text>
+  </g>
+  
+  <!-- Total Cost -->
+  <g transform="translate(700, 450)">
+    <rect x="-65" y="-18" width="130" height="36" rx="5" ry="5" fill="rgba(0,200,0,0.2)" stroke="#0a0" stroke-width="1"/>
+    <text x="0" y="0" class="title" font-size="14" text-anchor="middle" fill="#0a0">Total Cost: ~$2.35/mo</text>
+  </g>
+</svg>
