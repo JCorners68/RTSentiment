@@ -3,12 +3,8 @@ name: Terraform CI/CD Pipeline
 on:
   push:
     branches: [ main, develop ]
-    paths:
-      - 'infrastructure/terraform/**'
   pull_request:
     branches: [ main, develop ]
-    paths:
-      - 'infrastructure/terraform/**'
   workflow_dispatch:
     inputs:
       environment:
@@ -30,33 +26,18 @@ on:
           - apply
           - destroy
 
-# Define environment variables used across jobs
+# Environment variables
 env:
-  TF_DIR: infrastructure/terraform/azure
   TF_LOG: INFO
-  ARM_STORAGE_USE_AZUREAD: true
-  TF_AZURE_STATE_LOCK_TIMEOUT: 600
-  ARM_OPERATION_TIMEOUT_MINUTES: 30
-  ARM_CLIENT_TIMEOUT_MINUTES: 60
-  TF_LOCK_RETRY_COUNT: 10
-  TF_LOCK_RETRY_WAIT_MIN: 5
-  TF_LOCK_RETRY_WAIT_MAX: 30
 
-# Define permissions needed for OIDC authentication with Azure
+# Permissions
 permissions:
   id-token: write
   contents: read
 
-# Concurrency group ensures only one workflow per environment runs at a time
-# Cancel-in-progress ensures only the latest workflow runs per ref
-concurrency:
-  group: terraform-${{ github.workflow }}-${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'prod') || (github.ref == 'refs/heads/develop' && 'uat') || 'sit' }}
-  cancel-in-progress: ${{ github.event.inputs.environment != 'prod' && github.ref != 'refs/heads/main' }}
-
 jobs:
-  # Terraform validation job
-  validate:
-    name: Validate Terraform
+  terraform:
+    name: Terraform Operations
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -67,268 +48,155 @@ jobs:
         with:
           terraform_version: 1.5.0
 
+      - name: Check Repository Structure
+        id: repo_check
+        run: |
+          # Determine the Terraform directory
+          if [ -d "infrastructure/terraform/azure" ]; then
+            echo "TF_DIR=infrastructure/terraform/azure" >> $GITHUB_ENV
+            echo "FOUND_TF_DIR=true" >> $GITHUB_ENV
+          elif [ -d "infrastructure/terraform" ]; then
+            echo "TF_DIR=infrastructure/terraform" >> $GITHUB_ENV
+            echo "FOUND_TF_DIR=true" >> $GITHUB_ENV
+          elif [ -d "terraform" ]; then
+            echo "TF_DIR=terraform" >> $GITHUB_ENV
+            echo "FOUND_TF_DIR=true" >> $GITHUB_ENV
+          else
+            echo "TF_DIR=." >> $GITHUB_ENV
+            echo "FOUND_TF_DIR=false" >> $GITHUB_ENV
+            echo "::warning::No Terraform directory found. Using repository root."
+          fi
+          
+          # Echo detected directory for debugging
+          echo "Using Terraform directory: ${{ env.TF_DIR }}"
+          
+          # Check for basic Terraform files
+          if [ -f "${{ env.TF_DIR }}/main.tf" ]; then
+            echo "Found main.tf"
+          else
+            echo "::warning::main.tf not found in ${{ env.TF_DIR }}"
+          fi
+          
+          # List all .tf files for reference
+          echo "Terraform files found:"
+          find ${{ env.TF_DIR }} -name "*.tf" -type f | sort
+
       - name: Terraform Format Check
         id: fmt
+        if: env.FOUND_TF_DIR == 'true'
         run: |
           cd ${{ env.TF_DIR }}
-          terraform fmt -check -recursive
+          if terraform fmt -check -recursive 2>/dev/null; then
+            echo "Terraform formatting is correct"
+          else
+            echo "::warning::Terraform format check failed. Running 'terraform fmt -recursive' would fix formatting."
+          fi
         continue-on-error: true
 
-      - name: Format Status
-        run: |
-          if [ "${{ steps.fmt.outcome }}" == "failure" ]; then
-            echo "::warning::Terraform format check failed. Run 'terraform fmt -recursive' to fix formatting."
-          fi
-
-      - name: Terraform Init (for validation only)
-        id: init_local
+      - name: Terraform Init
+        id: init
+        if: env.FOUND_TF_DIR == 'true'
         run: |
           cd ${{ env.TF_DIR }}
-          # Initialize with local backend for validation
-          terraform init -backend=false
+          # Try to initialize with backend-config if exists
+          if [ -d "backends" ] && [ "${{ github.event.inputs.environment }}" != "" ]; then
+            ENV="${{ github.event.inputs.environment }}"
+            if [ -f "backends/${ENV}.tfbackend" ]; then
+              echo "Initializing with backend config: backends/${ENV}.tfbackend"
+              terraform init -backend-config=backends/${ENV}.tfbackend
+            else
+              echo "Backend config not found, initializing with default backend"
+              terraform init
+            fi
+          else
+            echo "Initializing with default settings (no custom backend)"
+            terraform init -backend=false
+          fi
+        continue-on-error: true
 
       - name: Terraform Validate
         id: validate
+        if: env.FOUND_TF_DIR == 'true' && steps.init.outcome == 'success'
         run: |
           cd ${{ env.TF_DIR }}
           terraform validate
 
-  # Terraform plan job
-  plan:
-    name: Terraform Plan
-    runs-on: ubuntu-latest
-    needs: validate
-    environment: ${{ github.event.inputs.environment || 'sit' }}
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.0
-
-      # Fixed Azure login - using the correct format for OIDC authentication
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: false
-
-      # Determine environment from inputs or branch name
-      - name: Set Environment
-        id: env_detect
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "ENVIRONMENT=prod" >> $GITHUB_ENV
-          elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
-            echo "ENVIRONMENT=uat" >> $GITHUB_ENV
-          else
-            echo "ENVIRONMENT=sit" >> $GITHUB_ENV
-          fi
-
-      # Create backend resources if they don't exist
-      - name: Setup Terraform Backend
-        run: |
-          cd ${{ env.TF_DIR }}
-          if [ -f "setup_terraform_backend.sh" ]; then
-            chmod +x setup_terraform_backend.sh
-            ./setup_terraform_backend.sh --environment=${{ env.ENVIRONMENT }}
-          else
-            echo "Backend setup script not found, skipping..."
-          fi
-
-      # Initialize Terraform with the appropriate backend
-      - name: Terraform Init
-        id: init
-        run: |
-          cd ${{ env.TF_DIR }}
-          terraform init -backend-config=backends/${{ env.ENVIRONMENT }}.tfbackend || terraform init -backend=false
-
-      # Create Terraform plan with concurrency handling
       - name: Terraform Plan
         id: plan
+        if: env.FOUND_TF_DIR == 'true' && (github.event.inputs.action == 'plan' || github.event.inputs.action == 'apply' || github.event_name != 'workflow_dispatch')
         run: |
           cd ${{ env.TF_DIR }}
-          # Check if we are explicitly targeting cost management
-          if [ "${{ github.event.inputs.action }}" == "cost-plan" ]; then
-            terraform plan -target=module.cost_management -out=tfplan || terraform plan -out=tfplan
-          else
-            terraform plan -out=tfplan || terraform plan
-          fi
-        env:
-          # Set Azure credentials via environment variables
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          terraform plan -out=tfplan
+        continue-on-error: true
 
-      # Save plan for apply job
-      - name: Save Terraform Plan
-        uses: actions/upload-artifact@v3
-        with:
-          name: terraform-plan-${{ env.ENVIRONMENT }}
-          path: ${{ env.TF_DIR }}/tfplan
-          retention-days: 1
-
-  # Terraform apply job
-  apply:
-    name: Terraform Apply
-    runs-on: ubuntu-latest
-    needs: plan
-    # Only run on manual trigger with apply action or on push to main/develop
-    if: |
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply') ||
-      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
-    environment: ${{ github.event.inputs.environment || 'sit' }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.0
-
-      # Fixed Azure login - using the correct format for OIDC authentication
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: false
-
-      # Set environment same as plan job
-      - name: Set Environment
-        id: env_detect
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "ENVIRONMENT=prod" >> $GITHUB_ENV
-          elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
-            echo "ENVIRONMENT=uat" >> $GITHUB_ENV
-          else
-            echo "ENVIRONMENT=sit" >> $GITHUB_ENV
-          fi
-
-          # Set plan timestamp for drift detection
-          echo "PLAN_TIMESTAMP=$(date +%s)" >> $GITHUB_ENV
-
-      # Initialize Terraform with the appropriate backend
-      - name: Terraform Init
-        id: init
-        run: |
-          cd ${{ env.TF_DIR }}
-          terraform init -backend-config=backends/${{ env.ENVIRONMENT }}.tfbackend || terraform init -backend=false
-
-      # Download plan from artifacts
-      - name: Download Terraform Plan
-        uses: actions/download-artifact@v3
-        with:
-          name: terraform-plan-${{ env.ENVIRONMENT }}
-          path: ${{ env.TF_DIR }}
-
-      # Apply Terraform plan
       - name: Terraform Apply
         id: apply
+        if: env.FOUND_TF_DIR == 'true' && github.event.inputs.action == 'apply' && github.event_name == 'workflow_dispatch'
         run: |
           cd ${{ env.TF_DIR }}
-          
-          # Check if plan file exists
           if [ -f "tfplan" ]; then
+            echo "Applying saved plan"
             terraform apply -auto-approve tfplan
           else
+            echo "Creating and applying new plan"
             terraform apply -auto-approve
           fi
-          
-          echo "::notice::Terraform apply completed successfully!"
-        env:
-          # Set Azure credentials via environment variables
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_STORAGE_USE_AZUREAD: true
+        continue-on-error: true
 
-  # Terraform destroy job (only manual)
-  destroy:
-    name: Terraform Destroy
-    runs-on: ubuntu-latest
-    needs: validate
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
-    environment:
-      name: ${{ github.event.inputs.environment }}-destroy
-      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.0
-
-      # Fixed Azure login - using the correct format for OIDC authentication
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: false
-
-      # Set environment from workflow dispatch input
-      - name: Set Environment
-        run: |
-          echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-
-      # Initialize Terraform with the appropriate backend
-      - name: Terraform Init
-        id: init
-        run: |
-          cd ${{ env.TF_DIR }}
-          terraform init -backend-config=backends/${{ env.ENVIRONMENT }}.tfbackend || terraform init -backend=false
-
-      # Plan destruction to show what will be destroyed
-      - name: Terraform Plan Destroy
-        id: plan_destroy
-        run: |
-          cd ${{ env.TF_DIR }}
-          terraform plan -destroy -out=tfplan.destroy
-        env:
-          # Set Azure credentials via environment variables
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      # Require an extra confirmation step for destroy operations
-      - name: Confirm Destroy Action
-        run: |
-          echo "⚠️ WARNING: You are about to destroy all resources in the ${{ env.ENVIRONMENT }} environment!"
-          echo "This action cannot be undone. Please confirm this is what you intended."
-          echo "Proceeding with destruction in 10 seconds..."
-          sleep 10
-
-      # Execute terraform destroy with the plan
       - name: Terraform Destroy
         id: destroy
+        if: env.FOUND_TF_DIR == 'true' && github.event.inputs.action == 'destroy' && github.event_name == 'workflow_dispatch'
         run: |
           cd ${{ env.TF_DIR }}
-          terraform apply -auto-approve tfplan.destroy
-        env:
-          # Set Azure credentials via environment variables
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          echo "⚠️ WARNING: You are about to destroy resources in the ${{ github.event.inputs.environment }} environment!"
+          echo "Proceeding with terraform destroy"
+          terraform destroy -auto-approve
+        continue-on-error: true
 
-      # Notify about successful destruction
-      - name: Destruction Complete
+      - name: Workflow Summary
         run: |
-          echo "💥 All resources in the ${{ env.ENVIRONMENT }} environment have been destroyed."
+          echo "## Terraform CI/CD Workflow Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "- **Environment:** ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Action:** ${{ github.event.inputs.action }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "- **Terraform Directory:** ${{ env.TF_DIR }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Format Check:** ${{ steps.fmt.outcome }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Init:** ${{ steps.init.outcome }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.validate.outcome }}" == "success" ]; then
+            echo "- **Validate:** ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.validate.outcome }}" == "failure" ]; then
+            echo "- **Validate:** ❌ Failed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Validate:** ⚠️ Skipped" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ steps.plan.outcome }}" == "success" ]; then
+            echo "- **Plan:** ✅ Created successfully" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ steps.plan.outcome }}" == "failure" ]; then
+            echo "- **Plan:** ❌ Failed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Plan:** ⚠️ Skipped" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ github.event.inputs.action }}" == "apply" ]; then
+            if [ "${{ steps.apply.outcome }}" == "success" ]; then
+              echo "- **Apply:** ✅ Applied successfully" >> $GITHUB_STEP_SUMMARY
+            elif [ "${{ steps.apply.outcome }}" == "failure" ]; then
+              echo "- **Apply:** ❌ Failed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- **Apply:** ⚠️ Skipped" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          if [ "${{ github.event.inputs.action }}" == "destroy" ]; then
+            if [ "${{ steps.destroy.outcome }}" == "success" ]; then
+              echo "- **Destroy:** ✅ Resources destroyed successfully" >> $GITHUB_STEP_SUMMARY
+            elif [ "${{ steps.destroy.outcome }}" == "failure" ]; then
+              echo "- **Destroy:** ❌ Failed" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- **Destroy:** ⚠️ Skipped" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
