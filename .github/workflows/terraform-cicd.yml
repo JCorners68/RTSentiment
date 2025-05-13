@@ -30,74 +30,18 @@ on:
           - apply
           - destroy
 
-# Define environment variables used across jobs
 env:
   TF_DIR: infrastructure/terraform/azure
   TF_LOG: INFO
-  ARM_STORAGE_USE_AZUREAD: true
-  TF_AZURE_STATE_LOCK_TIMEOUT: 600
-  ARM_OPERATION_TIMEOUT_MINUTES: 30
-  ARM_CLIENT_TIMEOUT_MINUTES: 60
-  TF_LOCK_RETRY_COUNT: 10
-  TF_LOCK_RETRY_WAIT_MIN: 5
-  TF_LOCK_RETRY_WAIT_MAX: 30
 
-# Define permissions needed for OIDC authentication with Azure
 permissions:
   id-token: write
   contents: read
 
-# Concurrency group ensures only one workflow per environment runs at a time
-# Cancel-in-progress ensures only the latest workflow runs per ref
-concurrency:
-  group: terraform-${{ github.workflow }}-${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'prod') || (github.ref == 'refs/heads/develop' && 'uat') || 'sit' }}
-  cancel-in-progress: ${{ github.event.inputs.environment != 'prod' && github.ref != 'refs/heads/main' }}
-
 jobs:
-  # Terraform validation job
-  validate:
-    name: Validate Terraform
+  terraform:
+    name: Terraform Operations
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.0
-
-      - name: Terraform Format Check
-        id: fmt
-        run: |
-          cd ${{ env.TF_DIR }}
-          terraform fmt -check -recursive
-        continue-on-error: true
-
-      - name: Format Status
-        run: |
-          if [ "${{ steps.fmt.outcome }}" == "failure" ]; then
-            echo "::warning::Terraform format check failed. Run 'terraform fmt -recursive' to fix formatting."
-          fi
-
-      - name: Terraform Init (for validation only)
-        id: init_local
-        run: |
-          cd ${{ env.TF_DIR }}
-          # Initialize with local backend for validation
-          terraform init -backend=false
-
-      - name: Terraform Validate
-        id: validate
-        run: |
-          cd ${{ env.TF_DIR }}
-          terraform validate
-
-  # Terraform plan job
-  plan:
-    name: Terraform Plan
-    runs-on: ubuntu-latest
-    needs: validate
     environment: ${{ github.event.inputs.environment || 'sit' }}
     
     steps:
@@ -109,391 +53,62 @@ jobs:
         with:
           terraform_version: 1.5.0
 
-      - name: Setup Azure CLI
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
       # Determine environment from inputs or branch name
       - name: Set Environment
         id: env_detect
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+            echo "ACTION=${{ github.event.inputs.action }}" >> $GITHUB_ENV
           elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
             echo "ENVIRONMENT=prod" >> $GITHUB_ENV
+            echo "ACTION=plan" >> $GITHUB_ENV
           elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
             echo "ENVIRONMENT=uat" >> $GITHUB_ENV
+            echo "ACTION=plan" >> $GITHUB_ENV
           else
             echo "ENVIRONMENT=sit" >> $GITHUB_ENV
+            echo "ACTION=plan" >> $GITHUB_ENV
           fi
 
-      # Create backend resources if they don't exist
-      - name: Setup Terraform Backend
+      # Terraform validate
+      - name: Terraform Format Check
         run: |
           cd ${{ env.TF_DIR }}
-          chmod +x setup_terraform_backend.sh
-          ./setup_terraform_backend.sh --environment=${{ env.ENVIRONMENT }}
+          terraform fmt -check -recursive || echo "::warning::Terraform format check failed. Run 'terraform fmt -recursive' to fix formatting."
 
-      # Initialize Terraform with the appropriate backend
-      - name: Terraform Init
-        id: init
+      - name: Terraform Init and Validate
         run: |
           cd ${{ env.TF_DIR }}
-          terraform init -backend-config=backends/${{ env.ENVIRONMENT }}.tfbackend
+          terraform init -backend=false
+          terraform validate
 
-      # Create Terraform plan with concurrency handling
-      - name: Terraform Plan
-        id: plan
+      # Terraform plan or apply based on action
+      - name: Run Terraform Action
+        id: terraform_action
         run: |
           cd ${{ env.TF_DIR }}
-          # Check if we are explicitly targeting cost management
-          if [ "${{ github.event.inputs.action }}" == "cost-plan" ]; then
-            terraform plan -target=module.cost_management -out=tfplan
-          else
+          echo "Running Terraform ${{ env.ACTION }} for ${{ env.ENVIRONMENT }} environment"
+          
+          # Setup backend if needed
+          if [ "${{ env.ACTION }}" != "validate" ]; then
+            echo "Setting up Terraform backend..."
+            # Initialize with backend
+            terraform init -backend-config=backends/${{ env.ENVIRONMENT }}.tfbackend
+          fi
+          
+          # Execute appropriate action
+          if [ "${{ env.ACTION }}" == "plan" ]; then
             terraform plan -out=tfplan
+            echo "Terraform plan completed"
+          elif [ "${{ env.ACTION }}" == "apply" ]; then
+            terraform plan -out=tfplan
+            terraform apply -auto-approve tfplan
+            echo "Terraform apply completed"
+          elif [ "${{ env.ACTION }}" == "destroy" ]; then
+            terraform plan -destroy -out=tfplan.destroy
+            echo "⚠️ WARNING: You are about to destroy all resources in the ${{ env.ENVIRONMENT }} environment!"
+            echo "This action cannot be undone."
+            terraform apply -auto-approve tfplan.destroy
+            echo "💥 All resources in the ${{ env.ENVIRONMENT }} environment have been destroyed."
           fi
-        env:
-          # Set Azure credentials via environment variables
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      # Save plan for apply job
-      - name: Save Terraform Plan
-        uses: actions/upload-artifact@v3
-        with:
-          name: terraform-plan-${{ env.ENVIRONMENT }}
-          path: ${{ env.TF_DIR }}/tfplan
-          retention-days: 1
-
-  # Terraform apply job
-  apply:
-    name: Terraform Apply
-    runs-on: ubuntu-latest
-    needs: plan
-    # Only run on manual trigger with apply action or on push to main/develop
-    if: |
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply') ||
-      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
-    environment: ${{ github.event.inputs.environment || 'sit' }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.0
-
-      - name: Setup Azure CLI
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      # Set environment same as plan job
-      - name: Set Environment
-        id: env_detect
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "ENVIRONMENT=prod" >> $GITHUB_ENV
-          elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
-            echo "ENVIRONMENT=uat" >> $GITHUB_ENV
-          else
-            echo "ENVIRONMENT=sit" >> $GITHUB_ENV
-          fi
-
-          # Set plan timestamp for drift detection
-          echo "PLAN_TIMESTAMP=$(date +%s)" >> $GITHUB_ENV
-
-      # Initialize Terraform with the appropriate backend
-      - name: Terraform Init
-        id: init
-        run: |
-          cd ${{ env.TF_DIR }}
-          terraform init -backend-config=backends/${{ env.ENVIRONMENT }}.tfbackend
-
-      # Download plan from artifacts
-      - name: Download Terraform Plan
-        uses: actions/download-artifact@v3
-        with:
-          name: terraform-plan-${{ env.ENVIRONMENT }}
-          path: ${{ env.TF_DIR }}
-
-      # Detect infrastructure drift before applying
-      - name: Detect Infrastructure Drift
-        id: drift_detection
-        run: |
-          cd ${{ env.TF_DIR }}
-          chmod +x detect_plan_drift.sh
-
-          # Run drift detection and store result
-          if ./detect_plan_drift.sh --plan tfplan --environment ${{ env.ENVIRONMENT }} --verbose; then
-            echo "DRIFT_DETECTED=false" >> $GITHUB_ENV
-            echo "No drift detected, proceeding with apply"
-          else
-            echo "DRIFT_DETECTED=true" >> $GITHUB_ENV
-            echo "::warning::Infrastructure drift detected! The state has changed since the plan was created."
-
-            # For non-production environments, regenerate the plan
-            if [[ "${{ env.ENVIRONMENT }}" != "prod" ]]; then
-              echo "::notice::Regenerating plan for non-production environment..."
-              terraform plan -out=tfplan
-              echo "REGENERATED_PLAN=true" >> $GITHUB_ENV
-            else
-              echo "::error::Infrastructure drift detected in PRODUCTION environment!"
-              echo "Manual intervention required. Please review changes and create a new plan."
-              exit 1
-            fi
-          fi
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          TF_CLI_ARGS: "-no-color"
-
-      # Apply Terraform plan with proper error handling
-      - name: Terraform Apply
-        id: apply
-        run: |
-          cd ${{ env.TF_DIR }}
-
-          # Create a timestamp for this apply operation
-          APPLY_TIMESTAMP=$(date +%s)
-
-          # Calculate time since plan was created
-          TIME_DIFF=$((APPLY_TIMESTAMP - ${{ env.PLAN_TIMESTAMP }}))
-          echo "Time elapsed since plan creation: $TIME_DIFF seconds"
-
-          # If it's been more than 30 minutes, warn but continue
-          if [ $TIME_DIFF -gt 1800 ]; then
-            echo "::warning::Plan is over 30 minutes old. Consider creating a new plan."
-          fi
-
-          # Apply with error capture
-          set +e
-          terraform apply -auto-approve tfplan
-          APPLY_EXIT_CODE=$?
-          set -e
-
-          if [ $APPLY_EXIT_CODE -ne 0 ]; then
-            echo "::error::Terraform apply failed with exit code $APPLY_EXIT_CODE"
-
-            # Attempt to get failure details
-            echo "Checking for error details..."
-            LAST_ERROR=$(terraform state pull 2>/dev/null | jq -r '.terraform_version as $v | .serial as $s | "Terraform version: \($v), State serial: \($s)"' || echo "Unable to retrieve state information")
-            echo "Current state: $LAST_ERROR"
-
-            # Enhanced error detection for specific error types
-            # Look for log files in multiple potential locations
-            LOG_FILES=(".terraform/terraform.log" "terraform.tfstate.d/terraform.log" ".terraform.lock.hcl" ".terraform/tmp*.log")
-
-            # Check for state lock errors with improved diagnostics
-            if grep -q "Error acquiring the state lock" ${LOG_FILES[@]} 2>/dev/null || terraform show -json tfplan 2>/dev/null | grep -q "Error: Error acquiring the state lock"; then
-              echo "::error::State lock could not be acquired. Another process may be running Terraform."
-
-              # Try to extract the lock ID from logs with improved pattern matching
-              LOCK_ID=$(grep -o 'ID: [a-zA-Z0-9-]*' ${LOG_FILES[@]} 2>/dev/null | head -1 | cut -d ' ' -f 2 || echo "")
-
-              # Get lock owner information if available
-              if [ -n "$LOCK_ID" ]; then
-                echo "::warning::Lock ID: $LOCK_ID"
-
-                # Try to get more information about the lock
-                if terraform state pull 2>/dev/null | grep -q "LockInfo"; then
-                  LOCK_INFO=$(terraform state pull | grep -A 10 "LockInfo" || echo "")
-                  echo "::warning::Lock info: $LOCK_INFO"
-
-                  # Extract the lock holder for better visibility
-                  LOCK_WHO=$(echo "$LOCK_INFO" | grep -o '"Who": "[^"]*"' | cut -d '"' -f 4 || echo "")
-                  if [ -n "$LOCK_WHO" ]; then
-                    echo "::warning::Lock held by: $LOCK_WHO"
-                  fi
-
-                  # Calculate lock age
-                  LOCK_TIME=$(echo "$LOCK_INFO" | grep -o '"Created": "[^"]*"' | cut -d '"' -f 4 || echo "")
-                  if [ -n "$LOCK_TIME" ]; then
-                    LOCK_AGE=$(($(date +%s) - $(date -d "$LOCK_TIME" +%s) || echo "unknown"))
-                    echo "::warning::Lock age: $LOCK_AGE seconds"
-
-                    # Try force-unlock for non-production environments if lock is older than 30 minutes
-                    if [[ "${{ env.ENVIRONMENT }}" != "prod" ]] && [[ $LOCK_AGE -gt 1800 || "$LOCK_AGE" == "unknown" ]]; then
-                      echo "::notice::Lock is stale (>30m old). Attempting to force-unlock state in non-production environment..."
-                      terraform force-unlock -force $LOCK_ID
-                      echo "::notice::Attempted to force-unlock state with ID: $LOCK_ID"
-                      echo "::notice::Waiting 30 seconds for lock release to propagate..."
-                      sleep 30
-                      echo "::notice::Retrying the operation..."
-                      terraform apply -auto-approve tfplan
-                      # Store the new exit code
-                      RETRY_EXIT_CODE=$?
-                      if [ $RETRY_EXIT_CODE -eq 0 ]; then
-                        echo "::notice::Retry succeeded!"
-                        APPLY_EXIT_CODE=0
-                      else
-                        echo "::error::Retry also failed with exit code $RETRY_EXIT_CODE"
-                      fi
-                    fi
-                  fi
-                fi
-              else
-                echo "::warning::Could not determine lock ID from logs."
-              fi
-
-            # Check for Azure provider errors with more detailed diagnostics
-            elif grep -q "authorization_failed\|AuthorizationFailed" ${LOG_FILES[@]} 2>/dev/null || terraform show -json tfplan 2>/dev/null | grep -q "The provider hashicorp/azurerm could not be initialized"; then
-              echo "::error::Azure provider initialization or authorization error."
-              echo "::warning::This could be due to:"
-              echo "::warning::1. Expired or invalid credentials"
-              echo "::warning::2. Insufficient permissions for the service principal"
-              echo "::warning::3. Role assignments not fully propagated (can take up to 5 minutes)"
-
-              # Verify the service principal has proper access
-              echo "::notice::Attempting to verify service principal access..."
-              az account show --output json || echo "::error::Service principal validation failed"
-
-            # Check for timeout issues
-            elif grep -q "context deadline exceeded\|operation timed out\|DeadlineExceeded" ${LOG_FILES[@]} 2>/dev/null; then
-              echo "::error::Azure operation timed out."
-              echo "::warning::Consider increasing timeouts in the workflow environment variables."
-              echo "::warning::Current timeouts: ARM_OPERATION_TIMEOUT_MINUTES=${{ env.ARM_OPERATION_TIMEOUT_MINUTES }}, ARM_CLIENT_TIMEOUT_MINUTES=${{ env.ARM_CLIENT_TIMEOUT_MINUTES }}"
-
-              # If in non-production, retry with increased timeouts
-              if [[ "${{ env.ENVIRONMENT }}" != "prod" ]]; then
-                echo "::notice::Attempting retry with increased timeouts..."
-                export ARM_OPERATION_TIMEOUT_MINUTES=60
-                export ARM_CLIENT_TIMEOUT_MINUTES=90
-                terraform apply -auto-approve tfplan
-                RETRY_EXIT_CODE=$?
-                if [ $RETRY_EXIT_CODE -eq 0 ]; then
-                  echo "::notice::Retry with increased timeouts succeeded!"
-                  APPLY_EXIT_CODE=0
-                fi
-              fi
-
-            # Check for quota issues
-            elif grep -q "QuotaExceeded\|exceeds quota\|capacity.*is not available" ${LOG_FILES[@]} 2>/dev/null; then
-              echo "::error::Azure resource quota exceeded."
-              echo "::warning::Request a quota increase or use a different region."
-
-            # Generic error handling
-            else
-              echo "::error::Terraform command failed with exit code $APPLY_EXIT_CODE"
-              echo "::warning::Check the output above for specific error messages."
-            fi
-
-            exit $APPLY_EXIT_CODE
-          fi
-
-          echo "::notice::Terraform apply completed successfully!"
-        env:
-          # Set Azure credentials via environment variables
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_STORAGE_USE_AZUREAD: true
-          TF_AZURE_STATE_LOCK_TIMEOUT: 300
-
-      # Perform validation of deployed resources
-      - name: Validate Deployment
-        run: |
-          cd ${{ env.TF_DIR }}
-          # Output key resources that were deployed
-          terraform output
-
-          # Run a simple state list to verify we can access state after apply
-          terraform state list > deployed_resources.txt
-          echo "Deployed resources: $(cat deployed_resources.txt | wc -l)"
-
-          # Check for any security-sensitive resources that require additional validation
-          if grep -E 'azurerm_key_vault|azurerm_container_registry|azurerm_kubernetes_cluster' deployed_resources.txt; then
-            echo "::notice::Security-sensitive resources detected. Additional validation recommended."
-          fi
-
-  # Terraform destroy job (only manual)
-  destroy:
-    name: Terraform Destroy
-    runs-on: ubuntu-latest
-    needs: validate
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
-  # Use the expanded format for environment configuration
-    environment:
-      name: ${{ github.event.inputs.environment }}-destroy
-      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.0
-
-      - name: Setup Azure CLI
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      # Set environment from workflow dispatch input
-      - name: Set Environment
-        run: |
-          echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-
-      # Initialize Terraform with the appropriate backend
-      - name: Terraform Init
-        id: init
-        run: |
-          cd ${{ env.TF_DIR }}
-          terraform init -backend-config=backends/${{ env.ENVIRONMENT }}.tfbackend
-
-      # Plan destruction to show what will be destroyed
-      - name: Terraform Plan Destroy
-        id: plan_destroy
-        run: |
-          cd ${{ env.TF_DIR }}
-          terraform plan -destroy -out=tfplan.destroy
-        env:
-          # Set Azure credentials via environment variables
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      # Require an extra confirmation step for destroy operations
-      - name: Confirm Destroy Action
-        run: |
-          echo "⚠️ WARNING: You are about to destroy all resources in the ${{ env.ENVIRONMENT }} environment!"
-          echo "This action cannot be undone. Please confirm this is what you intended."
-          echo "Proceeding with destruction in 10 seconds..."
-          sleep 10
-
-      # Execute terraform destroy with the plan
-      - name: Terraform Destroy
-        id: destroy
-        run: |
-          cd ${{ env.TF_DIR }}
-          terraform apply -auto-approve tfplan.destroy
-        env:
-          # Set Azure credentials via environment variables
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      # Notify about successful destruction
-      - name: Destruction Complete
-        run: |
-          echo "💥 All resources in the ${{ env.ENVIRONMENT }} environment have been destroyed."
