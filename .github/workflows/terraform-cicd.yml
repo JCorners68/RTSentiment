@@ -33,15 +33,48 @@ on:
 env:
   TF_DIR: infrastructure/terraform/azure
   TF_LOG: INFO
+  ARM_STORAGE_USE_AZUREAD: true
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  terraform:
-    name: Terraform Operations
+  validate:
+    name: Validate Terraform
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Terraform Format Check
+        id: fmt
+        run: |
+          cd ${{ env.TF_DIR }}
+          terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Init (for validation only)
+        id: init_local
+        run: |
+          cd ${{ env.TF_DIR }}
+          terraform init -backend=false
+
+      - name: Terraform Validate
+        id: validate
+        run: |
+          cd ${{ env.TF_DIR }}
+          terraform validate
+
+  plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    needs: validate
     environment: ${{ github.event.inputs.environment || 'sit' }}
     
     steps:
@@ -53,62 +86,111 @@ jobs:
         with:
           terraform_version: 1.5.0
 
-      # Determine environment from inputs or branch name
       - name: Set Environment
         id: env_detect
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
-            echo "ACTION=${{ github.event.inputs.action }}" >> $GITHUB_ENV
           elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
             echo "ENVIRONMENT=prod" >> $GITHUB_ENV
-            echo "ACTION=plan" >> $GITHUB_ENV
           elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
             echo "ENVIRONMENT=uat" >> $GITHUB_ENV
-            echo "ACTION=plan" >> $GITHUB_ENV
           else
             echo "ENVIRONMENT=sit" >> $GITHUB_ENV
-            echo "ACTION=plan" >> $GITHUB_ENV
           fi
 
-      # Terraform validate
-      - name: Terraform Format Check
+      - name: Terraform Init
+        id: init
         run: |
           cd ${{ env.TF_DIR }}
-          terraform fmt -check -recursive || echo "::warning::Terraform format check failed. Run 'terraform fmt -recursive' to fix formatting."
+          terraform init -backend-config=backends/${{ env.ENVIRONMENT }}.tfbackend
 
-      - name: Terraform Init and Validate
+      - name: Terraform Plan
+        id: plan
         run: |
           cd ${{ env.TF_DIR }}
-          terraform init -backend=false
-          terraform validate
+          terraform plan -out=tfplan
 
-      # Terraform plan or apply based on action
-      - name: Run Terraform Action
-        id: terraform_action
+  apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    needs: plan
+    if: |
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply') ||
+      (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
+    environment: ${{ github.event.inputs.environment || 'sit' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Set Environment
+        id: env_detect
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "ENVIRONMENT=prod" >> $GITHUB_ENV
+          elif [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+            echo "ENVIRONMENT=uat" >> $GITHUB_ENV
+          else
+            echo "ENVIRONMENT=sit" >> $GITHUB_ENV
+          fi
+
+      - name: Terraform Init
+        id: init
         run: |
           cd ${{ env.TF_DIR }}
-          echo "Running Terraform ${{ env.ACTION }} for ${{ env.ENVIRONMENT }} environment"
-          
-          # Setup backend if needed
-          if [ "${{ env.ACTION }}" != "validate" ]; then
-            echo "Setting up Terraform backend..."
-            # Initialize with backend
-            terraform init -backend-config=backends/${{ env.ENVIRONMENT }}.tfbackend
-          fi
-          
-          # Execute appropriate action
-          if [ "${{ env.ACTION }}" == "plan" ]; then
-            terraform plan -out=tfplan
-            echo "Terraform plan completed"
-          elif [ "${{ env.ACTION }}" == "apply" ]; then
-            terraform plan -out=tfplan
-            terraform apply -auto-approve tfplan
-            echo "Terraform apply completed"
-          elif [ "${{ env.ACTION }}" == "destroy" ]; then
-            terraform plan -destroy -out=tfplan.destroy
-            echo "⚠️ WARNING: You are about to destroy all resources in the ${{ env.ENVIRONMENT }} environment!"
-            echo "This action cannot be undone."
-            terraform apply -auto-approve tfplan.destroy
-            echo "💥 All resources in the ${{ env.ENVIRONMENT }} environment have been destroyed."
-          fi
+          terraform init -backend-config=backends/${{ env.ENVIRONMENT }}.tfbackend
+
+      - name: Terraform Apply
+        id: apply
+        run: |
+          cd ${{ env.TF_DIR }}
+          terraform apply -auto-approve
+
+  destroy:
+    name: Terraform Destroy
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+    environment:
+      name: ${{ github.event.inputs.environment }}-destroy
+      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Set Environment
+        run: |
+          echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
+
+      - name: Terraform Init
+        id: init
+        run: |
+          cd ${{ env.TF_DIR }}
+          terraform init -backend-config=backends/${{ env.ENVIRONMENT }}.tfbackend
+
+      - name: Terraform Plan Destroy
+        id: plan_destroy
+        run: |
+          cd ${{ env.TF_DIR }}
+          terraform plan -destroy -out=tfplan.destroy
+
+      - name: Terraform Destroy
+        id: destroy
+        run: |
+          cd ${{ env.TF_DIR }}
+          echo "⚠️ WARNING: Destroying all resources in the ${{ env.ENVIRONMENT }} environment!"
+          terraform apply -auto-approve tfplan.destroy
