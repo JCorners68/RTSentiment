@@ -1,0 +1,629 @@
+---
+layout: page
+title: Support Our Kickstarter
+subtitle: Join us in bringing advanced sentiment analysis to financial markets
+permalink: /kickstarter/
+custom_css:
+  - countdown.css
+  - kickstarter-enhanced.css
+custom_js:
+  - countdown.js
+---
+
+<div class="container">
+  <div class="kickstarter-intro">
+    <div class="row">
+      <div class="col-12 col-md-6">
+        <h2>Our Kickstarter Campaign</h2>
+        <p class="lead">We're launching a Kickstarter campaign to bring Sentimark's powerful sentiment analysis platform to market. By supporting our campaign, you'll be among the first to access our technology and help shape its development.</p>
+        <p>Sentimark leverages advanced agentic AI to uncover hidden sentiment patterns in financial markets—providing valuable insights that traditional analysis misses. Our platform is designed to give investors of all types access to sophisticated sentiment analysis capabilities that were previously available only to elite institutions.</p>
+        <div class="campaign-status">
+          <h3>Campaign Status: <span class="status-label">Launching July 4, 2025</span></h3>
+          <!--
+            Countdown Timer Implementation
+            - Uses external countdown.js for dynamic updates
+            - Has inline fallback script below for immediate rendering
+            - Custom styling from countdown.css
+            - Target date: July 4, 2025
+           -->
+          <div class="countdown" id="countdown-timer">
+            <div class="countdown-item">
+              <span class="count" id="countdown-days">--</span>
+              <span class="label">Days</span>
+            </div>
+            <div class="countdown-item">
+              <span class="count" id="countdown-hours">--</span>
+              <span class="label">Hours</span>
+            </div>
+            <div class="countdown-item">
+              <span class="count" id="countdown-minutes">--</span>
+              <span class="label">Minutes</span>
+            </div>
+            <div class="countdown-item">
+              <span class="count" id="countdown-seconds">--</span>
+              <span class="label">Seconds</span>
+            </div>
+          </div>
+
+          <!-- Inline fallback script in case the external JS doesn't load -->
+          <script>
+            (function() {
+              function initInlineCountdown() {
+                try {
+                  // Get the countdown elements
+                  var daysElement = document.getElementById('countdown-days');
+                  var hoursElement = document.getElementById('countdown-hours');
+                  var minutesElement = document.getElementById('countdown-minutes');
+                  var secondsElement = document.getElementById('countdown-seconds');
+
+                  // If elements don't exist, try again later
+                  if (!daysElement || !hoursElement || !minutesElement || !secondsElement) {
+                    setTimeout(initInlineCountdown, 100);
+                    return;
+                  }
+
+                  // Set countdown target date (July 4, 2025)
+                  var kickstarterDate = new Date("July 4, 2025 09:00:00").getTime();
+
+                  // Calculate time remaining
+                  var now = new Date().getTime();
+                  var timeRemaining = kickstarterDate - now;
+
+                  // Skip update if the external script has already updated the values
+                  if (daysElement.textContent !== '--' &&
+                      hoursElement.textContent !== '--' &&
+                      minutesElement.textContent !== '--' &&
+                      secondsElement.textContent !== '--') {
+                    return;
+                  }
+
+                  // Initial update
+                  if (timeRemaining > 0) {
+                    // Calculate values
+                    var days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                    var hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    var minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+                    var seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+                    // Update elements
+                    daysElement.textContent = (days < 10 ? '0' : '') + days;
+                    hoursElement.textContent = (hours < 10 ? '0' : '') + hours;
+                    minutesElement.textContent = (minutes < 10 ? '0' : '') + minutes;
+                    secondsElement.textContent = (seconds < 10 ? '0' : '') + seconds;
+
+                    // Add animated class to the container
+                    var countdownContainer = document.getElementById('countdown-timer');
+                    if (countdownContainer) {
+                      countdownContainer.classList.add('animated');
+                    }
+                  }
+                } catch (e) {
+                  console.error("Error in inline countdown script:", e);
+                }
+              }
+
+              // Run immediately and then after a short delay to ensure DOM is ready
+              initInlineCountdown();
+              setTimeout(initInlineCountdown, 300);
+            })();
+          </script>
+          <a href="#notify" class="btn btn-primary">Get Notified at Launch</a>
+        </div>
+      </div>
+      <div class="col-12 col-md-6">
+        <div class="kickstarter-video">
+          <video controls width="100%">
+            <source src="{{ "/assets/kickstarter/Sentimark_Kickstarter_Video_Script.mp4" | relative_url }}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="campaign-highlights">
+    <h2 class="text-center">Why Support Sentimark?</h2>
+
+    <div class="highlights-grid">
+      <div class="highlight-card">
+        <div class="highlight-icon">
+          <img src="{{ "/assets/images/features/alpha_detection_icon.png" | relative_url }}" alt="Early Access Icon">
+        </div>
+        <h3>Early Access</h3>
+        <p>Gain a competitive edge by being among the first to access our advanced sentiment analysis platform:</p>
+        <ul class="benefit-points">
+          <li>Access the platform months before public release</li>
+          <li>Discover market sentiment patterns before others</li>
+          <li>Get a head start on integrating insights into your strategy</li>
+        </ul>
+      </div>
+
+      <div class="highlight-card">
+        <div class="highlight-icon">
+          <img src="{{ "/assets/images/features/ai_analysis_icon.png" | relative_url }}" alt="Exclusive Benefits Icon">
+        </div>
+        <h3>Exclusive Benefits</h3>
+        <p>Kickstarter backers receive exclusive perks unavailable to regular users:</p>
+        <ul class="benefit-points">
+          <li>Lifetime subscription discounts (up to 30%)</li>
+          <li>Priority access to new features</li>
+          <li>Exclusive backer-only content and insights</li>
+          <li>Special recognition in our platform</li>
+        </ul>
+      </div>
+
+      <div class="highlight-card">
+        <div class="highlight-icon">
+          <img src="{{ "/assets/images/features/realtime_alerts_icon.png" | relative_url }}" alt="Shape Development Icon">
+        </div>
+        <h3>Shape the Future</h3>
+        <p>Have a direct influence on how Sentimark evolves:</p>
+        <ul class="benefit-points">
+          <li>Vote on feature prioritization</li>
+          <li>Join exclusive feedback sessions with our team</li>
+          <li>Help design the tools you want to use</li>
+          <li>Suggest new data sources and analysis methods</li>
+        </ul>
+      </div>
+
+      <div class="highlight-card">
+        <div class="highlight-icon">
+          <img src="{{ "/assets/images/features/mobile_design_icon.png" | relative_url }}" alt="Support Innovation Icon">
+        </div>
+        <h3>Support Innovation</h3>
+        <p>Be part of a movement to democratize financial market insights:</p>
+        <ul class="benefit-points">
+          <li>Help make advanced sentiment analysis accessible</li>
+          <li>Support the application of AI to financial markets</li>
+          <li>Contribute to more transparent market information</li>
+          <li>Join a community of forward-thinking investors</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="benefits-cta">
+      <a href="#notify" class="btn btn-primary pulse-button">Get Early Access Benefits</a>
+    </div>
+  </div>
+
+  <div class="campaign-tiers">
+    <h2 class="text-center">Backer Rewards</h2>
+    <p class="text-center">Choose from several backing options to support our campaign</p>
+    
+    <div class="tier-grid">
+      <div class="tier-card">
+        <h3>Early Bird</h3>
+        <div class="tier-price">$49</div>
+        <div class="tier-description">
+          <p>A special early bird offer for the first 100 backers.</p>
+        </div>
+        <ul class="tier-features">
+          <li>3-month access to Sentimark Basic</li>
+          <li>Early access to the platform</li>
+          <li>Basic sentiment analysis tools</li>
+          <li>Daily sentiment updates</li>
+          <li>Mobile app access</li>
+        </ul>
+        <div class="tier-availability">Limited to first 100 backers</div>
+        <a href="#notify" class="btn btn-primary">Coming Soon</a>
+      </div>
+      
+      <div class="tier-card feature-card">
+        <div class="feature-badge">Most Popular</div>
+        <h3>Sentiment Explorer</h3>
+        <div class="tier-price">$129</div>
+        <div class="tier-description">
+          <p>The complete Sentimark experience for individual investors.</p>
+        </div>
+        <ul class="tier-features">
+          <li>6-month access to Sentimark Pro</li>
+          <li>Priority early access</li>
+          <li>Advanced sentiment analysis</li>
+          <li>Real-time alerts</li>
+          <li>Custom watchlists</li>
+          <li>Historical data access</li>
+          <li>25% discount on subscription renewal</li>
+        </ul>
+        <div class="tier-availability">Unlimited</div>
+        <a href="#notify" class="btn btn-primary">Coming Soon</a>
+      </div>
+      
+      <div class="tier-card">
+        <h3>Professional</h3>
+        <div class="tier-price">$299</div>
+        <div class="tier-description">
+          <p>For professional traders and financial advisors.</p>
+        </div>
+        <ul class="tier-features">
+          <li>12-month access to Sentimark Pro</li>
+          <li>VIP early access</li>
+          <li>All Sentiment Explorer features</li>
+          <li>API access (100 calls/day)</li>
+          <li>Priority support</li>
+          <li>Detailed sentiment metrics</li>
+          <li>30% lifetime discount on subscription</li>
+        </ul>
+        <div class="tier-availability">Limited to 500 backers</div>
+        <a href="#notify" class="btn btn-primary">Coming Soon</a>
+      </div>
+    </div>
+    
+    <div class="enterprise-tier">
+      <h3>Enterprise Partners</h3>
+      <p>For financial institutions, funds, and enterprises seeking custom solutions and unlimited access.</p>
+      <div class="tier-price">$2,499+</div>
+      <p>Contact us for custom enterprise backing options, including white-label solutions, custom integration support, and dedicated account management.</p>
+      <a href="/contact" class="btn btn-outline">Contact for Enterprise Options</a>
+    </div>
+  </div>
+
+  <div class="campaign-timeline">
+    <h2 class="text-center">Campaign Timeline</h2>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-date">
+          <span class="date-text">Summer 2025</span>
+          <i class="timeline-icon launch-icon"></i>
+        </div>
+        <div class="timeline-content">
+          <h3>Kickstarter Launch</h3>
+          <p>Our Kickstarter campaign officially begins, offering early access to Sentimark's sentiment analysis platform.</p>
+          <div class="timeline-milestone">
+            <ul class="timeline-points">
+              <li>Exclusive pre-launch materials for early subscribers</li>
+              <li>Special bonuses for day-one backers</li>
+              <li>Live Q&A sessions with the founder</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">
+          <span class="date-text">Fall 2025</span>
+          <i class="timeline-icon beta-icon"></i>
+        </div>
+        <div class="timeline-content">
+          <h3>Early Access Beta</h3>
+          <p>Selected backers receive early access to the beta version of Sentimark, providing valuable feedback to refine the platform.</p>
+          <div class="timeline-milestone">
+            <ul class="timeline-points">
+              <li>Invite-only beta access for qualified backers</li>
+              <li>Direct feedback channels to development team</li>
+              <li>Regular beta builds with new features</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">
+          <span class="date-text">Winter 2025</span>
+          <i class="timeline-icon launch-icon"></i>
+        </div>
+        <div class="timeline-content">
+          <h3>Platform Launch</h3>
+          <p>Official launch of Sentimark, with all backers receiving access according to their reward tier.</p>
+          <div class="timeline-milestone">
+            <ul class="timeline-points">
+              <li>Full platform access for all backers</li>
+              <li>Tier-based feature availability</li>
+              <li>Launch celebration events for backers</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-date">
+          <span class="date-text">Spring 2026</span>
+          <i class="timeline-icon expansion-icon"></i>
+        </div>
+        <div class="timeline-content">
+          <h3>Feature Expansion</h3>
+          <p>Roll out of additional features based on user feedback and planned enhancements.</p>
+          <div class="timeline-milestone">
+            <ul class="timeline-points">
+              <li>Advanced AI sentiment models</li>
+              <li>Additional data sources integration</li>
+              <li>Expanded visualization capabilities</li>
+              <li>Mobile app enhancements</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="campaign-team">
+    <h2>The Founder</h2>
+
+    <div class="team-summary">
+      <div class="team-image">
+        <img src="{{ "/assets/images/about/team_photo.png" | relative_url }}" alt="Jonathan, Founder of Sentimark" class="team-photo">
+      </div>
+      <div class="team-description">
+        <p>Sentimark was founded by Jonathan, bringing extensive experience in artificial intelligence, financial markets, and enterprise software development. With a background as a Lead Technical Architect with AI expertise from a market-leading management consulting firm, Jonathan combines deep technical knowledge with financial market understanding.</p>
+
+        <div class="team-expertise">
+          <div class="expertise-item">
+            <div class="expertise-icon ai-icon"></div>
+            <div class="expertise-text">
+              <h4>AI Expertise</h4>
+              <p>Specialized in NLP and sentiment analysis models</p>
+            </div>
+          </div>
+
+          <div class="expertise-item">
+            <div class="expertise-icon finance-icon"></div>
+            <div class="expertise-text">
+              <h4>Financial Markets</h4>
+              <p>Deep understanding of market dynamics and trading</p>
+            </div>
+          </div>
+
+          <div class="expertise-item">
+            <div class="expertise-icon tech-icon"></div>
+            <div class="expertise-text">
+              <h4>Technical Vision</h4>
+              <p>Architecting scalable, powerful AI solutions</p>
+            </div>
+          </div>
+        </div>
+
+        <a href="/about/team" class="btn btn-outline team-button">Meet the Founder</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="campaign-faq">
+    <h2>Frequently Asked Questions</h2>
+
+    <div class="faq-container">
+      <div class="faq-categories">
+        <button class="faq-category active" data-category="all">All Questions</button>
+        <button class="faq-category" data-category="campaign">Campaign</button>
+        <button class="faq-category" data-category="platform">Platform</button>
+        <button class="faq-category" data-category="backers">Backers</button>
+      </div>
+
+      <div class="faq-grid">
+        <div class="faq-item" data-category="campaign">
+          <div class="faq-question">
+            <h3>When will the Kickstarter campaign launch?</h3>
+            <span class="faq-toggle">+</span>
+          </div>
+          <div class="faq-answer">
+            <p>Our Kickstarter campaign is scheduled to launch in Summer 2025. Sign up for our newsletter to be notified when the campaign goes live.</p>
+            <div class="faq-cta">
+              <a href="#notify" class="btn btn-sm">Get Notified</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="campaign">
+          <div class="faq-question">
+            <h3>What happens if the campaign doesn't reach its funding goal?</h3>
+            <span class="faq-toggle">+</span>
+          </div>
+          <div class="faq-answer">
+            <p>Sentimark is committed to launching regardless of the Kickstarter outcome. If we don't reach our goal, we have alternative funding strategies in place, though early access and special benefits may be more limited.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="backers platform">
+          <div class="faq-question">
+            <h3>When will backers receive access to the platform?</h3>
+            <span class="faq-toggle">+</span>
+          </div>
+          <div class="faq-answer">
+            <p>Early access beta is scheduled for Fall 2025, with the full platform launch in Winter 2025. Specific access timing will depend on your backer tier:</p>
+            <ul class="faq-list">
+              <li><strong>Professional tier:</strong> First access in early Fall 2025</li>
+              <li><strong>Sentiment Explorer tier:</strong> Access in mid-Fall 2025</li>
+              <li><strong>Early Bird tier:</strong> Access in late Fall 2025</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="backers">
+          <div class="faq-question">
+            <h3>Can I upgrade my backer tier after the campaign?</h3>
+            <span class="faq-toggle">+</span>
+          </div>
+          <div class="faq-answer">
+            <p>Yes, backers will have the opportunity to upgrade their tier after the campaign through our backer portal. However, certain limited-availability tiers may no longer be available.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="platform">
+          <div class="faq-question">
+            <h3>What platforms will Sentimark be available on?</h3>
+            <span class="faq-toggle">+</span>
+          </div>
+          <div class="faq-answer">
+            <p>Sentimark will be available as a web application accessible from any modern browser, as well as native mobile apps for iOS and Android devices.</p>
+            <div class="platform-icons">
+              <span class="platform-icon web-icon" title="Web Application"></span>
+              <span class="platform-icon ios-icon" title="iOS App"></span>
+              <span class="platform-icon android-icon" title="Android App"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="backers platform">
+          <div class="faq-question">
+            <h3>Will there be ongoing costs after my backer period ends?</h3>
+            <span class="faq-toggle">+</span>
+          </div>
+          <div class="faq-answer">
+            <p>After your included access period ends, you'll have the option to subscribe to Sentimark at the regular price. As a backer, you'll receive a discount on subscription fees based on your backer tier:</p>
+            <ul class="faq-list">
+              <li><strong>Professional tier:</strong> 30% lifetime discount</li>
+              <li><strong>Sentiment Explorer tier:</strong> 25% lifetime discount</li>
+              <li><strong>Early Bird tier:</strong> 15% discount for the first year</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="platform">
+          <div class="faq-question">
+            <h3>What data sources will Sentimark analyze?</h3>
+            <span class="faq-toggle">+</span>
+          </div>
+          <div class="faq-answer">
+            <p>Sentimark analyzes sentiment from a wide range of financial data sources, including:</p>
+            <ul class="faq-list">
+              <li>Financial news articles and press releases</li>
+              <li>Earnings call transcripts</li>
+              <li>SEC filings and regulatory documents</li>
+              <li>Social media and financial forums</li>
+              <li>Analyst reports and market commentary</li>
+            </ul>
+            <p>Premium data sources will be available based on subscription tier.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" data-category="backers">
+          <div class="faq-question">
+            <h3>How will backer feedback be incorporated?</h3>
+            <span class="faq-toggle">+</span>
+          </div>
+          <div class="faq-answer">
+            <p>Backer feedback is critical to our development process. We'll incorporate it through:</p>
+            <ul class="faq-list">
+              <li>Regular feedback surveys for all backers</li>
+              <li>Private beta feedback channels</li>
+              <li>Feature prioritization voting for higher tier backers</li>
+              <li>Direct access to our development team during scheduled sessions</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-more">
+      <p>Have more questions? We're here to help!</p>
+      <a href="/contact" class="btn btn-outline">Contact Us</a>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // FAQ item toggle
+      const faqItems = document.querySelectorAll('.faq-question');
+      faqItems.forEach(item => {
+        item.addEventListener('click', function() {
+          const parent = this.parentElement;
+          parent.classList.toggle('active');
+          const toggle = this.querySelector('.faq-toggle');
+          toggle.textContent = parent.classList.contains('active') ? '−' : '+';
+        });
+      });
+
+      // FAQ category filtering
+      const categoryButtons = document.querySelectorAll('.faq-category');
+      categoryButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // Update active button
+          categoryButtons.forEach(btn => btn.classList.remove('active'));
+          this.classList.add('active');
+
+          // Filter items
+          const category = this.dataset.category;
+          const items = document.querySelectorAll('.faq-item');
+
+          items.forEach(item => {
+            if (category === 'all' || item.dataset.category.includes(category)) {
+              item.style.display = 'block';
+            } else {
+              item.style.display = 'none';
+            }
+          });
+        });
+      });
+    });
+  </script>
+
+  <div id="notify" class="notify-section">
+    <div class="notify-content">
+      <h2>Get Notified When We Launch</h2>
+      <p class="notify-lead">Sign up to be among the first to know when our Kickstarter campaign goes live.</p>
+
+      <div class="notify-benefits">
+        <div class="notify-benefit">
+          <div class="benefit-icon early-icon"></div>
+          <h4>Early Notification</h4>
+          <p>Be first in line when our campaign launches</p>
+        </div>
+
+        <div class="notify-benefit">
+          <div class="benefit-icon exclusive-icon"></div>
+          <h4>Exclusive Content</h4>
+          <p>Get pre-launch insights and insider updates</p>
+        </div>
+
+        <div class="notify-benefit">
+          <div class="benefit-icon bonus-icon"></div>
+          <h4>Special Bonuses</h4>
+          <p>Early subscribers receive special perks</p>
+        </div>
+      </div>
+
+      <div class="newsletter-container">
+        {% include newsletter-signup.html %}
+        <p class="privacy-note">We respect your privacy. Unsubscribe at any time.</p>
+      </div>
+    </div>
+
+    <div class="social-follow">
+      <h3>Follow Our Journey</h3>
+      <p>Stay updated on our progress through social media:</p>
+      {% include social-links.html %}
+    </div>
+
+    <div class="countdown-reminder">
+      <div class="reminder-label">Campaign launching in:</div>
+      <div class="mini-countdown">
+        <div class="mini-count" id="mini-days">--</div>
+        <span>:</span>
+        <div class="mini-count" id="mini-hours">--</div>
+        <span>:</span>
+        <div class="mini-count" id="mini-minutes">--</div>
+      </div>
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          // Set the date we're counting down to (July 4, 2025)
+          const countdownDate = new Date("July 4, 2025 09:00:00").getTime();
+
+          function updateMiniCountdown() {
+            // Get current date and time
+            const now = new Date().getTime();
+
+            // Find the time difference between now and the countdown date
+            const timeRemaining = countdownDate - now;
+
+            if (timeRemaining > 0) {
+              // Calculate days, hours, and minutes remaining
+              const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+              const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+
+              // Update the mini countdown
+              document.getElementById('mini-days').textContent = days.toString().padStart(2, '0');
+              document.getElementById('mini-hours').textContent = hours.toString().padStart(2, '0');
+              document.getElementById('mini-minutes').textContent = minutes.toString().padStart(2, '0');
+            }
+          }
+
+          // Initial update
+          updateMiniCountdown();
+
+          // Update every minute
+          setInterval(updateMiniCountdown, 60000);
+        });
+      </script>
+    </div>
+  </div>
+</div>

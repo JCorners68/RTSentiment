@@ -1,0 +1,218 @@
+/**
+ * Custom Styles for Kickstarter Countdown Timer
+ */
+
+/* Import custom fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Orbitron:wght@500;700&display=swap');
+
+/* Campaign Status Styling */
+.campaign-status {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(46, 91, 255, 0.1), rgba(140, 84, 255, 0.1));
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.campaign-status h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #2E5BFF;
+}
+
+.status-label {
+  display: inline-block;
+  background: linear-gradient(to right, #2E5BFF, #8C54FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  padding: 0 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-size: 1.2em;
+}
+
+.status-label.live {
+  background: linear-gradient(to right, #FFC107, #FF5722);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  animation: pulse 1.5s infinite;
+}
+
+/* Countdown Container Styling */
+.countdown {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.countdown.animated .countdown-item .count {
+  animation: flipIn 0.6s ease-out;
+}
+
+.countdown-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 70px;
+}
+
+.countdown-item .count {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  background: linear-gradient(135deg, #2E5BFF, #8C54FF);
+  color: white;
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 4px 10px rgba(46, 91, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.countdown-item .count::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.countdown-item .count::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.countdown-item .label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #666;
+}
+
+/* CTA Button Enhancement */
+.campaign-status .btn-primary {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.campaign-status .btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(46, 91, 255, 0.3);
+}
+
+.campaign-status .btn-accent {
+  background: linear-gradient(to right, #FFC107, #FF5722);
+  border-color: #FF5722;
+}
+
+.campaign-status .btn-accent:hover {
+  background: linear-gradient(to right, #FFB000, #FF4500);
+  border-color: #FF4500;
+}
+
+/* Animations */
+@keyframes flipIn {
+  0% {
+    transform: perspective(400px) rotateY(90deg);
+    opacity: 0;
+  }
+  40% {
+    transform: perspective(400px) rotateY(-10deg);
+  }
+  70% {
+    transform: perspective(400px) rotateY(10deg);
+  }
+  100% {
+    transform: perspective(400px) rotateY(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .countdown {
+    gap: 0.5rem;
+  }
+  
+  .countdown-item {
+    min-width: 60px;
+  }
+  
+  .countdown-item .count {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+  
+  .countdown-item .label {
+    font-size: 0.7rem;
+  }
+}
+
+/* Enhancement for highlight cards */
+.highlight-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.highlight-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.highlight-icon {
+  margin-bottom: 1.5rem;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.highlight-icon img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.highlight-card:hover .highlight-icon img {
+  transform: scale(1.1);
+}

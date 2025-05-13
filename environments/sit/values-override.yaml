@@ -1,0 +1,15 @@
+# Override to disable spot instance requirements
+dataAcquisition:
+  useSpotInstances: false
+  nodeSelector: {}
+  tolerations: []
+
+dataMigration:
+  useSpotInstances: false
+  nodeSelector: {}
+  tolerations: []
+
+analyzer:
+  useSpotInstances: false
+  nodeSelector: {}
+  tolerations: []

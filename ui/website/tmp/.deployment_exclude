@@ -1,0 +1,25 @@
+# Utility files to exclude from deployment
+# Added based on case_studies_requirements.json deployment_settings
+
+# Python scripts
+*.py
+
+# Shell scripts
+*.sh
+
+# Markdown files
+*.md
+
+# Requirements files
+*_requirements.json
+
+# Generate JS files
+generate_*.js
+
+# Any log files
+*.log
+
+# Virtual environment directories
+venv/
+venv/**/*
+*/venv/**/*

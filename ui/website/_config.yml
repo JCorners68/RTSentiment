@@ -1,0 +1,45 @@
+title: Sentimark
+description: >-
+  Sentiment Analysis for Financial Markets. Reveal hidden market insights through
+  AI-powered analysis of sentiment across financial news, social media, and forums.
+baseurl: ""
+url: "https://sentimark.ai"
+
+# Build settings
+markdown: kramdown
+sass:
+  sass_dir: _sass
+  style: compressed
+
+# Plugin settings
+plugins:
+  - jekyll-feed
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - KICKSTARTER_ENHANCEMENTS.md
+  - KICKSTARTER_UI_ENHANCEMENTS.md
+  - SOLO_FOUNDER_CHANGES.md
+  - "assets/images/**/*.py"
+  - "assets/images/**/*.sh"
+  - "assets/images/**/*_requirements.json"
+  - "assets/images/venv/**"
+  - "assets/images/**/*.log"
+  - "assets/images/generate_*.js"
+  - "assets/images/.deployment_exclude"
+
+collections:
+  posts:
+    output: true
+    permalink: /blog/:year/:month/:day/:title/
+
+# Custom variables
+show_newsletter_form: true
+show_pre_launch_countdown: true
+launch_date: 2025-07-15
+contact_email: hello@sentimark.ai
+quiet_deps: true

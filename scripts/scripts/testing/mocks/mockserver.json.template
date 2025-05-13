@@ -1,0 +1,96 @@
+[
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/api/v1/stock/profile2",
+      "queryStringParameters": {
+        "symbol": ["AAPL"],
+        "token": [".*"]
+      }
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": ["application/json"]
+      },
+      "body": {
+        "country": "US",
+        "currency": "USD",
+        "exchange": "NASDAQ/NMS (GLOBAL MARKET)",
+        "ipo": "1980-12-12",
+        "marketCapitalization": 1415993,
+        "name": "Apple Inc",
+        "phone": "14089961010",
+        "shareOutstanding": 4375.47998046875,
+        "ticker": "AAPL",
+        "weburl": "https://www.apple.com/",
+        "logo": "https://static.finnhub.io/logo/87cb30d8-80df-11ea-8951-00000000092a.png",
+        "finnhubIndustry": "Technology"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/api/v1/stock/earnings",
+      "queryStringParameters": {
+        "symbol": ["AAPL"],
+        "token": [".*"]
+      }
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": ["application/json"]
+      },
+      "body": {
+        "data": [
+          {
+            "actual": 1.52,
+            "estimate": 1.43,
+            "period": "2023-06-30",
+            "symbol": "AAPL"
+          },
+          {
+            "actual": 1.52,
+            "estimate": 1.5,
+            "period": "2023-03-31",
+            "symbol": "AAPL"
+          }
+        ],
+        "symbol": "AAPL"
+      }
+    }
+  },
+  {
+    "httpRequest": {
+      "method": "GET",
+      "path": "/api/v1/news-sentiment",
+      "queryStringParameters": {
+        "symbol": ["AAPL"],
+        "token": [".*"]
+      }
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": ["application/json"]
+      },
+      "body": {
+        "buzz": {
+          "articlesInLastWeek": 123,
+          "buzz": 1.5,
+          "weeklyAverage": 82
+        },
+        "companyNewsScore": 0.75,
+        "sectorAverageBullishPercent": 0.6,
+        "sectorAverageNewsScore": 0.5,
+        "sentiment": {
+          "bearishPercent": 0.25,
+          "bullishPercent": 0.75
+        },
+        "symbol": "AAPL"
+      }
+    }
+  }
+]

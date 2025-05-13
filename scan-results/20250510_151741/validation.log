@@ -1,0 +1,57 @@
+
+=== Checking Prerequisites ===
+[2025-05-10 15:17:41] [INFO] Found required command: helm
+[2025-05-10 15:17:41] [INFO] Found required command: jq
+[2025-05-10 15:17:41] [WARNING] Required command not found: yq
+[2025-05-10 15:17:41] [INFO] Optional command not found: yq (some features will be limited)
+[2025-05-10 15:17:42] [WARNING] Required command not found: yamllint
+[2025-05-10 15:17:42] [INFO] Optional command not found: yamllint (some features will be limited)
+[2025-05-10 15:17:42] [INFO] Found optional command: jsonschema
+[2025-05-10 15:17:42] [WARNING] Required command not found: kubesec
+[2025-05-10 15:17:42] [INFO] Optional command not found: kubesec (some features will be limited)
+[2025-05-10 15:17:42] [INFO] Found optional command: kubectl
+[2025-05-10 15:17:42] [SUCCESS] Prerequisites check passed
+
+=== Validating Schema Definition ===
+[2025-05-10 15:17:42] [INFO] Found values.schema.json at /home/jonat/real_senti/infrastructure/helm/sentimark-services/values.schema.json
+[2025-05-10 15:17:42] [INFO] Schema uses version: http://json-schema.org/draft-07/schema#
+[2025-05-10 15:17:42] [INFO] Schema has 1 required fields
+[2025-05-10 15:17:42] [INFO] Schema documents 29/96 properties (30%)
+[2025-05-10 15:17:42] [WARNING] Schema documentation is below 80% coverage. Consider adding more descriptions.
+[2025-05-10 15:17:42] [SUCCESS] Schema file validation passed
+
+=== Validating Values Against Schema ===
+[2025-05-10 15:17:42] [INFO] Using jsonschema for validation
+[2025-05-10 15:17:42] [WARNING] Required command not found: yq
+[2025-05-10 15:17:42] [WARNING] yq not found, falling back to manual validation
+[2025-05-10 15:17:42] [ERROR] Values file does not conform to schema
+
+=== Validating Template Rendering ===
+[2025-05-10 15:17:42] [INFO] Rendering chart templates with helm template
+[2025-05-10 15:17:42] [INFO] Successfully rendered 104 resources
+[2025-05-10 15:17:42] [WARNING] Required command not found: yamllint
+[2025-05-10 15:17:42] [WARNING] yamllint not found, skipping YAML syntax validation
+[2025-05-10 15:17:42] [SUCCESS] Template rendering validation passed
+
+=== Validating SecurityContext Placement ===
+[2025-05-10 15:17:42] [INFO] Checking for proper securityContext placement
+[2025-05-10 15:17:42] [INFO] Found 43 securityContext declarations
+[2025-05-10 15:17:42] [ERROR] Found 2 container-specific securityContext settings at pod level
+[2025-05-10 15:17:42] [ERROR] These should be moved to container level. See /home/jonat/real_senti/scan-results/test-run/security_context_issues.txt for details.
+
+=== Running Security Checks ===
+[2025-05-10 15:17:42] [INFO] Running basic security checks
+[2025-05-10 15:17:42] [SUCCESS] All containers have resource specifications
+[2025-05-10 15:17:42] [SUCCESS] No containers running in privileged mode
+[2025-05-10 15:17:42] [SUCCESS] No pods using host networking
+[2025-05-10 15:17:42] [WARNING] Required command not found: kubesec
+[2025-05-10 15:17:42] [WARNING] kubesec not found, skipping detailed security scan
+
+=== Generating Validation Report ===
+[2025-05-10 15:17:42] [INFO] Creating validation report at /home/jonat/real_senti/scan-results/test-run/validation_report.md
+[2025-05-10 15:17:42] [SUCCESS] Validation report generated: /home/jonat/real_senti/scan-results/test-run/validation_report.md
+
+=== Validation Summary ===
+[2025-05-10 15:17:42] [ERROR] Validation completed with 3 errors and 10 warnings
+[2025-05-10 15:17:42] [ERROR] Review /home/jonat/real_senti/scan-results/test-run/validation_report.md for details
+[2025-05-10 15:17:42] [INFO] Output saved to: /home/jonat/real_senti/scan-results/test-run

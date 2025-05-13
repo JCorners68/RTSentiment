@@ -1,0 +1,313 @@
+{
+  "website_images": [
+    {
+      "id": "hero_dashboard",
+      "file_path": "/assets/images/placeholders/blank_01.png",
+      "replacement_path": "/assets/images/dashboard_hero.png",
+      "type": "hero",
+      "theme": "modern_professional",
+      "style": "digital_clean",
+      "color_scheme": "blue_purple_gradient",
+      "dimensions": {
+        "width": 1200,
+        "height": 800,
+        "aspect_ratio": "3:2"
+      },
+      "format": "PNG",
+      "alt_text": "Sentimark's AI sentiment analysis dashboard showing financial market trends with data visualization",
+      "usage": "Homepage hero image",
+      "priority": "high",
+      "dalle_prompt": "A professional, modern financial dashboard interface showing sentiment analysis of market data. Blue and purple color scheme with sleek data visualizations including sentiment charts, trend graphs, and stock ticker information. Multiple widgets showing positive and negative sentiment scores. Clean, corporate aesthetic with subtle AI elements."
+    },
+    {
+      "id": "feature_ai_analysis",
+      "file_path": "/assets/images/placeholders/blank_02.png",
+      "replacement_path": "/assets/images/features/ai_analysis_icon.png",
+      "type": "icon",
+      "theme": "technology_modern",
+      "style": "minimalist_flat",
+      "color_scheme": "primary_blue",
+      "dimensions": {
+        "width": 240,
+        "height": 240,
+        "aspect_ratio": "1:1"
+      },
+      "format": "PNG",
+      "alt_text": "AI analysis icon representing intelligent data processing",
+      "usage": "Feature card icon",
+      "priority": "medium",
+      "dalle_prompt": "A minimalist flat design icon representing AI analysis. A stylized brain with circuit patterns in blue gradient on a transparent background. Clean, modern, professional look suitable for a financial technology website."
+    },
+    {
+      "id": "feature_alpha_detection",
+      "file_path": "/assets/images/placeholders/blank_03.png",
+      "replacement_path": "/assets/images/features/alpha_detection_icon.png",
+      "type": "icon",
+      "theme": "financial_technology",
+      "style": "minimalist_flat",
+      "color_scheme": "primary_secondary_gradient",
+      "dimensions": {
+        "width": 240,
+        "height": 240,
+        "aspect_ratio": "1:1"
+      },
+      "format": "PNG",
+      "alt_text": "Hidden alpha detection icon showing market insight discovery",
+      "usage": "Feature card icon",
+      "priority": "medium",
+      "dalle_prompt": "A minimalist flat design icon representing hidden financial insights (alpha). A stylized magnifying glass revealing an upward trending chart, in blue and purple gradient on a transparent background. Professional, clean design for a financial technology company."
+    },
+    {
+      "id": "feature_realtime_alerts",
+      "file_path": "/assets/images/placeholders/blank_04.png",
+      "replacement_path": "/assets/images/features/realtime_alerts_icon.png",
+      "type": "icon",
+      "theme": "technology_alerts",
+      "style": "minimalist_flat",
+      "color_scheme": "primary_accent_gradient",
+      "dimensions": {
+        "width": 240,
+        "height": 240,
+        "aspect_ratio": "1:1"
+      },
+      "format": "PNG",
+      "alt_text": "Real-time alerts icon showing notification and instant updates",
+      "usage": "Feature card icon",
+      "priority": "medium",
+      "dalle_prompt": "A minimalist flat design icon representing real-time financial alerts. A stylized bell or notification symbol with subtle dynamic elements suggesting immediacy, in blue and teal gradient on a transparent background. Clean, professional look for a financial technology platform."
+    },
+    {
+      "id": "feature_mobile_design",
+      "file_path": "/assets/images/placeholders/blank_05.png",
+      "replacement_path": "/assets/images/features/mobile_design_icon.png",
+      "type": "icon",
+      "theme": "mobile_technology",
+      "style": "minimalist_flat",
+      "color_scheme": "primary_blue",
+      "dimensions": {
+        "width": 240,
+        "height": 240,
+        "aspect_ratio": "1:1"
+      },
+      "format": "PNG",
+      "alt_text": "Mobile-first design icon showing smartphone with responsive interface",
+      "usage": "Feature card icon",
+      "priority": "medium",
+      "dalle_prompt": "A minimalist flat design icon representing mobile-first design. A stylized smartphone displaying a simple app interface with financial charts, in blue gradient on a transparent background. Clean, modern style suitable for a fintech company."
+    },
+    {
+      "id": "process_data_collection",
+      "file_path": "/assets/images/placeholders/blank_06.png",
+      "replacement_path": "/assets/images/process/data_collection.png",
+      "type": "illustration",
+      "theme": "data_technology",
+      "style": "flat_modern",
+      "color_scheme": "blue_purple_gradient",
+      "dimensions": {
+        "width": 600,
+        "height": 400,
+        "aspect_ratio": "3:2"
+      },
+      "format": "PNG",
+      "alt_text": "Data collection process showing multiple sources feeding into a central system",
+      "usage": "Process step illustration",
+      "priority": "medium",
+      "dalle_prompt": "A modern flat design illustration showing financial data collection process. Multiple sources (news articles, social media feeds, market tickers) flowing into a central processing hub. Blue and purple color scheme, professional corporate style with clean lines and minimal shadows. Suitable for a financial technology company."
+    },
+    {
+      "id": "process_ai_processing",
+      "file_path": "/assets/images/placeholders/blank_07.png",
+      "replacement_path": "/assets/images/process/ai_processing.png",
+      "type": "illustration",
+      "theme": "ai_technology",
+      "style": "flat_modern",
+      "color_scheme": "blue_purple_gradient",
+      "dimensions": {
+        "width": 600,
+        "height": 400,
+        "aspect_ratio": "3:2"
+      },
+      "format": "PNG",
+      "alt_text": "AI processing illustration showing neural networks analyzing financial data",
+      "usage": "Process step illustration",
+      "priority": "medium",
+      "dalle_prompt": "A modern flat design illustration showing AI processing of financial data. Neural network visualization with nodes and connections overlaid on financial charts and text data. Blue and purple color scheme with subtle digital elements. Clean, professional style suitable for a fintech AI company."
+    },
+    {
+      "id": "process_alpha_discovery",
+      "file_path": "/assets/images/placeholders/blank_08.png",
+      "replacement_path": "/assets/images/process/alpha_discovery.png",
+      "type": "illustration",
+      "theme": "financial_insights",
+      "style": "flat_modern",
+      "color_scheme": "blue_purple_gradient",
+      "dimensions": {
+        "width": 600,
+        "height": 400,
+        "aspect_ratio": "3:2"
+      },
+      "format": "PNG",
+      "alt_text": "Alpha discovery illustration showing hidden patterns and insights in financial data",
+      "usage": "Process step illustration",
+      "priority": "medium",
+      "dalle_prompt": "A modern flat design illustration showing financial hidden alpha discovery. Charts with highlighted pattern recognition, sentiment indicators, and trend identification. Visualization of algorithms finding meaningful signals in noise. Blue and purple color scheme, clean professional style with subtle lighting effects suitable for a financial AI company."
+    },
+    {
+      "id": "process_actionable_insights",
+      "file_path": "/assets/images/placeholders/blank_09.png",
+      "replacement_path": "/assets/images/process/actionable_insights.png",
+      "type": "illustration",
+      "theme": "business_decision",
+      "style": "flat_modern",
+      "color_scheme": "blue_purple_gradient",
+      "dimensions": {
+        "width": 600,
+        "height": 400,
+        "aspect_ratio": "3:2"
+      },
+      "format": "PNG",
+      "alt_text": "Actionable insights illustration showing data-driven decision making process",
+      "usage": "Process step illustration",
+      "priority": "medium",
+      "dalle_prompt": "A modern flat design illustration showing actionable financial insights derived from data. A mobile device displaying clear market recommendations, buy/sell signals, and sentiment scores. Professional looking charts with decision points highlighted. Blue and purple color scheme, clean corporate style suitable for a financial technology company."
+    },
+    {
+      "id": "team_photo",
+      "file_path": "/assets/images/placeholders/blank_10.png",
+      "replacement_path": "/assets/images/about/team_photo.png",
+      "type": "team_photo",
+      "theme": "corporate_professional",
+      "style": "modern_business",
+      "color_scheme": "natural_with_blue_accents",
+      "dimensions": {
+        "width": 800,
+        "height": 600,
+        "aspect_ratio": "4:3"
+      },
+      "format": "PNG",
+      "alt_text": "Sentimark's diverse team of financial and AI experts collaborating in a modern office",
+      "usage": "About section team photo",
+      "priority": "medium",
+      "dalle_prompt": "A professional corporate team of diverse financial technology experts in a modern office environment. 5-6 people in business casual attire collaborating around screens showing financial data and charts. Blue accent lighting, clean modern workspace with glass and minimalist furniture. Natural, professional poses, not looking directly at camera."
+    },
+    {
+      "id": "kickstarter_campaign",
+      "file_path": "/assets/images/placeholders/blank_11.png",
+      "replacement_path": "/assets/images/kickstarter/campaign_preview.png",
+      "type": "promotional",
+      "theme": "crowdfunding_technology",
+      "style": "modern_promotional",
+      "color_scheme": "blue_purple_with_kickstarter_green",
+      "dimensions": {
+        "width": 1200,
+        "height": 675,
+        "aspect_ratio": "16:9"
+      },
+      "format": "PNG",
+      "alt_text": "Sentimark Kickstarter campaign preview showing project goals and reward tiers",
+      "usage": "Kickstarter section promotional image",
+      "priority": "high",
+      "dalle_prompt": "A professional Kickstarter campaign preview for a financial technology product. Modern layout showing product mockups of a sentiment analysis app on mobile and desktop. Includes stylized reward tiers and funding goal visualization. Blue and purple brand colors with Kickstarter green accents. Clean, corporate style suitable for a serious financial technology startup."
+    },
+    {
+      "id": "favicon",
+      "file_path": "/assets/images/logos/favicon.svg",
+      "replacement_path": "/assets/images/logos/favicon.svg",
+      "type": "logo",
+      "theme": "brand_identity",
+      "style": "minimal_vector",
+      "color_scheme": "primary_blue",
+      "dimensions": {
+        "width": 32,
+        "height": 32,
+        "aspect_ratio": "1:1"
+      },
+      "format": "SVG",
+      "alt_text": "Sentimark logo favicon",
+      "usage": "Browser favicon",
+      "priority": "high",
+      "dalle_prompt": "A minimal, clean SVG favicon for Sentimark financial technology company. Simple 'S' letterform with a subtle chart line or upward trend integrated into the design. Primary blue color (#2E5BFF). Professional, modern style with good visibility at small sizes."
+    },
+    {
+      "id": "logo_color",
+      "file_path": "/assets/images/logos/sentimark-logo.svg",
+      "replacement_path": "/assets/images/logos/sentimark-logo.svg",
+      "type": "logo",
+      "theme": "brand_identity",
+      "style": "modern_professional_vector",
+      "color_scheme": "primary_blue",
+      "dimensions": {
+        "width": 180,
+        "height": 45,
+        "aspect_ratio": "4:1"
+      },
+      "format": "SVG",
+      "alt_text": "Sentimark company logo",
+      "usage": "Header logo",
+      "priority": "high",
+      "dalle_prompt": "A professional vector logo for Sentimark financial technology company. Clean, modern wordmark with integrated sentiment graph element. Primary blue color (#2E5BFF). Horizontal format with good visibility at various sizes."
+    },
+    {
+      "id": "logo_white",
+      "file_path": "/assets/images/logos/sentimark-logo-white.svg",
+      "replacement_path": "/assets/images/logos/sentimark-logo-white.svg",
+      "type": "logo",
+      "theme": "brand_identity",
+      "style": "modern_professional_vector",
+      "color_scheme": "white",
+      "dimensions": {
+        "width": 180,
+        "height": 45,
+        "aspect_ratio": "4:1"
+      },
+      "format": "SVG",
+      "alt_text": "Sentimark company logo in white",
+      "usage": "Footer logo",
+      "priority": "high",
+      "dalle_prompt": "A professional white vector logo for Sentimark financial technology company. Clean, modern wordmark with integrated sentiment graph element. Pure white color on transparent background. Horizontal format with good visibility for use on dark backgrounds."
+    }
+  ],
+  "general_style_guidelines": {
+    "color_palette": {
+      "primary": "#2E5BFF",
+      "secondary": "#8C54FF",
+      "accent": "#00D1B2",
+      "text": "#333333",
+      "background": "#FFFFFF",
+      "dark_background": "#1E1E2D"
+    },
+    "typography": {
+      "heading_font": "Poppins",
+      "body_font": "Inter"
+    },
+    "style_notes": [
+      "All images should have a clean, modern, professional look",
+      "Avoid cluttered designs and maintain ample white space",
+      "Use subtle shadows and depth rather than flat design where appropriate",
+      "Illustrations should be consistent in style across the site",
+      "Icons should be simple enough to be recognizable at small sizes",
+      "Color gradients should transition smoothly between brand colors",
+      "Images should reflect the financial technology industry and sentiment analysis focus"
+    ]
+  },
+  "image_optimization_guidelines": {
+    "file_size": {
+      "hero_images": "Max 250KB",
+      "illustrations": "Max 150KB",
+      "icons": "Max 50KB",
+      "logos": "Max 25KB"
+    },
+    "formats": {
+      "photos": "WebP with JPEG fallback",
+      "illustrations": "PNG or WebP",
+      "icons": "SVG preferred, PNG fallback",
+      "logos": "SVG required"
+    },
+    "responsive_guidelines": {
+      "hero_images": "Create 3 sizes (desktop, tablet, mobile)",
+      "illustrations": "Create 2 sizes (desktop/tablet, mobile)",
+      "icons": "Single optimized size at 2x the display dimensions",
+      "logos": "Vector SVG is already responsive"
+    }
+  }
+}

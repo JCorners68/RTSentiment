@@ -1,0 +1,225 @@
+{{- if .Values.newsletter.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name "component" "newsletter") | nindent 4 }}
+  {{- with .Values.newsletter.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.newsletter.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name "component" "newsletter") | nindent 8 }}
+      {{- with .Values.newsletter.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      # Pod-level security context (fsGroup settings moved to volumes when needed)
+      {{- if and .Values.global.spotInstances.enabled .Values.newsletter.spotInstance.enabled }}
+      # Node selector for spot instances
+      nodeSelector:
+        {{- toYaml .Values.newsletter.spotInstance.nodeSelector | nindent 8 }}
+      # Tolerations for spot instances
+      tolerations:
+        {{- include "sentimark.spotTolerations" (dict "root" . "service" .Values.newsletter) | nindent 8 }}
+      {{- else }}
+      {{- with .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      # Anti-affinity to spread pods across nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - {{ include "sentimark.serviceName" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) }}
+              topologyKey: kubernetes.io/hostname
+        {{- with .Values.global.affinity }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: {{ .Values.newsletter.name }}
+        image: "{{ .Values.newsletter.image.repository }}:{{ .Values.newsletter.image.tag | default "latest" }}"
+        imagePullPolicy: {{ .Values.newsletter.image.pullPolicy }}
+        # Container-level security context
+        securityContext:
+          runAsNonRoot: {{ .Values.newsletter.securityContext.runAsNonRoot }}
+          runAsUser: {{ .Values.newsletter.securityContext.runAsUser }}
+          runAsGroup: {{ .Values.newsletter.securityContext.runAsGroup }}
+          allowPrivilegeEscalation: {{ .Values.newsletter.securityContext.allowPrivilegeEscalation }}
+          capabilities:
+            drop:
+            {{- range .Values.newsletter.securityContext.capabilities.drop }}
+            - {{ . }}
+            {{- end }}
+          readOnlyRootFilesystem: {{ .Values.newsletter.securityContext.readOnlyRootFilesystem }}
+        ports:
+        - containerPort: {{ .Values.newsletter.service.targetPort }}
+          protocol: TCP
+        env:
+        - name: APPINSIGHTS_INSTRUMENTATIONKEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sentimark.serviceName" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) }}-secrets
+              key: applicationInsightsKey
+        - name: COSMOSDB_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sentimark.serviceName" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) }}-secrets
+              key: cosmosDbConnectionString
+        - name: COMMUNICATION_SERVICE_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sentimark.serviceName" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) }}-secrets
+              key: communicationServiceConnectionString
+        - name: EVENT_GRID_TOPIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sentimark.serviceName" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) }}-secrets
+              key: eventGridTopicKey
+        - name: EVENT_GRID_TOPIC_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sentimark.serviceName" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) }}-secrets
+              key: eventGridTopicEndpoint
+        - name: ALLOWED_ORIGINS
+          value: {{ .Values.newsletter.allowedOrigins | quote }}
+        - name: SENDER_EMAIL
+          value: {{ .Values.newsletter.senderEmail | quote }}
+        - name: ENVIRONMENT
+          value: {{ .Values.global.environment | quote }}
+        {{- range .Values.newsletter.env }}
+        - name: {{ .name }}
+          {{- if .value }}
+          value: {{ .value | quote }}
+          {{- else if .valueFrom }}
+          valueFrom:
+            {{- toYaml .valueFrom | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.newsletter.resources | nindent 12 }}
+        {{- with .Values.newsletter.probes.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.newsletter.probes.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.newsletter.probes.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.newsletter.lifecycle }}
+        lifecycle:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) }}-secrets
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name "component" "newsletter") | nindent 4 }}
+type: Opaque
+data:
+  applicationInsightsKey: {{ .Values.newsletter.secrets.applicationInsightsKey | b64enc }}
+  cosmosDbConnectionString: {{ .Values.newsletter.secrets.cosmosDbConnectionString | b64enc }}
+  communicationServiceConnectionString: {{ .Values.newsletter.secrets.communicationServiceConnectionString | b64enc }}
+  eventGridTopicEndpoint: {{ .Values.newsletter.secrets.eventGridTopicEndpoint | b64enc }}
+  eventGridTopicKey: {{ .Values.newsletter.secrets.eventGridTopicKey | b64enc }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name "component" "newsletter") | nindent 4 }}
+spec:
+  type: {{ .Values.newsletter.service.type }}
+  ports:
+    - port: {{ .Values.newsletter.service.port }}
+      targetPort: {{ .Values.newsletter.service.targetPort }}
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) | nindent 4 }}
+{{- if .Values.newsletter.podDisruptionBudget.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) }}
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name "component" "newsletter") | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.newsletter.podDisruptionBudget.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "sentimark.serviceSelectorLabels" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) | nindent 6 }}
+{{- end }}
+{{- if .Values.newsletter.ingress.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "sentimark.serviceName" (dict "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name) }}-ingress
+  labels:
+    {{- include "sentimark.serviceLabels" (dict "root" . "defaultName" "newsletter" "service" .Values.newsletter "releaseName" .Release.Name "component" "newsletter") | nindent 4 }}
+  {{- with .Values.newsletter.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.newsletter.ingress.className }}
+  ingressClassName: {{ .Values.newsletter.ingress.className }}
+  {{- end }}
+  {{- if .Values.newsletter.ingress.tls }}
+  tls:
+    {{- range .Values.newsletter.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.newsletter.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "sentimark.serviceName" (dict "defaultName" "newsletter" "service" $.Values.newsletter "releaseName" $.Release.Name) }}
+                port:
+                  number: {{ $.Values.newsletter.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
+{{- end }}

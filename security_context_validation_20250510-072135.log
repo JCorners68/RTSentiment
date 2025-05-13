@@ -1,0 +1,86 @@
+Security Context Validation Results - Sat May 10 07:21:35 PDT 2025
+==============================================
+
+File: api-deployment.yaml
+--------------------
+✅ Container-level security context comment found
+✅ Container setting found: runAsNonRoot
+✅ Container setting found: runAsUser
+✅ Container setting found: runAsGroup
+✅ Container setting found: allowPrivilegeEscalation
+✅ Container setting found: capabilities
+✅ Container setting found: drop
+✅ Container setting found: readOnlyRootFilesystem
+✅ Pod-level security context comment found
+📄 File does not have volumes section
+✅ Correctly no fsGroup set (no volumes)
+
+File: auth-deployment.yaml
+--------------------
+✅ Container-level security context comment found
+✅ Container setting found: runAsNonRoot
+✅ Container setting found: runAsUser
+✅ Container setting found: runAsGroup
+✅ Container setting found: allowPrivilegeEscalation
+✅ Container setting found: capabilities
+✅ Container setting found: drop
+✅ Container setting found: readOnlyRootFilesystem
+✅ Pod-level security context comment found
+📄 File does not have volumes section
+✅ Correctly no fsGroup set (no volumes)
+
+File: data-acquisition-deployment.yaml
+--------------------
+✅ Container-level security context comment found
+✅ Container setting found: runAsNonRoot
+✅ Container setting found: runAsUser
+✅ Container setting found: runAsGroup
+✅ Container setting found: allowPrivilegeEscalation
+✅ Container setting found: capabilities
+✅ Container setting found: drop
+✅ Container setting found: readOnlyRootFilesystem
+✅ Pod-level security context comment found
+📄 File does not have volumes section
+✅ Correctly no fsGroup set (no volumes)
+
+File: data-migration-deployment.yaml
+--------------------
+✅ Container-level security context comment found
+✅ Container setting found: runAsNonRoot
+✅ Container setting found: runAsUser
+✅ Container setting found: runAsGroup
+✅ Container setting found: allowPrivilegeEscalation
+✅ Container setting found: capabilities
+✅ Container setting found: drop
+✅ Container setting found: readOnlyRootFilesystem
+✅ Pod-level security context comment found
+📦 File has volumes section
+✅ fsGroup correctly set for volume access
+
+File: data-tier-deployment.yaml
+--------------------
+✅ Container-level security context comment found
+✅ Container setting found: runAsNonRoot
+✅ Container setting found: runAsUser
+✅ Container setting found: runAsGroup
+✅ Container setting found: allowPrivilegeEscalation
+✅ Container setting found: capabilities
+✅ Container setting found: drop
+✅ Container setting found: readOnlyRootFilesystem
+✅ Pod-level security context comment found
+📦 File has volumes section
+✅ fsGroup correctly set for volume access
+
+File: sentiment-analysis-deployment.yaml
+--------------------
+✅ Container-level security context comment found
+✅ Container setting found: runAsNonRoot
+✅ Container setting found: runAsUser
+✅ Container setting found: runAsGroup
+✅ Container setting found: allowPrivilegeEscalation
+✅ Container setting found: capabilities
+✅ Container setting found: drop
+✅ Container setting found: readOnlyRootFilesystem
+✅ Pod-level security context comment found
+📦 File has volumes section
+✅ fsGroup correctly set for volume access

@@ -1,0 +1,41 @@
+# Kanban CLI Configuration
+# Created: 2025-05-11
+
+# Project paths
+paths:
+  root: .
+  data: data
+  logs: logs
+  # Evidence management system paths (prioritized feature)
+  evidence:
+    root: data/evidence
+    attachments: data/evidence/attachments
+    index: data/evidence/index
+
+# Server configuration
+server:
+  port: 3000
+  host: localhost
+  webhook_url: http://localhost:5678/webhook
+  webhook_secret: ${WEBHOOK_SECRET}  # Set this via environment variable
+
+# Application settings
+app:
+  name: Kanban CLI
+  version: 0.1.0
+  log_level: INFO
+  column_names:
+    - "Backlog"
+    - "Ready"
+    - "In Progress"
+    - "Review"
+    - "Done"
+
+# CLI settings
+cli:
+  colors:
+    primary: "#4B8BBE"
+    success: "#69A85C"
+    warning: "#F7C325"
+    error: "#D35E60"
+    info: "#61D2DC"

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown Timer Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .countdown {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    
+    .countdown-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 70px;
+    }
+    
+    .countdown-item .count {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 700;
+      font-size: 2rem;
+      background: linear-gradient(135deg, #2E5BFF, #8C54FF);
+      color: white;
+      width: 70px;
+      height: 70px;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      box-shadow: 0 4px 10px rgba(46, 91, 255, 0.3);
+    }
+    
+    .countdown-item .label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #666;
+    }
+    
+    .test-results {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    
+    h1 {
+      color: #2E5BFF;
+    }
+  </style>
+</head>
+<body>
+  <h1>Countdown Timer Test</h1>
+  <p>This page tests the countdown timer functionality for the Kickstarter page.</p>
+  
+  <div class="countdown" id="countdown-timer">
+    <div class="countdown-item">
+      <span class="count" id="countdown-days">--</span>
+      <span class="label">Days</span>
+    </div>
+    <div class="countdown-item">
+      <span class="count" id="countdown-hours">--</span>
+      <span class="label">Hours</span>
+    </div>
+    <div class="countdown-item">
+      <span class="count" id="countdown-minutes">--</span>
+      <span class="label">Minutes</span>
+    </div>
+    <div class="countdown-item">
+      <span class="count" id="countdown-seconds">--</span>
+      <span class="label">Seconds</span>
+    </div>
+  </div>
+  
+  <div class="test-results">
+    <h2>Test Results</h2>
+    <div id="test-log"></div>
+  </div>
+  
+  <script>
+    // Log function that writes to the test-log div
+    function log(message, isError = false) {
+      const logElement = document.getElementById('test-log');
+      const logEntry = document.createElement('p');
+      logEntry.style.margin = '5px 0';
+      
+      if (isError) {
+        logEntry.style.color = 'red';
+        console.error(message);
+      } else {
+        logEntry.style.color = 'green';
+        console.log(message);
+      }
+      
+      logEntry.textContent = message;
+      logElement.appendChild(logEntry);
+    }
+    
+    // Test the countdown functionality
+    (function() {
+      log('Starting countdown timer test...');
+      
+      try {
+        // Set the date we're counting down to (July 4, 2025)
+        const countdownDate = new Date("July 4, 2025 09:00:00").getTime();
+        log(`Target date: July 4, 2025 09:00:00 (${countdownDate})`);
+        
+        // Get the countdown container
+        const countdownContainer = document.getElementById('countdown-timer');
+        
+        if (!countdownContainer) {
+          log('Countdown container not found!', true);
+          return;
+        }
+        
+        log('Countdown container found');
+        
+        // Get the countdown elements
+        const daysElement = document.getElementById('countdown-days');
+        const hoursElement = document.getElementById('countdown-hours');
+        const minutesElement = document.getElementById('countdown-minutes');
+        const secondsElement = document.getElementById('countdown-seconds');
+        
+        if (!daysElement || !hoursElement || !minutesElement || !secondsElement) {
+          log('One or more countdown elements not found!', true);
+          return;
+        }
+        
+        log('All countdown elements found');
+        
+        // Initial update
+        updateAndDisplayCountdown();
+        
+        // Update every second
+        setInterval(updateAndDisplayCountdown, 1000);
+        
+        function updateAndDisplayCountdown() {
+          try {
+            // Get current date and time
+            const now = new Date().getTime();
+            
+            // Find the time difference between now and the countdown date
+            const timeRemaining = countdownDate - now;
+            
+            // Calculate days, hours, minutes and seconds remaining
+            const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            // Display the result with leading zeros
+            daysElement.textContent = days.toString().padStart(2, '0');
+            hoursElement.textContent = hours.toString().padStart(2, '0');
+            minutesElement.textContent = minutes.toString().padStart(2, '0');
+            secondsElement.textContent = seconds.toString().padStart(2, '0');
+            
+            // Log updated values (only do this once)
+            if (!window.initialCountdownLogged) {
+              log(`Current countdown values: ${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`);
+              window.initialCountdownLogged = true;
+              log('Countdown timer is working correctly!');
+            }
+          } catch (error) {
+            log(`Error updating countdown: ${error.message}`, true);
+          }
+        }
+      } catch (error) {
+        log(`Test failed: ${error.message}`, true);
+      }
+    })();
+  </script>
+</body>
+</html>

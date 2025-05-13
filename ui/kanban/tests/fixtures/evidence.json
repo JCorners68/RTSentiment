@@ -1,0 +1,203 @@
+{
+  "evidence_items": [
+    {
+      "id": "EVD-001",
+      "title": "User Requirements Document for Evidence System",
+      "description": "Comprehensive requirements document detailing the needs for the Evidence Management System, including categorization, search, and attachment capabilities.",
+      "source": "Product Manager Interview",
+      "category": "Requirement",
+      "subcategory": "Functional Requirements",
+      "relevance_score": "Critical",
+      "date_collected": "2025-04-25T14:30:00",
+      "tags": ["evidence-system", "requirements", "priority-feature"],
+      "project_id": "PRJ-001",
+      "epic_id": "EPC-001",
+      "task_id": "TSK-001",
+      "related_evidence_ids": ["EVD-002"],
+      "attachments": [
+        {
+          "id": "ATT-001",
+          "file_path": "requirements/evidence_system_reqs.pdf",
+          "file_name": "evidence_system_reqs.pdf",
+          "file_type": "application/pdf",
+          "file_size": 256000,
+          "description": "PDF version of the requirements document",
+          "created_at": "2025-04-25T15:00:00",
+          "uploaded_by": "John Smith"
+        },
+        {
+          "id": "ATT-002",
+          "file_path": "diagrams/evidence_schema.png",
+          "file_name": "evidence_schema.png",
+          "file_type": "image/png",
+          "file_size": 128000,
+          "description": "Diagram of evidence data schema",
+          "created_at": "2025-04-26T09:30:00",
+          "uploaded_by": "John Smith"
+        }
+      ],
+      "created_at": "2025-04-25T14:30:00",
+      "updated_at": "2025-05-11T10:15:00",
+      "created_by": "John Smith",
+      "metadata": {
+        "version": "1.0",
+        "status": "Approved",
+        "priority": "High"
+      }
+    },
+    {
+      "id": "EVD-002",
+      "title": "Evidence System Design Document",
+      "description": "Technical design document for the Evidence Management System, including data model, storage approach, and API specifications.",
+      "source": "Architecture Team",
+      "category": "Design",
+      "subcategory": "Technical Design",
+      "relevance_score": "High",
+      "date_collected": "2025-04-28T11:45:00",
+      "tags": ["evidence-system", "design", "technical", "priority-feature"],
+      "project_id": "PRJ-001",
+      "epic_id": "EPC-001",
+      "task_id": "TSK-001",
+      "related_evidence_ids": ["EVD-001"],
+      "attachments": [
+        {
+          "id": "ATT-003",
+          "file_path": "designs/evidence_system_design.md",
+          "file_name": "evidence_system_design.md",
+          "file_type": "text/markdown",
+          "file_size": 45000,
+          "description": "Markdown version of the design document",
+          "created_at": "2025-04-28T12:00:00",
+          "uploaded_by": "Jane Doe"
+        }
+      ],
+      "created_at": "2025-04-28T11:45:00",
+      "updated_at": "2025-05-10T16:30:00",
+      "created_by": "Jane Doe",
+      "metadata": {
+        "version": "1.2",
+        "status": "In Review",
+        "reviewers": ["John Smith", "Alex Johnson"]
+      }
+    },
+    {
+      "id": "EVD-003",
+      "title": "Attachment System Investigation Report",
+      "description": "Research findings on optimal file storage and retrieval methods for evidence attachments, including security considerations.",
+      "source": "Research Team",
+      "category": "Reference",
+      "subcategory": "Research",
+      "relevance_score": "High",
+      "date_collected": "2025-05-02T09:15:00",
+      "tags": ["evidence-system", "attachments", "storage", "security"],
+      "project_id": "PRJ-001",
+      "epic_id": "EPC-001",
+      "task_id": "TSK-002",
+      "related_evidence_ids": [],
+      "attachments": [
+        {
+          "id": "ATT-004",
+          "file_path": "research/attachment_system_options.xlsx",
+          "file_name": "attachment_system_options.xlsx",
+          "file_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "file_size": 75000,
+          "description": "Comparison spreadsheet of storage options",
+          "created_at": "2025-05-02T10:00:00",
+          "uploaded_by": "Alex Johnson"
+        }
+      ],
+      "created_at": "2025-05-02T09:15:00",
+      "updated_at": "2025-05-08T14:20:00",
+      "created_by": "Alex Johnson",
+      "metadata": {
+        "version": "1.0",
+        "status": "Final",
+        "recommendation": "Use local file storage with metadata in JSON"
+      }
+    },
+    {
+      "id": "EVD-004",
+      "title": "Evidence Search System Prototype",
+      "description": "Working prototype demonstrating search capabilities for the Evidence Management System, including filters and sorting.",
+      "source": "Development Team",
+      "category": "Result",
+      "subcategory": "Prototype",
+      "relevance_score": "High",
+      "date_collected": "2025-05-05T15:30:00",
+      "tags": ["evidence-system", "search", "prototype", "demo"],
+      "project_id": "PRJ-001",
+      "epic_id": "EPC-001",
+      "task_id": "TSK-005",
+      "related_evidence_ids": [],
+      "attachments": [
+        {
+          "id": "ATT-005",
+          "file_path": "prototypes/search_demo.mp4",
+          "file_name": "search_demo.mp4",
+          "file_type": "video/mp4",
+          "file_size": 12500000,
+          "description": "Video demonstration of search prototype",
+          "created_at": "2025-05-05T16:15:00",
+          "uploaded_by": "John Smith"
+        },
+        {
+          "id": "ATT-006",
+          "file_path": "code/search_prototype.py",
+          "file_name": "search_prototype.py",
+          "file_type": "text/x-python",
+          "file_size": 15000,
+          "description": "Python code for the search prototype",
+          "created_at": "2025-05-05T16:20:00",
+          "uploaded_by": "John Smith"
+        }
+      ],
+      "created_at": "2025-05-05T15:30:00",
+      "updated_at": "2025-05-07T11:45:00",
+      "created_by": "John Smith",
+      "metadata": {
+        "version": "0.2",
+        "status": "Prototype",
+        "performance_metrics": {
+          "search_time_ms": 125,
+          "index_build_time_ms": 450
+        }
+      }
+    },
+    {
+      "id": "EVD-005",
+      "title": "User Feedback on Evidence Categories",
+      "description": "Collected feedback from users on the proposed evidence categorization system, including suggestions for improvement.",
+      "source": "User Testing Session",
+      "category": "User Feedback",
+      "subcategory": "Categorization",
+      "relevance_score": "Medium",
+      "date_collected": "2025-05-06T13:45:00",
+      "tags": ["evidence-system", "categorization", "user-feedback"],
+      "project_id": "PRJ-001",
+      "epic_id": "EPC-001",
+      "task_id": null,
+      "related_evidence_ids": ["EVD-001"],
+      "attachments": [
+        {
+          "id": "ATT-007",
+          "file_path": "feedback/category_survey_results.csv",
+          "file_name": "category_survey_results.csv",
+          "file_type": "text/csv",
+          "file_size": 8500,
+          "description": "Survey results in CSV format",
+          "created_at": "2025-05-06T14:30:00",
+          "uploaded_by": "Sarah Williams"
+        }
+      ],
+      "created_at": "2025-05-06T13:45:00",
+      "updated_at": "2025-05-06T14:45:00",
+      "created_by": "Sarah Williams",
+      "metadata": {
+        "version": "1.0",
+        "status": "Collected",
+        "participants": 12,
+        "satisfaction_score": 4.2
+      }
+    }
+  ]
+}

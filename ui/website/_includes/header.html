@@ -1,0 +1,41 @@
+<header class="site-header">
+  <div class="container">
+    <div class="header-content">
+      <div class="logo">
+        <a href="{{ "/" | relative_url }}">
+          <img src="{{ "/assets/images/logos/sentimark-logo.svg" | relative_url }}" alt="Sentimark Logo" width="180" height="45">
+        </a>
+      </div>
+      
+      <nav class="main-nav">
+        <button class="menu-toggle" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+        <ul class="nav-menu">
+          <li class="{% if page.url contains '/product/' %}active{% endif %}">
+            <a href="{{ "/product/" | relative_url }}">Product</a>
+          </li>
+          <li class="{% if page.url contains '/alpha/' %}active{% endif %}">
+            <a href="{{ "/alpha/" | relative_url }}">Hidden Alpha</a>
+          </li>
+          <li class="{% if page.url contains '/about/' %}active{% endif %}">
+            <a href="{{ "/about/" | relative_url }}">About</a>
+          </li>
+          <li class="{% if page.url contains '/blog/' %}active{% endif %}">
+            <a href="{{ "/blog/" | relative_url }}">Blog</a>
+          </li>
+          <li class="{% if page.url contains '/kickstarter/' %}active{% endif %}">
+            <a href="{{ "/kickstarter/" | relative_url }}">Kickstarter</a>
+          </li>
+          <li class="{% if page.url contains '/contact/' %}active{% endif %}">
+            <a href="{{ "/contact/" | relative_url }}">Contact</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</header>

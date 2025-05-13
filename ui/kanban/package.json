@@ -1,0 +1,56 @@
+{
+  "name": "real-senti-kanban",
+  "version": "1.0.0",
+  "description": "Real Senti Kanban System with Evidence Management",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "test": "jest",
+    "docs:generate": "node server/utils/generate-docs.js",
+    "docs:serve": "npx serve server/docs",
+    "docs:api": "node server/utils/jsdoc2openapi.js",
+    "docs:examples": "node server/utils/generate-client-examples.js",
+    "docs:dev": "npm run docs:generate && npm run docs:serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JCorners68/RTSentiment.git"
+  },
+  "keywords": [
+    "kanban",
+    "evidence",
+    "management",
+    "api"
+  ],
+  "author": "Real Senti Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JCorners68/RTSentiment/issues"
+  },
+  "homepage": "https://github.com/JCorners68/RTSentiment#readme",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "express-rate-limit": "^6.4.0",
+    "glob": "^8.0.3",
+    "helmet": "^5.1.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "doctrine": "^3.0.0",
+    "handlebars": "^4.7.7",
+    "jest": "^28.1.1",
+    "jsdoc": "^3.6.10",
+    "nodemon": "^2.0.16",
+    "prettier": "^2.6.2",
+    "serve": "^13.0.2",
+    "supertest": "^6.2.3",
+    "swagger-jsdoc": "^6.2.1",
+    "swagger-ui-express": "^4.4.0"
+  }
+}

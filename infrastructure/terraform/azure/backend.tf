@@ -1,20 +1,23 @@
 # Sentimark - Azure Terraform Backend Configuration
 
 # Azure storage backend for storing Terraform state
-# For local development, using local state file initially
-# For production, uncomment and configure the azurerm backend
+# This configuration supports state locking to prevent concurrent modifications
+# from multiple users or processes, avoiding potential state corruption
 
 terraform {
-  # Using local state for now
-  # To use Azure storage for state, uncomment this section and run:
-  # ./run-terraform.sh init -backend-config=backends/sit.tfbackend
-  
-  /*
+  # Azure backend configuration - values are provided via backend-config files
+  # To initialize the backend, run:
+  # ./run-terraform.sh init -backend-config=backends/[environment].tfbackend
+  # Example: ./run-terraform.sh init -backend-config=backends/sit.tfbackend
+
   backend "azurerm" {
-    # No fixed values here - provided via backend-config file
-    # Common settings that don't change per environment could go here
+    # No fixed values defined here - they come from backend-config files
+    # Common settings for the backend:
+    # - State locking is enabled by default with Azure Storage blobs
+    # - Lease timeout for locks is 60 seconds by default
+
+    # Connection/auth managed through Azure CLI or Service Principal
   }
-  */
 }
 
 # Required providers

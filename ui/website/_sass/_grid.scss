@@ -1,0 +1,207 @@
+@use "variables" as vars;
+
+// Grid system for Sentimark website
+
+// Container
+.container {
+  width: 100%;
+  max-width: vars.$container-width;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: vars.$container-padding;
+  padding-right: vars.$container-padding;
+}
+
+// Row
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -1 * vars.$container-padding;
+  margin-right: -1 * vars.$container-padding;
+}
+
+// Columns - Mobile First
+[class^="col-"] {
+  position: relative;
+  width: 100%;
+  padding-left: vars.$container-padding;
+  padding-right: vars.$container-padding;
+  margin-bottom: vars.$spacing-md;
+
+  @media (min-width: vars.$tablet) {
+    margin-bottom: 0;
+  }
+}
+
+// Column definition for all breakpoints
+@mixin make-col($size) {
+  flex: 0 0 percentage($size / 12);
+  max-width: percentage($size / 12);
+}
+
+// Column definitions for mobile (always full width by default)
+.col-12 { @include make-col(12); }
+
+// Column definitions for tablet up
+@media (min-width: vars.$tablet) {
+  .col-md-1 { @include make-col(1); }
+  .col-md-2 { @include make-col(2); }
+  .col-md-3 { @include make-col(3); }
+  .col-md-4 { @include make-col(4); }
+  .col-md-5 { @include make-col(5); }
+  .col-md-6 { @include make-col(6); }
+  .col-md-7 { @include make-col(7); }
+  .col-md-8 { @include make-col(8); }
+  .col-md-9 { @include make-col(9); }
+  .col-md-10 { @include make-col(10); }
+  .col-md-11 { @include make-col(11); }
+  .col-md-12 { @include make-col(12); }
+}
+
+// Column definitions for desktop up
+@media (min-width: vars.$desktop) {
+  .col-lg-1 { @include make-col(1); }
+  .col-lg-2 { @include make-col(2); }
+  .col-lg-3 { @include make-col(3); }
+  .col-lg-4 { @include make-col(4); }
+  .col-lg-5 { @include make-col(5); }
+  .col-lg-6 { @include make-col(6); }
+  .col-lg-7 { @include make-col(7); }
+  .col-lg-8 { @include make-col(8); }
+  .col-lg-9 { @include make-col(9); }
+  .col-lg-10 { @include make-col(10); }
+  .col-lg-11 { @include make-col(11); }
+  .col-lg-12 { @include make-col(12); }
+}
+
+// Column definitions for large desktop up
+@media (min-width: vars.$large-desktop) {
+  .col-xl-1 { @include make-col(1); }
+  .col-xl-2 { @include make-col(2); }
+  .col-xl-3 { @include make-col(3); }
+  .col-xl-4 { @include make-col(4); }
+  .col-xl-5 { @include make-col(5); }
+  .col-xl-6 { @include make-col(6); }
+  .col-xl-7 { @include make-col(7); }
+  .col-xl-8 { @include make-col(8); }
+  .col-xl-9 { @include make-col(9); }
+  .col-xl-10 { @include make-col(10); }
+  .col-xl-11 { @include make-col(11); }
+  .col-xl-12 { @include make-col(12); }
+}
+
+// Offset columns for layout flexibility
+@media (min-width: vars.$tablet) {
+  .offset-md-1 { margin-left: percentage(1 / 12); }
+  .offset-md-2 { margin-left: percentage(2 / 12); }
+  .offset-md-3 { margin-left: percentage(3 / 12); }
+  .offset-md-4 { margin-left: percentage(4 / 12); }
+  .offset-md-5 { margin-left: percentage(5 / 12); }
+  .offset-md-6 { margin-left: percentage(6 / 12); }
+}
+
+@media (min-width: vars.$desktop) {
+  .offset-lg-1 { margin-left: percentage(1 / 12); }
+  .offset-lg-2 { margin-left: percentage(2 / 12); }
+  .offset-lg-3 { margin-left: percentage(3 / 12); }
+  .offset-lg-4 { margin-left: percentage(4 / 12); }
+  .offset-lg-5 { margin-left: percentage(5 / 12); }
+  .offset-lg-6 { margin-left: percentage(6 / 12); }
+}
+
+// Row alignment
+.row-center {
+  justify-content: center;
+}
+
+.row-end {
+  justify-content: flex-end;
+}
+
+.row-space-between {
+  justify-content: space-between;
+}
+
+.row-space-around {
+  justify-content: space-around;
+}
+
+// Column alignment
+.col-align-start {
+  align-self: flex-start;
+}
+
+.col-align-center {
+  align-self: center;
+}
+
+.col-align-end {
+  align-self: flex-end;
+}
+
+// Equal height columns
+.row-equal-height {
+  display: flex;
+  flex-wrap: wrap;
+  
+  > [class^="col-"] {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .card {
+    height: 100%;
+  }
+}
+
+// No gutters
+.row-no-gutters {
+  margin-left: 0;
+  margin-right: 0;
+  
+  > [class^="col-"] {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+// Utilities
+.d-none {
+  display: none !important;
+}
+
+.d-block {
+  display: block !important;
+}
+
+.d-flex {
+  display: flex !important;
+}
+
+@media (min-width: vars.$tablet) {
+  .d-md-none {
+    display: none !important;
+  }
+
+  .d-md-block {
+    display: block !important;
+  }
+
+  .d-md-flex {
+    display: flex !important;
+  }
+}
+
+@media (min-width: vars.$desktop) {
+  .d-lg-none {
+    display: none !important;
+  }
+
+  .d-lg-block {
+    display: block !important;
+  }
+
+  .d-lg-flex {
+    display: flex !important;
+  }
+}

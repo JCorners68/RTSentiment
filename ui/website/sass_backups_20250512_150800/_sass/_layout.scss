@@ -1,0 +1,330 @@
+@use "sass:color";
+// Layout styles for Sentimark website
+
+// Header
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 1rem 0;
+  z-index: $z-header;
+  transition: all $transition-speed $transition-ease;
+  
+  &.scrolled {
+    padding: 0.5rem 0;
+    background-color: rgba(255, 255, 255, 0.98);
+  }
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .logo {
+    img {
+      height: 40px;
+      
+      @media (min-width: $tablet) {
+        height: 50px;
+      }
+    }
+  }
+}
+
+// Navigation
+.main-nav {
+  .menu-toggle {
+    display: block;
+    background: none;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    
+    @media (min-width: $desktop) {
+      display: none;
+    }
+    
+    .icon-bar {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background-color: $text-color;
+      margin: 5px 0;
+      transition: all 0.3s;
+    }
+    
+    &[aria-expanded="true"] {
+      .icon-bar:nth-child(1) {
+        transform: rotate(-45deg) translate(-5px, 6px);
+      }
+      
+      .icon-bar:nth-child(2) {
+        opacity: 0;
+      }
+      
+      .icon-bar:nth-child(3) {
+        transform: rotate(45deg) translate(-5px, -6px);
+      }
+    }
+  }
+  
+  .nav-menu {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    padding: 1rem 0;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    
+    &.active {
+      display: flex;
+    }
+    
+    @media (min-width: $desktop) {
+      display: flex;
+      flex-direction: row;
+      width: auto;
+      position: static;
+      background-color: transparent;
+      padding: 0;
+      box-shadow: none;
+    }
+    
+    li {
+      list-style: none;
+      margin: 0;
+      text-align: center;
+      
+      @media (min-width: $desktop) {
+        margin-left: 1.5rem;
+      }
+      
+      &.active a {
+        color: $primary-color;
+        font-weight: 600;
+      }
+    }
+    
+    a {
+      display: block;
+      padding: 0.75rem 1rem;
+      color: $text-color;
+      font-weight: 500;
+      
+      &:hover, &:focus {
+        color: $primary-color;
+        text-decoration: none;
+      }
+      
+      @media (min-width: $desktop) {
+        padding: 0.5rem 0;
+      }
+    }
+  }
+}
+
+// Main content area
+.main-content {
+  padding-top: 70px; // Account for fixed header
+  min-height: calc(100vh - 400px); // Ensure footer is pushed down
+  
+  @media (min-width: $tablet) {
+    padding-top: 80px;
+  }
+}
+
+// Footer
+.site-footer {
+  background-color: $dark-bg;
+  color: white;
+  padding: $spacing-lg 0;
+  
+  a {
+    color: rgba(255, 255, 255, 0.8);
+    
+    &:hover, &:focus {
+      color: white;
+    }
+  }
+  
+  .footer-content {
+    display: flex;
+    flex-direction: column;
+    
+    @media (min-width: $tablet) {
+      flex-direction: row;
+    }
+  }
+  
+  .footer-logo {
+    margin-bottom: $spacing-md;
+    
+    @media (min-width: $tablet) {
+      width: 30%;
+      margin-bottom: 0;
+      padding-right: $spacing-md;
+    }
+    
+    img {
+      max-height: 50px;
+      margin-bottom: $spacing-sm;
+    }
+  }
+  
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    
+    @media (min-width: $tablet) {
+      width: 70%;
+    }
+    
+    h4 {
+      color: white;
+      margin-bottom: $spacing-sm;
+    }
+    
+    > div {
+      margin-bottom: $spacing-md;
+      width: 100%;
+      
+      @media (min-width: $tablet) {
+        width: 33.33%;
+        padding-right: $spacing-sm;
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  .footer-nav {
+    ul {
+      padding: 0;
+      margin: 0;
+      
+      li {
+        list-style: none;
+        margin-bottom: 0.5rem;
+      }
+    }
+  }
+  
+  .footer-bottom {
+    margin-top: $spacing-lg;
+    padding-top: $spacing-md;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    
+    @media (min-width: $tablet) {
+      flex-direction: row;
+      justify-content: space-between;
+      text-align: left;
+    }
+    
+    p {
+      margin-bottom: $spacing-sm;
+      
+      @media (min-width: $tablet) {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// Page header
+.page-header {
+  background-color: $light-bg;
+  padding: $spacing-lg 0;
+  text-align: center;
+  margin-bottom: $spacing-lg;
+  
+  .page-title {
+    margin-bottom: divide($spacing-sm, 2);
+  }
+  
+  .page-subtitle {
+    color: $light-text;
+    font-size: 1.2rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+}
+
+// Hero section
+.hero {
+  padding: $spacing-xl 0;
+  position: relative;
+  background: linear-gradient(135deg, lighten-safe($primary-color, 30%), lighten-safe($secondary-color, 30%));
+  
+  @media (min-width: $desktop) {
+    padding: $spacing-xl 0;
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    @media (min-width: $desktop) {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+  
+  .hero-content {
+    text-align: center;
+    margin-bottom: $spacing-lg;
+    
+    @media (min-width: $desktop) {
+      width: 50%;
+      text-align: left;
+      margin-bottom: 0;
+      padding-right: $spacing-lg;
+    }
+    
+    h1 {
+      margin-bottom: $spacing-sm;
+    }
+    
+    .lead {
+      margin-bottom: $spacing-md;
+    }
+  }
+  
+  .hero-image {
+    width: 100%;
+    max-width: 500px;
+    
+    @media (min-width: $desktop) {
+      width: 50%;
+    }
+    
+    img {
+      width: 100%;
+      border-radius: $border-radius-lg;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+  }
+  
+  .hero-cta {
+    margin-top: $spacing-md;
+    
+    .btn {
+      margin: 0.5rem;
+      
+      @media (min-width: $tablet) {
+        margin-right: 1rem;
+        margin-left: 0;
+      }
+    }
+  }
+}

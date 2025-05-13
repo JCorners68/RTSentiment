@@ -1,0 +1,92 @@
+<!-- Mailchimp Newsletter Signup Form -->
+<div id="mc_embed_signup" class="newsletter-form">
+    <!-- Replace with actual Mailchimp form URL when account is created -->
+    <form action="https://sentimark.us6.list-manage.com/subscribe/post?u=YOUR_ACCOUNT_ID&amp;id=YOUR_LIST_ID"
+          method="post"
+          id="mc-embedded-subscribe-form"
+          name="mc-embedded-subscribe-form"
+          class="validate"
+          target="_blank"
+          novalidate>
+        <div id="mc_embed_signup_scroll">
+            <div class="form-group">
+                <label for="mce-EMAIL" class="sr-only">Email Address</label>
+                <input type="email" value="" name="EMAIL" class="required email form-control"
+                       id="mce-EMAIL" placeholder="Your email address"
+                       aria-required="true" aria-label="Email Address" required>
+                <div class="email-error-message" id="email-error-message" aria-live="polite"></div>
+            </div>
+
+            <!-- Optional GDPR consent fields (uncomment when ready to use)
+            <div class="form-group gdpr-consent">
+                <input type="checkbox" id="gdpr_consent" name="gdpr[consent]" value="Y" required>
+                <label for="gdpr_consent">I agree to receive marketing emails from Sentimark. I understand I can unsubscribe at any time.</label>
+            </div>
+            -->
+
+            <div style="position: absolute; left: -5000px;" aria-hidden="true">
+                <!-- Anti-bot honeypot field - do not remove -->
+                <input type="text" name="b_YOUR_ACCOUNT_ID_YOUR_LIST_ID" tabindex="-1" value="">
+            </div>
+
+            <div class="form-group">
+                <button type="submit" name="subscribe" id="mc-embedded-subscribe" class="btn btn-primary">Subscribe</button>
+            </div>
+
+            <div class="form-status">
+                <div class="success-message" id="mce-success-response" style="display:none"></div>
+                <div class="error-message" id="mce-error-response" style="display:none"></div>
+            </div>
+
+            <p class="small">Join our newsletter for updates on our Kickstarter launch and product development. <a href="/privacy-policy/">Privacy Policy</a></p>
+        </div>
+    </form>
+</div>
+
+<script>
+  // Form validation enhancement
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('mc-embedded-subscribe-form');
+    const emailInput = document.getElementById('mce-EMAIL');
+    const errorMessage = document.getElementById('email-error-message');
+    const successMessage = document.getElementById('mce-success-response');
+    const errorResponse = document.getElementById('mce-error-response');
+
+    if (form && emailInput) {
+      emailInput.addEventListener('input', function() {
+        validateEmail(this.value);
+      });
+
+      form.addEventListener('submit', function(event) {
+        if (!validateEmail(emailInput.value)) {
+          event.preventDefault();
+        }
+
+        // For demo purposes - comment out when connected to actual Mailchimp
+        event.preventDefault();
+        successMessage.style.display = 'block';
+        successMessage.textContent = 'Thank you for subscribing! (Demo mode)';
+        setTimeout(() => {
+          successMessage.style.display = 'none';
+          emailInput.value = '';
+        }, 5000);
+      });
+    }
+
+    function validateEmail(email) {
+      const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      const isValid = regex.test(email);
+
+      if (email && !isValid) {
+        errorMessage.textContent = 'Please enter a valid email address';
+        errorMessage.style.display = 'block';
+        return false;
+      } else {
+        errorMessage.textContent = '';
+        errorMessage.style.display = 'none';
+        return true;
+      }
+    }
+  });
+</script>
+<!-- End Mailchimp Signup Form -->

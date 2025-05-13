@@ -1,0 +1,17 @@
+[Unit]
+Description=Terraform State Lock Monitor
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/jonat/real_senti/infrastructure/terraform/azure
+ExecStart=/home/jonat/real_senti/infrastructure/terraform/azure/utils/tf_lock_monitor.sh --monitor --interval 300 --notify --teams-webhook WEBHOOK_URL_HERE
+Restart=on-failure
+RestartSec=60
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=tf-lock-monitor
+
+[Install]
+WantedBy=multi-user.target

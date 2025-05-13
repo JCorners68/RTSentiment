@@ -1,0 +1,354 @@
+/**
+ * Founder page styling
+ */
+
+/* Founder intro section */
+.team-intro {
+  margin-bottom: 3rem;
+}
+
+.team-intro h2 {
+  color: #2E5BFF;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.team-intro h2::after {
+  content: '';
+  position: absolute;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, #2E5BFF, #8C54FF);
+  bottom: -10px;
+  left: 0;
+  border-radius: 1.5px;
+}
+
+.team-intro .lead {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+.founder-image-container {
+  overflow: visible;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.founder-image {
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+}
+
+.founder-image:hover {
+  transform: scale(1.02);
+  box-shadow: 0 15px 40px rgba(46, 91, 255, 0.15);
+}
+
+/* Founder profile section */
+.founder-profile {
+  padding: 3rem 0;
+  text-align: center;
+}
+
+.founder-profile h2 {
+  color: #1E1E2D;
+  margin-bottom: 2rem;
+  position: relative;
+  display: inline-block;
+}
+
+.founder-profile h2::after {
+  content: '';
+  position: absolute;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(to right, #2E5BFF, #8C54FF);
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 1.5px;
+}
+
+.founder-details {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.member-photo-container {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 1.5rem;
+  position: relative;
+}
+
+.member-photo {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(46, 91, 255, 0.15);
+  border: 3px solid white;
+  position: relative;
+}
+
+.member-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.founder-details h3 {
+  color: #1E1E2D;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  font-size: 1.75rem;
+}
+
+.member-title {
+  color: #2E5BFF;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.member-bio {
+  color: #555;
+  text-align: justify;
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+}
+
+.member-social {
+  margin-top: 1.5rem;
+}
+
+.member-social a {
+  display: inline-block;
+  margin: 0 0.5rem;
+  color: #2E5BFF;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.member-social a:hover {
+  transform: translateY(-3px);
+  color: #8C54FF;
+}
+
+/* Future plans section */
+.future-plans {
+  padding: 3rem 0;
+  text-align: center;
+  background-color: #F8F9FA;
+  border-radius: 12px;
+  margin: 3rem 0;
+}
+
+.future-plans h2 {
+  color: #1E1E2D;
+  margin-bottom: 1.5rem;
+  position: relative;
+  display: inline-block;
+}
+
+.future-plans h2::after {
+  content: '';
+  position: absolute;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(to right, #2E5BFF, #8C54FF);
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 1.5px;
+}
+
+.future-plans > p {
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  color: #555;
+  font-size: 1.1rem;
+}
+
+.planned-roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.role-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.role-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(46, 91, 255, 0.1);
+}
+
+.role-card h3 {
+  color: #2E5BFF;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.role-card p {
+  color: #666;
+  margin-bottom: 0;
+  font-size: 0.95rem;
+}
+
+/* Culture section */
+.team-culture {
+  margin: 3rem 0;
+}
+
+.team-culture h2 {
+  color: #1E1E2D;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.team-culture h2::after {
+  content: '';
+  position: absolute;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, #2E5BFF, #8C54FF);
+  bottom: -10px;
+  left: 0;
+  border-radius: 1.5px;
+}
+
+.culture-details h3 {
+  color: #2E5BFF;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.culture-details p {
+  color: #555;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.culture-image {
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  height: auto;
+}
+
+/* Join team section */
+.join-team {
+  background-color: #F8F9FA;
+  padding: 2.5rem;
+  border-radius: 12px;
+  margin: 3rem 0;
+}
+
+.join-team h2 {
+  color: #1E1E2D;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.join-team h2::after {
+  content: '';
+  position: absolute;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(to right, #2E5BFF, #8C54FF);
+  bottom: -10px;
+  left: 0;
+  border-radius: 1.5px;
+}
+
+/* CTA section */
+.team-cta {
+  text-align: center;
+  padding: 3rem 0;
+  background: linear-gradient(135deg, rgba(46, 91, 255, 0.05), rgba(140, 84, 255, 0.1));
+  border-radius: 12px;
+  margin-top: 3rem;
+}
+
+.team-cta h2 {
+  color: #1E1E2D;
+  margin-bottom: 1rem;
+}
+
+.team-cta p {
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  color: #555;
+  font-size: 1.1rem;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta-buttons .btn {
+  min-width: 200px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .team-intro, .team-culture {
+    text-align: center;
+  }
+  
+  .team-intro h2::after, .team-culture h2::after, .join-team h2::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .team-intro .col-12:first-child, .team-culture .col-12:first-child {
+    margin-bottom: 2rem;
+  }
+  
+  .member-photo {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+@media (max-width: 576px) {
+  .planned-roles {
+    grid-template-columns: 1fr;
+  }
+  
+  .founder-details {
+    padding: 1.5rem;
+  }
+  
+  .member-photo {
+    width: 120px;
+    height: 120px;
+  }
+}

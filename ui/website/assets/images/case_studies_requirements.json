@@ -1,0 +1,140 @@
+{
+  "deployment_settings": {
+    "exclude_utility_files": true,
+    "utility_file_patterns": [
+      "*.py",
+      "*.sh",
+      "*.md",
+      "*_requirements.json",
+      "generate_*.js"
+    ]
+  },
+  "case_study_images": [
+    {
+      "id": "case_study_overview",
+      "type": "illustration",
+      "theme": "financial_insights",
+      "style": "flat_modern",
+      "color_scheme": "blue_purple_gradient",
+      "dimensions": {
+        "width": 600,
+        "height": 400,
+        "aspect_ratio": "3:2"
+      },
+      "format": "PNG",
+      "alt_text": "Case Studies Overview showing sentiment analysis insights and market impact",
+      "usage": "Case studies page overview image",
+      "priority": "high",
+      "status": "done",
+      "dalle_prompt": "A modern flat illustration for a financial technology company showing sentiment analysis case studies. Multiple screens displaying sentiment charts with positive and negative indicators, financial market trends, and predictive analytics. Color scheme of blue and purple gradients, professional clean style with subtle shadows for a financial technology company. Show comparisons of predicted vs actual market movements."
+    },
+    {
+      "id": "supply_chain_case",
+      "type": "illustration",
+      "theme": "supply_chain_analytics",
+      "style": "flat_modern",
+      "color_scheme": "blue_red_gradient",
+      "dimensions": {
+        "width": 400,
+        "height": 400,
+        "aspect_ratio": "1:1"
+      },
+      "format": "PNG",
+      "alt_text": "Supply Chain Disruption Case Study visualization",
+      "usage": "Case study illustration",
+      "priority": "high",
+      "status": "done",
+      "dalle_prompt": "A professional data visualization for a financial technology case study on supply chain disruption. Show a timeline of sentiment changes across social media, industry forums, and news about electronics manufacturing. Include subtle downward trend charts overlaid with sentiment indicators that predict a market decline. The visualization should show three distinct phases: early warning signals, confirmation, and market reaction. Use a primarily blue color palette with red warning indicators."
+    },
+    {
+      "id": "healthcare_case",
+      "type": "illustration",
+      "theme": "healthcare_analytics",
+      "style": "flat_modern",
+      "color_scheme": "blue_green_gradient",
+      "dimensions": {
+        "width": 400,
+        "height": 400,
+        "aspect_ratio": "1:1"
+      },
+      "format": "PNG",
+      "alt_text": "Healthcare Innovation Case Study visualization",
+      "usage": "Case study illustration",
+      "priority": "high",
+      "status": "done",
+      "dalle_prompt": "A professional data visualization for a financial technology case study on healthcare innovation sentiment analysis. Show a 5-week timeline of gradually improving sentiment across medical forums and research publications. Include upward trending charts with sentiment indicators predicting positive clinical trial results. The visualization should show growing positive sentiment from multiple sources converging. Use a primarily blue color palette with green positive indicators in a clean, corporate style."
+    },
+    {
+      "id": "regulatory_case",
+      "type": "illustration",
+      "theme": "regulatory_analytics",
+      "style": "flat_modern",
+      "color_scheme": "blue_yellow_gradient",
+      "dimensions": {
+        "width": 400,
+        "height": 400,
+        "aspect_ratio": "1:1"
+      },
+      "format": "PNG",
+      "alt_text": "Regulatory Scrutiny Case Study visualization",
+      "usage": "Case study illustration",
+      "priority": "high",
+      "status": "done",
+      "dalle_prompt": "A professional data visualization for a financial technology case study on regulatory scrutiny prediction. Show a 7-week timeline of subtle negative sentiment shifts across consumer forums, academic papers, and regulatory speeches. Include warning indicators that precede a major drop in stock price. The visualization should illustrate how these signals were missed by traditional analysis but caught by advanced sentiment analysis. Use a primarily blue color palette with yellow and red warning indicators in a clean, corporate style."
+    },
+    {
+      "id": "early_warning_icon",
+      "type": "icon",
+      "theme": "financial_alerts",
+      "style": "flat_modern",
+      "color_scheme": "blue_gradient",
+      "dimensions": {
+        "width": 160,
+        "height": 160,
+        "aspect_ratio": "1:1"
+      },
+      "format": "PNG",
+      "alt_text": "Early Warning Icon",
+      "usage": "Advantage illustration",
+      "priority": "medium",
+      "status": "done",
+      "dalle_prompt": "A modern minimalist icon representing early financial warning signals. Show a stylized clock or time indicator combined with an upward trend line or alert notification symbol. Clean, professional design in blue gradient on transparent background suitable for a financial technology company. The icon should feel high-tech but simple enough to be recognizable at smaller sizes."
+    },
+    {
+      "id": "comprehensive_analysis_icon",
+      "type": "icon",
+      "theme": "data_analysis",
+      "style": "flat_modern",
+      "color_scheme": "blue_purple_gradient",
+      "dimensions": {
+        "width": 160,
+        "height": 160,
+        "aspect_ratio": "1:1"
+      },
+      "format": "PNG",
+      "alt_text": "Comprehensive Analysis Icon",
+      "usage": "Advantage illustration",
+      "priority": "medium",
+      "status": "done",
+      "dalle_prompt": "A modern minimalist icon representing comprehensive financial data analysis. Show multiple stylized data sources or channels converging into a central analytics hub. Clean, professional design in blue and purple gradient on transparent background suitable for a financial technology company. The icon should convey the idea of seeing the complete picture from multiple data sources."
+    },
+    {
+      "id": "actionable_insights_icon",
+      "type": "icon",
+      "theme": "decision_making",
+      "style": "flat_modern",
+      "color_scheme": "blue_green_gradient",
+      "dimensions": {
+        "width": 160,
+        "height": 160,
+        "aspect_ratio": "1:1"
+      },
+      "format": "PNG",
+      "alt_text": "Actionable Insights Icon",
+      "usage": "Advantage illustration",
+      "priority": "medium",
+      "status": "done",
+      "dalle_prompt": "A modern minimalist icon representing actionable financial insights. Show a stylized lightbulb or idea symbol transitioning into an upward trending chart or arrow. Clean, professional design in blue and green gradient on transparent background suitable for a financial technology company. The icon should convey the concept of translating insights into profitable action."
+    }
+  ]
+}

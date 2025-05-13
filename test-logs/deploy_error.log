@@ -1,0 +1,1 @@
+/bin/bash: line 1: ./environments/sit/helm_deploy_fixed.sh: cannot execute: required file not found

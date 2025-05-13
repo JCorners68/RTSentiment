@@ -1,0 +1,79 @@
+{
+  "tasks": [
+    {
+      "id": "TSK-001",
+      "title": "Implement Evidence Management System",
+      "description": "Create the core functionality for the Evidence Management System, including data model, storage, and CLI commands.",
+      "status": "In Progress",
+      "priority": "Critical",
+      "epic_id": "EPC-001",
+      "assignee": "John Smith",
+      "complexity": 4,
+      "tags": ["priority", "evidence", "core-feature"],
+      "due_date": "2025-05-31T00:00:00",
+      "created_at": "2025-05-01T09:00:00",
+      "updated_at": "2025-05-11T14:30:00",
+      "related_evidence_ids": ["EVD-001", "EVD-002"]
+    },
+    {
+      "id": "TSK-002",
+      "title": "Create Evidence Attachment System",
+      "description": "Implement the attachment handling functionality for the Evidence Management System, allowing users to add files to evidence items.",
+      "status": "Ready",
+      "priority": "High",
+      "epic_id": "EPC-001",
+      "assignee": "Jane Doe",
+      "complexity": 3,
+      "tags": ["evidence", "attachments"],
+      "due_date": "2025-06-10T00:00:00",
+      "created_at": "2025-05-02T10:15:00",
+      "updated_at": "2025-05-10T11:20:00",
+      "related_evidence_ids": ["EVD-003"]
+    },
+    {
+      "id": "TSK-003",
+      "title": "Enhance CI/CD Pipeline",
+      "description": "Set up GitHub Actions workflows for automated testing and deployment.",
+      "status": "Backlog",
+      "priority": "Medium",
+      "epic_id": "EPC-002",
+      "assignee": "Alex Johnson",
+      "complexity": 3,
+      "tags": ["devops", "ci-cd"],
+      "due_date": "2025-06-15T00:00:00",
+      "created_at": "2025-05-03T08:45:00",
+      "updated_at": "2025-05-09T16:10:00",
+      "related_evidence_ids": []
+    },
+    {
+      "id": "TSK-004",
+      "title": "Improve Documentation",
+      "description": "Create comprehensive project documentation including user guides and API references.",
+      "status": "Backlog",
+      "priority": "Medium",
+      "epic_id": "EPC-003",
+      "assignee": "Sarah Williams",
+      "complexity": 2,
+      "tags": ["documentation"],
+      "due_date": "2025-06-20T00:00:00",
+      "created_at": "2025-05-04T11:30:00",
+      "updated_at": "2025-05-08T09:45:00",
+      "related_evidence_ids": []
+    },
+    {
+      "id": "TSK-005",
+      "title": "Evidence Search Functionality",
+      "description": "Implement robust search capabilities for the Evidence Management System with filtering and sorting.",
+      "status": "Ready",
+      "priority": "High",
+      "epic_id": "EPC-001",
+      "assignee": "John Smith",
+      "complexity": 3,
+      "tags": ["evidence", "search"],
+      "due_date": "2025-06-05T00:00:00",
+      "created_at": "2025-05-05T14:20:00",
+      "updated_at": "2025-05-07T10:30:00",
+      "related_evidence_ids": ["EVD-004"]
+    }
+  ]
+}

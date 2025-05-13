@@ -89,8 +89,13 @@ Thumbs.db
 
 # Files flagged by secret scanning - to be kept out of remote repository
 
-infrastructure/terraform/azure/providers.tf
-infrastructure/terraform/azure/backends/sit.tfbackend
+#infrastructure/terraform/azure/providers.tf
+#infrastructure/terraform/azure/backends/sit.tfbackend
 
-infrastructure/terraform/azure/backends/uat.tfbackend
-infrastructure/terraform/azure/terraform.sit.tfvars
+# infrastructure/terraform/azure/backends/uat.tfbackend
+#infrastructure/terraform/azure/terraform.sit.tfvars
+ui/website/assets/images/generate_all_images.sh
+ui/website/assets/images/generate_case_studies.sh
+ui/website/assets/images/generate_single_image.sh
+
+

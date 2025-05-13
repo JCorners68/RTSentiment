@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CLI Kanban Configuration Schema",
+  "description": "Schema for validating CLI Kanban configuration files",
+  "type": "object",
+  "required": ["app", "data_paths", "logging"],
+  "properties": {
+    "app": {
+      "type": "object",
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"type": "string"},
+        "version": {"type": "string"},
+        "display_name": {"type": "string"},
+        "description": {"type": "string"}
+      }
+    },
+    "data_paths": {
+      "type": "object",
+      "required": ["base_dir"],
+      "properties": {
+        "base_dir": {"type": "string"},
+        "tasks_file": {"type": "string"},
+        "epics_file": {"type": "string"},
+        "board_file": {"type": "string"},
+        "evidence_dir": {"type": "string"},
+        "checkpoints_dir": {"type": "string"},
+        "state_dir": {"type": "string"}
+      }
+    },
+    "logging": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+        },
+        "file": {"type": "string"},
+        "format": {"type": "string"},
+        "max_size": {"type": "integer"},
+        "backup_count": {"type": "integer"},
+        "separate_error_log": {"type": "boolean"}
+      }
+    },
+    "ui": {
+      "type": "object",
+      "properties": {
+        "color_theme": {"type": "string"},
+        "table_style": {"type": "string"},
+        "compact": {"type": "boolean"},
+        "show_ids": {"type": "boolean"},
+        "highlight_priority_tasks": {"type": "boolean"}
+      }
+    },
+    "server": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "port": {"type": "integer"},
+        "host": {"type": "string"},
+        "webhook_secret": {"type": "string"},
+        "cors_origins": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "rate_limit": {
+          "type": "object",
+          "properties": {
+            "max_requests": {"type": "integer"},
+            "window_seconds": {"type": "integer"}
+          }
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "properties": {
+        "evidence_management": {"type": "boolean"},
+        "auto_checkpoint": {"type": "boolean"},
+        "ai_integration": {"type": "boolean"},
+        "n8n_integration": {"type": "boolean"}
+      }
+    },
+    "n8n": {
+      "type": "object",
+      "properties": {
+        "webhook_url": {"type": "string"},
+        "api_key": {"type": "string"},
+        "workflows_dir": {"type": "string"}
+      }
+    },
+    "checkpoints": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "max_checkpoints": {"type": "integer"},
+        "auto_cleanup": {"type": "boolean"},
+        "retention_days": {"type": "integer"}
+      }
+    },
+    "environment": {
+      "type": "object",
+      "properties": {
+        "min_python_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "min_node_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "min_disk_space_mb": {"type": "integer"}
+      }
+    },
+    "security": {
+      "type": "object",
+      "properties": {
+        "encrypt_sensitive_data": {"type": "boolean"},
+        "auto_backup": {"type": "boolean"},
+        "backup_count": {"type": "integer"}
+      }
+    }
+  }
+}

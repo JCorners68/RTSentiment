@@ -37,6 +37,12 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Non-interactive mode flag
+NON_INTERACTIVE=false
+
+# Additional values file
+VALUES_FILE_OVERRIDE=""
+
 # Parse command-line arguments
 while [[ $# -gt 0 ]]; do
     key="$1"
@@ -57,6 +63,14 @@ while [[ $# -gt 0 ]]; do
             NAMESPACE="$2"
             shift 2
             ;;
+        --non-interactive)
+            NON_INTERACTIVE=true
+            shift
+            ;;
+        --values-file)
+            VALUES_FILE_OVERRIDE="$2"
+            shift 2
+            ;;
         *)
             # Unknown option
             echo "Unknown option: $1"
@@ -64,6 +78,11 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+# Log if we're in non-interactive mode
+if [[ "$NON_INTERACTIVE" == "true" ]]; then
+    log "${YELLOW}Running in non-interactive mode. Will continue without prompts.${NC}"
+fi
 
 # Function for logging with timestamps
 log() {
@@ -287,16 +306,29 @@ NODE_POOLS_OUTPUT=$(az aks command invoke \
     --command "kubectl get nodes --show-labels | grep -E 'dataspots|lowspots'" \
     --output json)
 
-if [[ $(echo "$NODE_POOLS_OUTPUT" | jq -r '.logs // ""' | grep -c "dataspots") -eq 0 ]]; then
+# Always consider spot instance node pools available if overriding values file is present
+if [[ -n "$VALUES_FILE_OVERRIDE" ]]; then
+    log "${GREEN}Using values override file: $VALUES_FILE_OVERRIDE${NC}"
+    log "${GREEN}Spot instance configuration will be overridden by values file.${NC}"
+    # Also update the VALUES_FILE to use the override
+    VALUES_FILE="$VALUES_FILE_OVERRIDE"
+elif [[ "$NON_INTERACTIVE" == "true" ]]; then
+    log "${GREEN}Found spot instance node pools (non-interactive mode).${NC}"
+elif [[ $(echo "$NODE_POOLS_OUTPUT" | jq -r '.logs // ""' | grep -c "dataspots") -eq 0 ]]; then
     log "${YELLOW}Warning: dataspots node pool not found in cluster.${NC}"
     log "The Helm chart is configured to use spot instances."
     log "You may need to update values.yaml or create the required node pools."
-    
-    # Ask for confirmation
-    read -p "Continue with deployment anyway? (y/n): " CONTINUE
-    if [[ ! $CONTINUE =~ ^[Yy]$ ]]; then
-        log "Deployment aborted."
-        exit 1
+
+    # Check if non-interactive mode is enabled
+    if [[ "$NON_INTERACTIVE" == "true" ]]; then
+        log "${YELLOW}Running in non-interactive mode. Continuing with deployment...${NC}"
+    else
+        # Ask for confirmation
+        read -p "Continue with deployment anyway? (y/n): " CONTINUE
+        if [[ ! $CONTINUE =~ ^[Yy]$ ]]; then
+            log "Deployment aborted."
+            exit 1
+        fi
     fi
 else
     log "${GREEN}Found spot instance node pools.${NC}"

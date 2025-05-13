@@ -1,0 +1,33 @@
+checks:
+  # Enable all built-in checks
+  addAllBuiltIn: true
+  # Exclude some checks that might be too strict for this environment
+  exclude:
+    - "no-node-affinity"  # We're deliberately using node affinity for spot instances
+    - "unset-cpu-requirements"  # Resources are set via values.yaml
+    - "unset-memory-requirements"  # Resources are set via values.yaml
+    - "no-readiness-probe"  # Probes are set via values.yaml
+    - "no-liveness-probe"  # Probes are set via values.yaml
+
+# Custom check configuration
+customChecks:
+  - name: pod-security-context
+    description: Ensures pod has a security context defined
+    remediation: Add securityContext at the pod level for services with volumes
+    template: object-property
+    params:
+      objectKind: Pod
+      key: spec.securityContext
+      
+  - name: container-security-context
+    description: Ensures containers have security contexts defined
+    remediation: Add securityContext to containers
+    template: object-property
+    params:
+      objectKind: Container
+      key: securityContext
+
+# Ignore object patterns
+ignoreObjects:
+  - objectKind: Service
+  - objectKind: ConfigMap
