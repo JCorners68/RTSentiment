@@ -426,12 +426,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
-    environment: ${{ github.event.inputs.environment }}
-    # Require manual approval for destroy operations
+  # Use the expanded format for environment configuration
     environment:
       name: ${{ github.event.inputs.environment }}-destroy
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-    
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
