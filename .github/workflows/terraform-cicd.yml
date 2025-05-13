@@ -1,0 +1,46 @@
+name: Terraform CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'sit'
+        type: choice
+        options:
+          - sit
+          - uat
+          - prod
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+jobs:
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Echo Workflow Information
+        run: |
+          echo "Triggered by: ${{ github.event_name }}"
+          echo "Environment: ${{ github.event.inputs.environment || 'default' }}"
+          echo "Action: ${{ github.event.inputs.action || 'default' }}"
